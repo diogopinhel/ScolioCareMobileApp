@@ -185,6 +185,10 @@ Minimum 44×44 logical pixels. Use `minHeight: 44, minWidth: 44` on interactive 
 - Configure path alias `@/*` → `src/*` in both `tsconfig.json` and `babel.config.js`
 - Run `npx tsc --noEmit` before declaring any task done
 
+## How I work with you — always follow this
+
+**Before any implementation, always present a written plan first.** List the files to create/edit, what each change does, and any decisions that need input. Only start coding after the user confirms the plan. No exceptions — even for small tasks.
+
 ## Doctrine — never break these
 
 1. **Never use web-only APIs** (`localStorage`, `document`, CSS variables, `window`).
@@ -200,6 +204,36 @@ Minimum 44×44 logical pixels. Use `minHeight: 44, minWidth: 44` on interactive 
 | Profile  | Email                    | Password      |
 |----------|--------------------------|---------------|
 | PACIENTE | `maria.silva@scolio.pt`  | `paciente123` |
+
+## Pending improvements — HomeScreen (`app/(tabs)/home.tsx`)
+
+Identified from visual review of `img_project/HomePage.png` + `HomePage1.png`. Implement in priority order.
+
+### High priority
+
+1. **Remove duplicate CTA on last exam card** — "Ver exame" (blue link) and a stray "›" chevron below it both navigate to the same screen. Remove the chevron; keep only "Ver exame" as a single tappable row/button.
+
+2. **Fix chart X-axis labels** — Currently shows "E1, E2, E3…" which is meaningless to a patient. Replace with short date labels (e.g. "Jan", "Mar", "Mai") derived from the actual exam dates.
+
+3. **Add clinical context to Cobb angle** — Below the "15.2°" value, add a small label with the severity band, e.g. `"Grau leve (10°–25°)"`. Use the standard classification: <10° normal, 10–25° leve, 25–40° moderado, >40° grave.
+
+### Medium priority
+
+4. **Quantify the "Melhoria" badge** — Replace `"↘ Melhoria"` with the delta vs. the previous exam, e.g. `"↘ −1.4° vs. exame anterior"`.
+
+5. **Compact notifications in home** — The 3 full-height notification cards consume nearly a full screen. Replace with a compact list (max 2 rows, ~56 px each) and a "Ver todas (3) →" link. Full cards belong in the Notifications screen.
+
+6. **Fix avatar contrast** — The "MS" circle is light grey on blue — fails WCAG AA. Change avatar background to `rgba(255,255,255,0.25)` and text to `#FFFFFF`.
+
+### Low priority
+
+7. **Soften header bottom edge** — Add `borderBottomLeftRadius: 20, borderBottomEndRadius: 20` to the blue header `View` for a polished look.
+
+8. **Add direct PDF link on exam card** — When `"Relatório disponível"` is shown, add a secondary link/icon "Abrir PDF" that navigates directly to the report, instead of requiring the patient to drill into the exam detail first.
+
+9. **Chart point interactivity** — Tapping a point on the evolution chart should show a tooltip with the exact value and date. (Requires a charting library that supports touch, e.g. `react-native-svg` with manual hit areas, or `victory-native`.)
+
+---
 
 ## Starting state (what is not yet installed)
 
