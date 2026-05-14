@@ -18,7 +18,7 @@ import {
   Info,
   Cpu,
 } from 'lucide-react-native';
-import { getEstudoPorId } from '../../../src/data/repository/estudos';
+import { getEstudoPorId, getUrlRelatorioPdf } from '../../../src/data/repository/estudos';
 import { EstudoDetalhe, EstadoEstudo } from '../../../src/data/types';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -78,7 +78,7 @@ function MetricaBox({ label, valor }: { label: string; valor: string }) {
 // ─── Ecrã principal ──────────────────────────────────────────────────────────
 
 export default function ExameDetalheScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
   const [estudo, setEstudo] = useState<EstudoDetalhe | null>(null);
   const [aCarregar, setACarregar] = useState(true);
   const [erroDados, setErroDados] = useState<string | null>(null);
@@ -99,10 +99,16 @@ export default function ExameDetalheScreen() {
 
   async function abrirPdf() {
     if (!estudo?.ficheiro_pdf) return;
-    const suportado = await Linking.canOpenURL(estudo.ficheiro_pdf);
-    if (suportado) {
-      await Linking.openURL(estudo.ficheiro_pdf);
-    } else {
+    try {
+      const url = await getUrlRelatorioPdf(estudo.ficheiro_pdf);
+      if (!url) { Alert.alert('Erro', 'Não foi possível gerar o link do relatório.'); return; }
+      const suportado = await Linking.canOpenURL(url);
+      if (suportado) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert('Erro', 'Não foi possível abrir o relatório PDF.');
+      }
+    } catch {
       Alert.alert('Erro', 'Não foi possível abrir o relatório PDF.');
     }
   }
@@ -117,7 +123,11 @@ export default function ExameDetalheScreen() {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.btnVoltar}
-          onPress={() => router.back()}
+          onPress={() =>
+            from === 'home'
+              ? router.replace('/(tabs)/home' as never)
+              : router.replace('/(tabs)/exams' as never)
+          }
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <ChevronLeft size={24} color="#1A1A2E" />

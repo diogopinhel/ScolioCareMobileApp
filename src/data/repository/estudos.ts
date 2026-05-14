@@ -100,6 +100,14 @@ export async function getEstudoPorId(estudoId: string): Promise<EstudoDetalhe | 
   } as EstudoDetalhe;
 }
 
+export async function getUrlRelatorioPdf(path: string): Promise<string | null> {
+  const { data, error } = await supabase.storage
+    .from('relatorios')
+    .createSignedUrl(path, 3600 * 24 * 7);
+  if (error || !data) return null;
+  return data.signedUrl;
+}
+
 export async function getHistoricoEstadoDoPaciente(pacienteId: string): Promise<HistoricoEstadoEntry[]> {
   const { data, error } = await supabase
     .from('historico_estado')

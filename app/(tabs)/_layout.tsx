@@ -14,8 +14,7 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: '#FFFFFF',
           borderTopColor: '#E5E7EB',
-          borderTopWidth: 1,
-          paddingTop: 8,
+          paddingTop: 4,
         },
         tabBarLabelStyle: {
           fontSize: 11,
@@ -51,11 +50,11 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
         }}
       />
-      {/* Rota de detalhe — escondida da tab bar, acessível via navegação */}
-      <Tabs.Screen
-        name="exams/[id]"
-        options={{ href: null }}
-      />
+      {/* Rotas escondidas da tab bar — acessíveis via navegação */}
+      <Tabs.Screen name="exams/[id]" options={{ href: null }} />
+      <Tabs.Screen name="exams/evolution" options={{ href: null }} />
+      <Tabs.Screen name="notifications" options={{ href: null }} />
+      <Tabs.Screen name="wellness-log" options={{ href: null }} />
     </Tabs>
   );
 }

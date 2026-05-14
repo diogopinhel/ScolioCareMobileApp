@@ -1,4 +1,5 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
+import { useFocusEffect } from 'expo-router';
 import {
   View,
   Text,
@@ -14,7 +15,7 @@ import { Bell, FileText, TrendingDown, TrendingUp, Minus, Activity } from 'lucid
 import Svg, { Polyline, Circle, Line, Text as SvgText } from 'react-native-svg';
 import { useAuth } from '../../src/context/AuthContext';
 import { getEstudosDoPaciente } from '../../src/data/repository/estudos';
-import { getNotificacoesDoPaciente, Notificacao } from '../../src/data/repository/notificacoes';
+import { getNotificacoesDoPaciente, marcarComoLida, Notificacao } from '../../src/data/repository/notificacoes';
 import { EstudoComResultado } from '../../src/data/types';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -210,7 +211,7 @@ export default function HomeScreen() {
     }
   }, [utilizador]);
 
-  useEffect(() => { carregar(); }, [carregar]);
+  useFocusEffect(useCallback(() => { carregar(); }, [carregar]));
 
   const ultimoExame = estudos[0] ?? null;
   const exameAnterior = estudos[1] ?? null;
@@ -231,6 +232,20 @@ export default function HomeScreen() {
 
   const delta = deltaCobb();
 
+  async function aoTocarNotificacao(n: Notificacao) {
+    if (!n.data_leitura) {
+      await marcarComoLida(n.id);
+      setNotificacoes((prev) =>
+        prev.map((x) => x.id === n.id ? { ...x, data_leitura: new Date().toISOString() } : x)
+      );
+    }
+    if (n.referencia_entidade === 'estudos' && n.referencia_id) {
+      router.push(`/(tabs)/exams/${n.referencia_id}` as never);
+    } else {
+      router.push('/(tabs)/notifications' as never);
+    }
+  }
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       {/* Header com gradiente */}
@@ -240,7 +255,11 @@ export default function HomeScreen() {
       >
         <View style={styles.headerRow}>
           {/* Avatar */}
-          <View style={styles.avatar}>
+          <TouchableOpacity
+            style={styles.avatar}
+            activeOpacity={0.75}
+            onPress={() => router.push('/(tabs)/profile' as never)}
+          >
             <Text style={styles.avatarTxt}>
               {utilizador
                 ? utilizador.nome_completo
@@ -251,7 +270,7 @@ export default function HomeScreen() {
                     .toUpperCase()
                 : 'MS'}
             </Text>
-          </View>
+          </TouchableOpacity>
 
           {/* Saudação */}
           <View style={styles.saudacaoWrap}>
@@ -262,7 +281,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Sino */}
-          <TouchableOpacity style={styles.sinoWrap} onPress={() => {}}>
+          <TouchableOpacity style={styles.sinoWrap} onPress={() => router.push('/(tabs)/notifications' as never)}>
             <Bell size={22} color="#FFFFFF" />
             {notifNaoLidas.length > 0 && (
               <View style={styles.badge}>
@@ -320,7 +339,7 @@ export default function HomeScreen() {
 
                 <TouchableOpacity
                   style={styles.verExameBtn}
-                  onPress={() => router.push(`/(tabs)/exams/${ultimoExame.id}` as never)}
+                  onPress={() => router.push(`/(tabs)/exams/${ultimoExame.id}?from=home` as never)}
                 >
                   <Text style={styles.verExameTxt}>Ver exame</Text>
                 </TouchableOpacity>
@@ -336,12 +355,16 @@ export default function HomeScreen() {
             {/* ── Evolução recente ──────────────────────────────────── */}
             <View style={styles.seccaoRow}>
               <Text style={styles.seccaoTitulo}>Evolução recente</Text>
-              <TouchableOpacity onPress={() => router.push('/(tabs)/exams' as never)}>
+              <TouchableOpacity onPress={() => router.push('/(tabs)/exams/evolution' as never)}>
                 <Text style={styles.linkTxt}>Ver histórico completo</Text>
               </TouchableOpacity>
             </View>
 
-            <View style={styles.card}>
+            <TouchableOpacity
+              style={styles.card}
+              activeOpacity={0.85}
+              onPress={() => router.push('/(tabs)/exams/evolution' as never)}
+            >
               <Text style={styles.graficoSub}>Ângulo de Cobb – Últimos 5 exames</Text>
               {estudos.length >= 2 ? (
                 <MiniGrafico estudos={estudos} />
@@ -352,13 +375,13 @@ export default function HomeScreen() {
                   </Text>
                 </View>
               )}
-            </View>
+            </TouchableOpacity>
 
             {/* ── Notificações ─────────────────────────────────────── */}
             <View style={styles.seccaoRow}>
               <Text style={styles.seccaoTitulo}>Notificações</Text>
               {notificacoes.length > 0 && (
-                <TouchableOpacity onPress={() => {}}>
+                <TouchableOpacity onPress={() => router.push('/(tabs)/notifications' as never)}>
                   <Text style={styles.linkTxt}>
                     Ver todas ({notificacoes.length})
                   </Text>
@@ -373,7 +396,7 @@ export default function HomeScreen() {
               </View>
             ) : (
               notificacoes.slice(0, 2).map((n) => (
-                <TouchableOpacity key={n.id} style={styles.notifCard}>
+                <TouchableOpacity key={n.id} style={styles.notifCard} onPress={() => aoTocarNotificacao(n)} activeOpacity={0.7}>
                   <View style={styles.notifIconWrap}>
                     <Activity size={16} color="#1A6FAF" />
                   </View>
@@ -399,7 +422,10 @@ export default function HomeScreen() {
                   Registe o seu nível de dor, mobilidade e bem-estar geral
                 </Text>
               </View>
-              <TouchableOpacity style={styles.wellnessBtn} onPress={() => {}}>
+              <TouchableOpacity
+                style={styles.wellnessBtn}
+                onPress={() => router.push('/(tabs)/wellness-log' as never)}
+              >
                 <Text style={styles.wellnessBtnTxt}>Registar bem-estar</Text>
               </TouchableOpacity>
             </View>
