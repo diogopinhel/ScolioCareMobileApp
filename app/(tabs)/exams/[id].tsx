@@ -11,6 +11,7 @@ import {
   Image,
   Modal,
   Pressable,
+  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -22,6 +23,7 @@ import {
   Cpu,
   HelpCircle,
   X,
+  Maximize2,
 } from 'lucide-react-native';
 import { getEstudoPorId, getUrlRelatorioPdf, getUrlImagemEstudo } from '../../../src/data/repository/estudos';
 import { EstudoDetalhe, EstadoEstudo } from '../../../src/data/types';
@@ -86,6 +88,8 @@ function estadoInfo(estado: EstadoEstudo): EstadoInfo {
   }
 }
 
+const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
+
 // ─── Ecrã principal ──────────────────────────────────────────────────────────
 
 export default function ExameDetalheScreen() {
@@ -95,6 +99,7 @@ export default function ExameDetalheScreen() {
   const [erroDados, setErroDados] = useState<string | null>(null);
   const [urlImagem, setUrlImagem] = useState<string | null>(null);
   const [showAjuda, setShowAjuda] = useState(false);
+  const [showRaioX, setShowRaioX] = useState(false);
 
   const carregar = useCallback(async () => {
     if (!id) return;
@@ -174,7 +179,11 @@ export default function ExameDetalheScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* Área da radiografia */}
-          <View style={styles.radiografiaWrap}>
+          <TouchableOpacity
+            style={styles.radiografiaWrap}
+            onPress={() => urlImagem && setShowRaioX(true)}
+            activeOpacity={urlImagem ? 0.85 : 1}
+          >
             {urlImagem ? (
               <Image
                 source={{ uri: urlImagem }}
@@ -184,6 +193,12 @@ export default function ExameDetalheScreen() {
             ) : (
               <View style={styles.radiografia}>
                 <Text style={styles.radiografiaTxt}>RADIOGRAFIA</Text>
+              </View>
+            )}
+            {urlImagem && (
+              <View style={styles.expandirBtn}>
+                <Maximize2 size={14} color="#FFFFFF" />
+                <Text style={styles.expandirTxt}>Toca para ampliar</Text>
               </View>
             )}
             <View style={styles.iaTag}>
@@ -197,7 +212,7 @@ export default function ExameDetalheScreen() {
                 </Text>
               </View>
             )}
-          </View>
+          </TouchableOpacity>
 
           {/* Métricas clínicas */}
           <View style={styles.seccao}>
@@ -310,6 +325,50 @@ export default function ExameDetalheScreen() {
           </View>
         </ScrollView>
       )}
+
+      {/* Modal fullscreen do raio-X */}
+      <Modal
+        visible={showRaioX}
+        transparent={false}
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setShowRaioX(false)}
+      >
+        <View style={styles.rxModal}>
+          <View style={styles.rxHeader}>
+            <TouchableOpacity
+              onPress={() => setShowRaioX(false)}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              style={styles.rxFechar}
+            >
+              <X size={22} color="#FFFFFF" />
+            </TouchableOpacity>
+            <Text style={styles.rxTitulo}>Radiografia</Text>
+            <View style={{ width: 42 }} />
+          </View>
+
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={styles.rxScrollContent}
+            maximumZoomScale={5}
+            minimumZoomScale={1}
+            centerContent
+            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
+            bouncesZoom
+          >
+            <Image
+              source={{ uri: urlImagem! }}
+              style={{ width: SCREEN_W, height: SCREEN_H * 0.82 }}
+              resizeMode="contain"
+            />
+          </ScrollView>
+
+          <View style={styles.rxRodape}>
+            <Text style={styles.rxRodapeTxt}>Faz pinch para ampliar · Duplo toque para repor</Text>
+          </View>
+        </View>
+      </Modal>
 
       {/* Modal de ajuda — classificação SRS */}
       <Modal
@@ -565,6 +624,44 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   btnRetryTxt: { color: '#1A6FAF', fontWeight: '600', fontSize: 14 },
+
+  // Modal raio-X fullscreen
+  rxModal: { flex: 1, backgroundColor: '#000000' },
+  rxHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 52,
+    paddingBottom: 12,
+  },
+  rxFechar: {
+    width: 42,
+    height: 42,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    borderRadius: 21,
+  },
+  rxTitulo: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
+  rxScrollContent: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  rxRodape: { paddingVertical: 14, alignItems: 'center' },
+  rxRodapeTxt: { fontSize: 12, color: 'rgba(255,255,255,0.45)' },
+
+  // Hint expandir sobre a imagem
+  expandirBtn: {
+    position: 'absolute',
+    bottom: 12,
+    left: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  expandirTxt: { fontSize: 11, color: '#FFFFFF', fontWeight: '600' },
 
   // Modal de ajuda
   modalOverlay: {
