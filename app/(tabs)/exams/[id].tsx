@@ -8,6 +8,9 @@ import {
   ActivityIndicator,
   Linking,
   Alert,
+  Image,
+  Modal,
+  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -17,8 +20,10 @@ import {
   GitCompare,
   Info,
   Cpu,
+  HelpCircle,
+  X,
 } from 'lucide-react-native';
-import { getEstudoPorId, getUrlRelatorioPdf } from '../../../src/data/repository/estudos';
+import { getEstudoPorId, getUrlRelatorioPdf, getUrlImagemEstudo } from '../../../src/data/repository/estudos';
 import { EstudoDetalhe, EstadoEstudo } from '../../../src/data/types';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -39,11 +44,28 @@ function dataFormatadaLonga(iso: string): string {
   });
 }
 
-function bandaSeveridade(angulo: number): string {
-  if (angulo < 10) return 'Um ângulo de ' + angulo.toFixed(1) + '° está dentro do intervalo normal.';
-  if (angulo <= 25) return `Um ângulo de ${angulo.toFixed(1)}° indica uma curvatura espinhal ligeira.`;
-  if (angulo <= 40) return `Um ângulo de ${angulo.toFixed(1)}° indica uma curvatura espinhal moderada.`;
+function bandaSeveridade(angulo: number, grau?: string | null): string {
+  const g = grau?.toUpperCase() ?? '';
+  if (g === 'NORMAL' || angulo < 10)
+    return `Um ângulo de ${angulo.toFixed(1)}° está dentro do intervalo normal.`;
+  if (g === 'LEVE' || angulo < 25)
+    return `Um ângulo de ${angulo.toFixed(1)}° indica uma curvatura espinhal leve.`;
+  if (g === 'MODERADA' || angulo < 40)
+    return `Um ângulo de ${angulo.toFixed(1)}° indica uma curvatura espinhal moderada.`;
   return `Um ângulo de ${angulo.toFixed(1)}° indica uma curvatura espinhal grave.`;
+}
+
+type ClassifInfo = { label: string; cor: string; bgCor: string };
+
+function classifInfo(grau: string | null | undefined): ClassifInfo | null {
+  if (!grau) return null;
+  switch (grau.toUpperCase()) {
+    case 'NORMAL':   return { label: 'Normal',   cor: '#1D9E75', bgCor: '#DCFCE7' };
+    case 'LEVE':     return { label: 'Leve',     cor: '#D97706', bgCor: '#FEF3C7' };
+    case 'MODERADA': return { label: 'Moderada', cor: '#E8843C', bgCor: '#FEF0E7' };
+    case 'GRAVE':    return { label: 'Grave',    cor: '#EF4444', bgCor: '#FEE2E2' };
+    default:         return null;
+  }
 }
 
 type EstadoInfo = { label: string; cor: string; bgCor: string };
@@ -64,17 +86,6 @@ function estadoInfo(estado: EstadoEstudo): EstadoInfo {
   }
 }
 
-// ─── Linha de métrica ────────────────────────────────────────────────────────
-
-function MetricaBox({ label, valor }: { label: string; valor: string }) {
-  return (
-    <View style={styles.metricaBox}>
-      <Text style={styles.metricaLabel}>{label}</Text>
-      <Text style={styles.metricaValor}>{valor}</Text>
-    </View>
-  );
-}
-
 // ─── Ecrã principal ──────────────────────────────────────────────────────────
 
 export default function ExameDetalheScreen() {
@@ -82,12 +93,18 @@ export default function ExameDetalheScreen() {
   const [estudo, setEstudo] = useState<EstudoDetalhe | null>(null);
   const [aCarregar, setACarregar] = useState(true);
   const [erroDados, setErroDados] = useState<string | null>(null);
+  const [urlImagem, setUrlImagem] = useState<string | null>(null);
+  const [showAjuda, setShowAjuda] = useState(false);
 
   const carregar = useCallback(async () => {
     if (!id) return;
     try {
       const dados = await getEstudoPorId(id);
       setEstudo(dados);
+      if (dados?.imagemPath) {
+        const url = await getUrlImagemEstudo(dados.imagemPath);
+        setUrlImagem(url);
+      }
     } catch {
       setErroDados('Não foi possível carregar o exame. Tente novamente.');
     } finally {
@@ -158,9 +175,17 @@ export default function ExameDetalheScreen() {
         >
           {/* Área da radiografia */}
           <View style={styles.radiografiaWrap}>
-            <View style={styles.radiografia}>
-              <Text style={styles.radiografiaTxt}>RADIOGRAFIA</Text>
-            </View>
+            {urlImagem ? (
+              <Image
+                source={{ uri: urlImagem }}
+                style={styles.radiografia}
+                resizeMode="contain"
+              />
+            ) : (
+              <View style={styles.radiografia}>
+                <Text style={styles.radiografiaTxt}>RADIOGRAFIA</Text>
+              </View>
+            )}
             <View style={styles.iaTag}>
               <Cpu size={11} color="#1A6FAF" />
               <Text style={styles.iaTxt}>Análise IA</Text>
@@ -190,33 +215,34 @@ export default function ExameDetalheScreen() {
                       <Text style={styles.cobbSub}>{resultado.localizacao_curva}</Text>
                     )}
                   </View>
-                  {resultado.angulo_cobb_corrigido != null && (
-                    <View style={styles.corrigidoBadge}>
-                      <Text style={styles.corrigidoTxt}>Corrigido</Text>
-                    </View>
-                  )}
-                </View>
-
-                <View style={styles.metricasGrid}>
-                  <MetricaBox
-                    label="Vértebra apical"
-                    valor={resultado.nivel_vertebras ?? '—'}
-                  />
-                  <MetricaBox
-                    label="Sinal de Risser"
-                    valor={
-                      resultado.classificacao_risser != null
-                        ? `${resultado.classificacao_risser}/5`
-                        : '—'
-                    }
-                  />
+                  <View style={{ alignItems: 'flex-end', gap: 6 }}>
+                    {(() => {
+                      const c = classifInfo(resultado.grau_curvatura);
+                      return c ? (
+                        <View style={{ alignItems: 'flex-end', gap: 3 }}>
+                          <Text style={styles.cobbLabel}>Classificação</Text>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <View style={[styles.classifBadge, { backgroundColor: c.bgCor }]}>
+                              <Text style={[styles.classifTxt, { color: c.cor }]}>{c.label}</Text>
+                            </View>
+                            <TouchableOpacity
+                              onPress={() => setShowAjuda(true)}
+                              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                            >
+                              <HelpCircle size={18} color="#9CA3AF" />
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                      ) : null;
+                    })()}
+                  </View>
                 </View>
 
                 {anguloEfetivo != null && (
                   <View style={styles.infoBox}>
                     <Info size={14} color="#1A6FAF" />
                     <Text style={styles.infoTxt}>
-                      {bandaSeveridade(anguloEfetivo)}
+                      {bandaSeveridade(anguloEfetivo, resultado.grau_curvatura)}
                     </Text>
                   </View>
                 )}
@@ -249,7 +275,9 @@ export default function ExameDetalheScreen() {
               </>
             ) : (
               <Text style={styles.semDados}>
-                As observações do médico serão apresentadas após a validação do exame.
+                {estudo.estado === 'DIAGNOSED' || estudo.estado === 'SENT'
+                  ? 'O médico não adicionou observações escritas a este exame.'
+                  : 'As observações do médico serão apresentadas após a validação do exame.'}
               </Text>
             )}
           </View>
@@ -282,6 +310,71 @@ export default function ExameDetalheScreen() {
           </View>
         </ScrollView>
       )}
+
+      {/* Modal de ajuda — classificação SRS */}
+      <Modal
+        visible={showAjuda}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowAjuda(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setShowAjuda(false)}>
+          <Pressable style={styles.modalCard} onPress={() => {}}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitulo}>Classificação da Escoliose</Text>
+              <TouchableOpacity onPress={() => setShowAjuda(false)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                <X size={20} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.modalSubtitulo}>
+              Baseado nas diretrizes da Scoliosis Research Society (SRS) e SOSORT
+            </Text>
+
+            {[
+              {
+                label: 'Normal',
+                intervalo: '< 10°',
+                cor: '#1D9E75',
+                bgCor: '#DCFCE7',
+                descricao: 'A curvatura está dentro dos limites normais. Não é considerada escoliose. Em crianças em crescimento pode ser recomendada vigilância periódica.',
+              },
+              {
+                label: 'Leve',
+                intervalo: '10° – 24°',
+                cor: '#D97706',
+                bgCor: '#FEF3C7',
+                descricao: 'Escoliose leve. Habitualmente tratada com exercícios terapêuticos específicos (método Schroth) e vigilância regular. Em adolescentes em crescimento pode ser ponderado colete ortopédico.',
+              },
+              {
+                label: 'Moderada',
+                intervalo: '25° – 39°',
+                cor: '#E8843C',
+                bgCor: '#FEF0E7',
+                descricao: 'Escoliose moderada. É frequentemente indicado colete ortopédico (ex: colete de Boston) em pacientes em fase de crescimento, juntamente com fisioterapia especializada.',
+              },
+              {
+                label: 'Grave',
+                intervalo: '≥ 40°',
+                cor: '#EF4444',
+                bgCor: '#FEE2E2',
+                descricao: 'Escoliose grave. Requer avaliação médica especializada para eventual intervenção cirúrgica (artrodese vertebral), especialmente em curvaturas progressivas acima de 45°–50°.',
+              },
+            ].map((item) => (
+              <View key={item.label} style={styles.modalLinha}>
+                <View style={[styles.modalBadge, { backgroundColor: item.bgCor }]}>
+                  <Text style={[styles.modalBadgeTxt, { color: item.cor }]}>{item.label}</Text>
+                  <Text style={[styles.modalIntervalo, { color: item.cor }]}>{item.intervalo}</Text>
+                </View>
+                <Text style={styles.modalDesc}>{item.descricao}</Text>
+              </View>
+            ))}
+
+            <Text style={styles.modalRodape}>
+              O ângulo de Cobb é medido na radiografia entre as vértebras com maior inclinação.
+            </Text>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -385,32 +478,12 @@ const styles = StyleSheet.create({
   cobbLabel: { fontSize: 12, color: '#6B7280', marginBottom: 2 },
   cobbValor: { fontSize: 44, fontWeight: '800', color: '#1A1A2E', lineHeight: 52 },
   cobbSub: { fontSize: 13, color: '#6B7280', marginTop: 2 },
-  corrigidoBadge: {
-    backgroundColor: '#EFF6FF',
+  classifBadge: {
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 4,
-    alignSelf: 'flex-start',
-    marginTop: 6,
   },
-  corrigidoTxt: { fontSize: 11, color: '#1A6FAF', fontWeight: '600' },
-
-  // Grid métricas
-  metricasGrid: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 14,
-  },
-  metricaBox: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-    borderRadius: 10,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  metricaLabel: { fontSize: 11, color: '#6B7280', marginBottom: 4 },
-  metricaValor: { fontSize: 20, fontWeight: '800', color: '#1A1A2E' },
+  classifTxt: { fontSize: 12, fontWeight: '700' },
 
   // Info box severidade
   infoBox: {
@@ -492,4 +565,55 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   btnRetryTxt: { color: '#1A6FAF', fontWeight: '600', fontSize: 14 },
+
+  // Modal de ajuda
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
+    width: '100%',
+    maxWidth: 420,
+    gap: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  modalTitulo: { fontSize: 17, fontWeight: '700', color: '#1A1A2E' },
+  modalSubtitulo: { fontSize: 11, color: '#6B7280', marginTop: -8 },
+  modalLinha: { gap: 6 },
+  modalBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    alignSelf: 'flex-start',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  modalBadgeTxt: { fontSize: 13, fontWeight: '700' },
+  modalIntervalo: { fontSize: 12, fontWeight: '600' },
+  modalDesc: { fontSize: 13, color: '#374151', lineHeight: 19 },
+  modalRodape: {
+    fontSize: 11,
+    color: '#9CA3AF',
+    fontStyle: 'italic',
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+    paddingTop: 10,
+    marginTop: 2,
+  },
 });
