@@ -20,7 +20,6 @@ import {
   Download,
   GitCompare,
   Info,
-  Cpu,
   HelpCircle,
   X,
   Maximize2,
@@ -201,10 +200,6 @@ export default function ExameDetalheScreen() {
                 <Text style={styles.expandirTxt}>Toca para ampliar</Text>
               </View>
             )}
-            <View style={styles.iaTag}>
-              <Cpu size={11} color="#1A6FAF" />
-              <Text style={styles.iaTxt}>Análise IA</Text>
-            </View>
             {estadoInf && (
               <View style={[styles.estadoTag, { backgroundColor: estadoInf.bgCor }]}>
                 <Text style={[styles.estadoTagTxt, { color: estadoInf.cor }]}>
@@ -483,24 +478,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 2,
   },
-  iaTag: {
-    position: 'absolute',
-    bottom: 12,
-    right: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  iaTxt: { fontSize: 11, fontWeight: '700', color: '#1A6FAF' },
   estadoTag: {
     position: 'absolute',
     top: 12,
@@ -652,7 +629,7 @@ const styles = StyleSheet.create({
   expandirBtn: {
     position: 'absolute',
     bottom: 12,
-    left: 12,
+    right: 12,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
