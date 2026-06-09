@@ -1,6 +1,8 @@
 import { supabase } from '../../lib/supabase';
 import { EstudoComResultado, EstudoDetalhe, HistoricoEstadoEntry } from '../types';
 
+const BUCKET_IMAGENS = 'exam-images';
+
 const RESULTADO_FIELDS = `
   id,
   estudo_id,
@@ -41,7 +43,8 @@ export async function getEstudosDoPaciente(pacienteId: string): Promise<EstudoCo
     .from('estudos')
     .select(`
       ${ESTUDO_FIELDS},
-      resultado:resultados (${RESULTADO_FIELDS})
+      resultado:resultados (${RESULTADO_FIELDS}),
+      imagens_estudo(caminho_armazenamento)
     `)
     .eq('paciente_id', pacienteId)
     .eq('arquivado', false)
@@ -49,12 +52,25 @@ export async function getEstudosDoPaciente(pacienteId: string): Promise<EstudoCo
 
   if (error) throw error;
 
-  return (data ?? []).map((row) => ({
-    ...row,
-    resultado: Array.isArray(row.resultado)
-      ? (row.resultado[0] ?? null)
-      : (row.resultado ?? null),
-  })) as EstudoComResultado[];
+  return (data ?? []).map((row) => {
+    const raw = row as Record<string, unknown>;
+    const imagens = Array.isArray(raw.imagens_estudo)
+      ? (raw.imagens_estudo as { caminho_armazenamento: string }[])
+      : [];
+    const imagemPath = imagens[0]?.caminho_armazenamento ?? null;
+    if (__DEV__) {
+      console.log('[estudos] id:', (row as { id: string }).id,
+        '| imagens_estudo:', raw.imagens_estudo,
+        '| imagemPath:', imagemPath);
+    }
+    return {
+      ...row,
+      resultado: Array.isArray(row.resultado)
+        ? (row.resultado[0] ?? null)
+        : (row.resultado ?? null),
+      imagemPath,
+    };
+  }) as EstudoComResultado[];
 }
 
 export async function getEstudoPorId(estudoId: string): Promise<EstudoDetalhe | null> {
@@ -67,7 +83,8 @@ export async function getEstudoPorId(estudoId: string): Promise<EstudoDetalhe | 
         medico_validador:utilizadores!resultados_medico_validador_id_fkey (
           nome_completo
         )
-      )
+      ),
+      imagens_estudo(caminho_armazenamento)
     `)
     .eq('id', estudoId)
     .single();
@@ -93,18 +110,40 @@ export async function getEstudoPorId(estudoId: string): Promise<EstudoDetalhe | 
     : null;
   if (resultadoLimpo) delete resultadoLimpo['medico_validador'];
 
+  const raw = data as Record<string, unknown>;
+  const imagens = Array.isArray(raw.imagens_estudo)
+    ? (raw.imagens_estudo as { caminho_armazenamento: string }[])
+    : [];
+
   return {
     ...data,
     resultado: resultadoLimpo as EstudoDetalhe['resultado'],
     medico_validador_nome: medicoValidadorNome,
+    imagemPath: imagens[0]?.caminho_armazenamento ?? null,
   } as EstudoDetalhe;
+}
+
+export async function getUrlImagemEstudo(caminho: string): Promise<string | null> {
+  const { data, error } = await supabase.storage
+    .from(BUCKET_IMAGENS)
+    .createSignedUrl(caminho, 3600);
+  if (error) {
+    console.error('[getUrlImagemEstudo] erro ao gerar URL assinada:', error.message, '| caminho:', caminho);
+    return null;
+  }
+  if (!data) return null;
+  return data.signedUrl;
 }
 
 export async function getUrlRelatorioPdf(path: string): Promise<string | null> {
   const { data, error } = await supabase.storage
     .from('relatorios')
     .createSignedUrl(path, 3600 * 24 * 7);
-  if (error || !data) return null;
+  if (error) {
+    console.error('[getUrlRelatorioPdf] erro ao gerar URL:', error.message, '| path:', path);
+    return null;
+  }
+  if (!data) return null;
   return data.signedUrl;
 }
 

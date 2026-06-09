@@ -6,12 +6,13 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { FileText, TrendingDown, TrendingUp } from 'lucide-react-native';
 import { useAuth } from '../../../src/context/AuthContext';
-import { getEstudosDoPaciente } from '../../../src/data/repository/estudos';
+import { getEstudosDoPaciente, getUrlImagemEstudo } from '../../../src/data/repository/estudos';
 import { EstudoComResultado, EstadoEstudo } from '../../../src/data/types';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -66,10 +67,11 @@ function filtrar(estudos: EstudoComResultado[], filtro: Filtro): EstudoComResult
 interface CardProps {
   estudo: EstudoComResultado;
   deltaAngulo: number | null;
+  urlImagem: string | null;
   onPress: () => void;
 }
 
-function ExameCard({ estudo, deltaAngulo, onPress }: CardProps) {
+function ExameCard({ estudo, deltaAngulo, urlImagem, onPress }: CardProps) {
   const info = estadoInfo(estudo.estado);
   const angulo = estudo.resultado?.angulo_cobb;
 
@@ -77,7 +79,11 @@ function ExameCard({ estudo, deltaAngulo, onPress }: CardProps) {
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
       {/* Thumbnail */}
       <View style={styles.thumbnail}>
-        <Text style={styles.thumbnailTxt}>XRAY</Text>
+        {urlImagem ? (
+          <Image source={{ uri: urlImagem }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+        ) : (
+          <Text style={styles.thumbnailTxt}>XRAY</Text>
+        )}
       </View>
 
       {/* Conteúdo */}
@@ -122,6 +128,7 @@ function ExameCard({ estudo, deltaAngulo, onPress }: CardProps) {
 export default function ExamsScreen() {
   const { utilizador } = useAuth();
   const [estudos, setEstudos] = useState<EstudoComResultado[]>([]);
+  const [urlsImagens, setUrlsImagens] = useState<Record<string, string>>({});
   const [aCarregar, setACarregar] = useState(true);
   const [filtro, setFiltro] = useState<Filtro>('todos');
 
@@ -130,6 +137,16 @@ export default function ExamsScreen() {
     try {
       const dados = await getEstudosDoPaciente(utilizador.id);
       setEstudos(dados);
+      const urls: Record<string, string> = {};
+      await Promise.all(
+        dados
+          .filter((e) => e.imagemPath)
+          .map(async (e) => {
+            const url = await getUrlImagemEstudo(e.imagemPath!);
+            if (url) urls[e.id] = url;
+          })
+      );
+      setUrlsImagens(urls);
     } finally {
       setACarregar(false);
     }
@@ -204,6 +221,7 @@ export default function ExamsScreen() {
                 key={estudo.id}
                 estudo={estudo}
                 deltaAngulo={delta}
+                urlImagem={urlsImagens[estudo.id] ?? null}
                 onPress={() => router.push(`/(tabs)/exams/${estudo.id}` as never)}
               />
             );

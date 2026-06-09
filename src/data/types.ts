@@ -95,6 +95,7 @@ export interface EstudoComResultado {
   data_submissao: string;
   arquivado: boolean;
   ficheiro_pdf: string | null;
+  imagemPath: string | null;
   resultado: ResultadoEstudo | null;
 }
 
