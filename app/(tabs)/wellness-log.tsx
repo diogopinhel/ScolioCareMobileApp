@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { ChevronLeft, Smile, Meh, Frown, AlertCircle, Info } from 'lucide-react-native';
+import { ChevronLeft, Smile, Meh, Frown, AlertCircle, Info, Clock } from 'lucide-react-native';
 import { useAuth } from '../../src/context/AuthContext';
 import { addWellnessEntry } from '../../src/data/repository/wellness';
 
@@ -69,6 +69,36 @@ export default function WellnessLogScreen() {
   const [desconforto, setDesconforto] = useState<OpcaoDesconforto>('none');
   const [notas, setNotas] = useState('');
   const [aGuardar, setAGuardar] = useState(false);
+
+  const contaPendente = !!utilizador && !utilizador.conta_ativada;
+
+  if (contaPendente) {
+    return (
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.btnVoltar}
+            onPress={() => router.back()}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <ChevronLeft size={24} color="#1A1A2E" />
+          </TouchableOpacity>
+          <Text style={styles.titulo}>Registar bem-estar</Text>
+          <View style={{ width: 40 }} />
+        </View>
+        <View style={styles.pendente}>
+          <View style={styles.pendenteIconWrap}>
+            <Clock size={36} color="#1A6FAF" />
+          </View>
+          <Text style={styles.pendenteTitulo}>Conta pendente de verificação</Text>
+          <Text style={styles.pendenteDesc}>
+            O registo de bem-estar ficará disponível assim que a sua conta for ativada e um
+            médico responsável for atribuído.
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   async function guardarRegisto() {
     if (!utilizador) return;
@@ -346,4 +376,22 @@ const styles = StyleSheet.create({
   },
   btnGuardarDisabled: { opacity: 0.6 },
   btnGuardarTxt: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
+
+  pendente: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 40,
+    gap: 16,
+  },
+  pendenteIconWrap: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: '#EFF6FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pendenteTitulo: { fontSize: 18, fontWeight: '700', color: '#1A1A2E', textAlign: 'center' },
+  pendenteDesc: { fontSize: 14, color: '#6B7280', textAlign: 'center', lineHeight: 22 },
 });

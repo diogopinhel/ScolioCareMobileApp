@@ -11,6 +11,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
 
 export default function Login() {
@@ -136,6 +137,14 @@ export default function Login() {
               <Text style={styles.demoLabel}>Credenciais de teste</Text>
               <Text style={styles.demoCredencial}>maria.silva@scolio.pt</Text>
               <Text style={styles.demoCredencial}>paciente123</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Criar conta */}
+          <View style={styles.criarContaWrap}>
+            <Text style={styles.criarContaTxt}>Ainda não tem conta? </Text>
+            <TouchableOpacity onPress={() => router.push('/(auth)/register' as never)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <Text style={styles.criarContaLink}>Criar conta</Text>
             </TouchableOpacity>
           </View>
 
@@ -274,6 +283,15 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   demoCredencial: { fontSize: 13, color: '#374151', lineHeight: 20 },
+
+  criarContaWrap: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  criarContaTxt: { fontSize: 14, color: '#6B7280' },
+  criarContaLink: { fontSize: 14, color: '#1A6FAF', fontWeight: '700' },
 
   footer: { paddingVertical: 24, alignItems: 'center' },
   footerText: {

@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { FileText, TrendingDown, TrendingUp } from 'lucide-react-native';
+import { FileText, TrendingDown, TrendingUp, Clock } from 'lucide-react-native';
 import { useAuth } from '../../../src/context/AuthContext';
 import { getEstudosDoPaciente, getUrlImagemEstudo } from '../../../src/data/repository/estudos';
 import { EstudoComResultado, EstadoEstudo } from '../../../src/data/types';
@@ -132,8 +132,10 @@ export default function ExamsScreen() {
   const [aCarregar, setACarregar] = useState(true);
   const [filtro, setFiltro] = useState<Filtro>('todos');
 
+  const contaPendente = !!utilizador && !utilizador.conta_ativada;
+
   const carregar = useCallback(async () => {
-    if (!utilizador) return;
+    if (!utilizador || contaPendente) return;
     try {
       const dados = await getEstudosDoPaciente(utilizador.id);
       setEstudos(dados);
@@ -150,9 +152,30 @@ export default function ExamsScreen() {
     } finally {
       setACarregar(false);
     }
-  }, [utilizador]);
+  }, [utilizador, contaPendente]);
 
   useEffect(() => { carregar(); }, [carregar]);
+
+  if (contaPendente) {
+    return (
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <View style={styles.header}>
+          <Text style={styles.titulo}>Os meus exames</Text>
+          <Text style={styles.subtitulo}>Histórico e evolução</Text>
+        </View>
+        <View style={styles.pendente}>
+          <View style={styles.pendenteIconWrap}>
+            <Clock size={36} color="#1A6FAF" />
+          </View>
+          <Text style={styles.pendenteTitulo}>Conta pendente de verificação</Text>
+          <Text style={styles.pendenteDesc}>
+            A sua conta ainda não foi ativada. Os seus exames ficarão disponíveis assim que
+            um médico responsável for atribuído pelo técnico clínico.
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const visiveis = filtrar(estudos, filtro);
 
@@ -334,4 +357,22 @@ const styles = StyleSheet.create({
   },
   vazioTitulo: { fontSize: 17, fontWeight: '700', color: '#1A1A2E' },
   vazioDesc: { fontSize: 14, color: '#6B7280', textAlign: 'center' },
+
+  pendente: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 40,
+    gap: 16,
+  },
+  pendenteIconWrap: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: '#EFF6FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pendenteTitulo: { fontSize: 18, fontWeight: '700', color: '#1A1A2E', textAlign: 'center' },
+  pendenteDesc: { fontSize: 14, color: '#6B7280', textAlign: 'center', lineHeight: 22 },
 });

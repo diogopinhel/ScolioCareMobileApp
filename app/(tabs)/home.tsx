@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { Bell, FileText, TrendingDown, TrendingUp, Minus, Activity } from 'lucide-react-native';
+import { Bell, FileText, TrendingDown, TrendingUp, Minus, Activity, Clock } from 'lucide-react-native';
 import Svg, { Polyline, Circle, Line, Text as SvgText } from 'react-native-svg';
 import { useAuth } from '../../src/context/AuthContext';
 import { getEstudosDoPaciente } from '../../src/data/repository/estudos';
@@ -303,6 +303,19 @@ export default function HomeScreen() {
           <ActivityIndicator size="large" color="#1A6FAF" style={{ marginTop: 40 }} />
         ) : (
           <>
+            {/* ── Banner conta pendente ─────────────────────────── */}
+            {utilizador && !utilizador.conta_ativada && (
+              <View style={styles.bannerPendente}>
+                <Clock size={18} color="#92400E" />
+                <View style={styles.bannerTextos}>
+                  <Text style={styles.bannerTitulo}>Conta pendente de verificação</Text>
+                  <Text style={styles.bannerDesc}>
+                    Aguarda a atribuição de médico responsável pelo técnico clínico para aceder a todos os serviços.
+                  </Text>
+                </View>
+              </View>
+            )}
+
             {/* ── Último exame ─────────────────────────────────────── */}
             <Text style={styles.seccaoTitulo}>O seu último exame</Text>
 
@@ -589,4 +602,19 @@ const styles = StyleSheet.create({
     minHeight: 44,
   },
   wellnessBtnTxt: { color: '#FFFFFF', fontWeight: '700', fontSize: 15 },
+
+  bannerPendente: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    backgroundColor: '#FEF3C7',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  bannerTextos: { flex: 1 },
+  bannerTitulo: { fontSize: 13, fontWeight: '700', color: '#92400E', marginBottom: 2 },
+  bannerDesc: { fontSize: 12, color: '#92400E', lineHeight: 18 },
 });
