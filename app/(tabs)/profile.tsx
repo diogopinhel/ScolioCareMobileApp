@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronRight, LogOut } from 'lucide-react-native';
 import Constants from 'expo-constants';
+import { router } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
 import {
   getEmailDoPaciente,
@@ -122,7 +123,7 @@ function LinhaToggle({
 // ─── Ecrã principal ──────────────────────────────────────────────────────────
 
 export default function ProfileScreen() {
-  const { utilizador, logout } = useAuth();
+  const { utilizador, logout, enviarOtp2FA, desativar2FA } = useAuth();
 
   const [email, setEmail] = useState<string | null>(null);
   const [medico, setMedico] = useState<MedicoResponsavel | null>(null);
@@ -164,6 +165,40 @@ export default function ProfileScreen() {
       }
     } catch {
       Alert.alert('Erro', 'Não foi possível actualizar o consentimento. Tente novamente.');
+    }
+  }
+
+  async function toggle2FA(ativo: boolean) {
+    if (!email) return;
+    if (ativo) {
+      try {
+        await enviarOtp2FA(email);
+        router.push({
+          pathname: '/(auth)/two-factor-verify' as never,
+          params: { email, modo: 'ativar' },
+        });
+      } catch {
+        Alert.alert('Erro', 'Não foi possível enviar o código de verificação. Tente novamente.');
+      }
+    } else {
+      Alert.alert(
+        'Desativar autenticação de dois fatores',
+        'Tem a certeza que pretende desativar a verificação em dois passos?',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Desativar',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                await desativar2FA();
+              } catch {
+                Alert.alert('Erro', 'Não foi possível desativar a autenticação. Tente novamente.');
+              }
+            },
+          },
+        ],
+      );
     }
   }
 
@@ -242,10 +277,9 @@ export default function ProfileScreen() {
           <View style={styles.separador} />
           <LinhaToggle
             label="Autenticação de dois fatores"
+            descricao="Código de verificação por email em cada acesso"
             valor={utilizador?.two_factor_ativo ?? false}
-            onChange={() =>
-              Alert.alert('Em breve', 'A configuração de 2FA estará disponível numa próxima versão.')
-            }
+            onChange={toggle2FA}
           />
           <View style={styles.separador} />
           <LinhaAcao

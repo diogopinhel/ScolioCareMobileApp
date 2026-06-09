@@ -33,7 +33,13 @@ export default function Login() {
     setACarregar(true);
 
     try {
-      await login(email.trim().toLowerCase(), password);
+      const { needsTwoFactor } = await login(email.trim().toLowerCase(), password);
+      if (needsTwoFactor) {
+        router.push({
+          pathname: '/(auth)/two-factor-verify' as never,
+          params: { email: email.trim().toLowerCase(), modo: 'login' },
+        });
+      }
     } catch (e: any) {
       const mensagem = traduzirErro(e?.message ?? '');
       setErro(mensagem);
