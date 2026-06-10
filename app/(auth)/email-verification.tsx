@@ -198,15 +198,6 @@ export default function EmailVerificationScreen() {
           )}
         </TouchableOpacity>
 
-        {/* Botão alterar endereço */}
-        <TouchableOpacity
-          style={estilos.btnGhost}
-          onPress={() => router.back()}
-          activeOpacity={0.7}
-        >
-          <Text style={estilos.btnGhostTxt}>Alterar endereço de email</Text>
-        </TouchableOpacity>
-
         {/* Fallback para quando o link não redireciona para a app */}
         <TouchableOpacity
           style={estilos.jaConfirmeiRow}
@@ -326,18 +317,6 @@ const estilos = StyleSheet.create({
   },
   btnPrimarioTxt: { color: '#FFFFFF', fontSize: 15, fontWeight: '600' },
   btnDisabled: { opacity: 0.6 },
-
-  btnGhost: {
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 11,
-    height: 40,
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 12,
-  },
-  btnGhostTxt: { color: '#6B7280', fontSize: 14, fontWeight: '500' },
 
   // Dica de spam
   hintRow: {

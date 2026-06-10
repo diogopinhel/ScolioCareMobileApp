@@ -87,7 +87,7 @@ function traduzirErro(msg: string): string {
   if (msg.includes('Password should') || msg.includes('weak_password'))
     return 'A password é demasiado fraca.';
   if (msg.includes('rate limit') || msg.includes('Too many'))
-    return 'Demasiadas tentativas. Aguarde alguns minutos.';
+    return 'Limite de emails atingido. Aguarda alguns minutos e tenta novamente.';
   return 'Ocorreu um erro ao criar a conta. Tente novamente.';
 }
 

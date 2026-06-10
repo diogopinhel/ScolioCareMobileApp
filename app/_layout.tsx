@@ -11,11 +11,11 @@ function NavigationGuard() {
 
     const segs = segments as string[];
     const inAuthGroup = segs[0] === '(auth)';
-    // Allow the post-registration confirmation screen even when authenticated,
-    // so the 2FA suggestion sheet can be shown before entering the main app.
+    // Allow post-registration and 2FA activation screens for authenticated users.
     const isEmailConfirmed = inAuthGroup && segs[1] === 'email-confirmed';
+    const isTwoFactorVerify = inAuthGroup && segs[1] === 'two-factor-verify';
 
-    if (estaAutenticado && inAuthGroup && !isEmailConfirmed) {
+    if (estaAutenticado && inAuthGroup && !isEmailConfirmed && !isTwoFactorVerify) {
       router.replace('/(tabs)/home');
     } else if (!estaAutenticado && !inAuthGroup && segs[0] !== 'onboarding') {
       router.replace('/(auth)/login');

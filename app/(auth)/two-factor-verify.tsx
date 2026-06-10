@@ -106,8 +106,12 @@ export default function TwoFactorVerifyScreen() {
       setDigitos(['', '', '', '', '', '']);
       setErro(null);
       refs[0].current?.focus();
-    } catch {
-      Alert.alert('Erro', 'Não foi possível reenviar o código. Tente novamente.');
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : '';
+      const descricao = msg.toLowerCase().includes('rate limit')
+        ? 'Limite de emails atingido. Aguarde alguns minutos e tente novamente.'
+        : 'Não foi possível reenviar o código. Tente novamente.';
+      Alert.alert('Erro', descricao);
     }
   }
 

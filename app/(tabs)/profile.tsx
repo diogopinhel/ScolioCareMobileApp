@@ -241,8 +241,13 @@ export default function ProfileScreen() {
           pathname: '/(auth)/two-factor-verify' as never,
           params: { email, modo: 'ativar' },
         });
-      } catch {
-        Alert.alert('Erro', 'Não foi possível enviar o código de verificação. Tente novamente.');
+      } catch (e: unknown) {
+        console.log('[Profile] erro ao enviar OTP 2FA:', e);
+        const msg = e instanceof Error ? e.message : '';
+        const descricao = msg.toLowerCase().includes('rate limit')
+          ? 'Limite de emails atingido. Aguarde alguns minutos e tente novamente.'
+          : 'Não foi possível enviar o código de verificação. Tente novamente.';
+        Alert.alert('Erro', descricao);
       }
     } else {
       Alert.alert(
