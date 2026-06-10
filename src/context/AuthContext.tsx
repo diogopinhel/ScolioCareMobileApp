@@ -14,6 +14,7 @@ interface AuthContextValue {
   enviarOtp2FA: (email: string) => Promise<void>;
   desativar2FA: () => Promise<void>;
   completarVerificacaoEmail: () => Promise<void>;
+  refreshUtilizador: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -78,6 +79,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (paciente) setUtilizador(paciente);
   }
 
+  async function refreshUtilizador(): Promise<void> {
+    const paciente = await authRepo.obterPacienteAtual();
+    if (paciente) setUtilizador(paciente);
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -92,6 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         enviarOtp2FA,
         desativar2FA,
         completarVerificacaoEmail,
+        refreshUtilizador,
       }}
     >
       {children}

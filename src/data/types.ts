@@ -40,6 +40,7 @@ export interface Paciente extends Utilizador {
   representante_legal: string | null;
   contacto_representante: string | null;
   conta_ativada: boolean;
+  foto_url: string | null;
 }
 
 // ─── Médico responsável (perfil do paciente) ─────────────────────────────────
