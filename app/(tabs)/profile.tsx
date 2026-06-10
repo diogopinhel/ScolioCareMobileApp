@@ -8,6 +8,7 @@ import {
   Switch,
   Alert,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -307,6 +308,7 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView
+        style={{ backgroundColor: '#F8FAFC' }}
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
@@ -314,17 +316,23 @@ export default function ProfileScreen() {
         <View style={styles.headerCard}>
           <TouchableOpacity
             style={styles.editarBtnHeader}
-            onPress={() =>
-              Alert.alert('Em breve', 'Edição de perfil disponível numa próxima versão.')
-            }
+            onPress={() => router.push('/profile-edit' as never)}
             activeOpacity={0.8}
           >
             <Pencil size={15} color="#FFFFFF" />
           </TouchableOpacity>
           <View style={styles.avatarCirculo}>
-            <Text style={styles.avatarTxt}>
-              {utilizador ? iniciaisNome(nomeExibido) : '??'}
-            </Text>
+            {utilizador?.foto_url ? (
+              <Image
+                source={{ uri: utilizador.foto_url }}
+                style={styles.avatarImagem}
+                resizeMode="cover"
+              />
+            ) : (
+              <Text style={styles.avatarTxt}>
+                {utilizador ? iniciaisNome(nomeExibido) : '??'}
+              </Text>
+            )}
           </View>
           <Text style={styles.headerNome}>{nomeExibido}</Text>
           <Text style={styles.headerEmail}>{email ?? '—'}</Text>
@@ -333,19 +341,6 @@ export default function ProfileScreen() {
         {/* ── OS MEUS DADOS ─────────────────────────────── */}
         <Text style={styles.seccaoTitulo}>OS MEUS DADOS</Text>
         <View style={styles.card}>
-          <View style={styles.cardSubHeader}>
-            <Text style={styles.cardSubHeaderTxt}>Informação pessoal</Text>
-            <TouchableOpacity
-              style={styles.btnEditar}
-              onPress={() =>
-                Alert.alert('Em breve', 'Edição de dados disponível numa próxima versão.')
-              }
-              activeOpacity={0.7}
-            >
-              <Text style={styles.btnEditarTxt}>+ Editar</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.separador} />
           <LinhaInfo
             icone={<User size={18} color="#1A6FAF" />}
             label="Nome completo"
@@ -527,15 +522,12 @@ export default function ProfileScreen() {
 // ─── Estilos ─────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#F8FAFC' },
-  scroll: { paddingBottom: 40 },
+  safe: { flex: 1, backgroundColor: '#1A6FAF' },
+  scroll: { paddingBottom: 40, flexGrow: 1 },
 
   // ── Header card ──────────────────────────────────────────────────────────────
   headerCard: {
     backgroundColor: '#1A6FAF',
-    borderRadius: 20,
-    marginHorizontal: 16,
-    marginTop: 16,
     marginBottom: 28,
     paddingTop: 20,
     paddingBottom: 28,
@@ -565,6 +557,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   avatarTxt: { color: '#FFFFFF', fontSize: 30, fontWeight: '800' },
+  avatarImagem: { width: 84, height: 84, borderRadius: 42 },
   headerNome: { fontSize: 20, fontWeight: '700', color: '#FFFFFF', marginBottom: 4 },
   headerEmail: { fontSize: 13, color: 'rgba(255,255,255,0.8)' },
 
@@ -602,16 +595,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   cardSubHeaderTxt: { fontSize: 15, fontWeight: '600', color: '#1A1A2E' },
-
-  // ── Botão Editar ─────────────────────────────────────────────────────────────
-  btnEditar: {
-    borderWidth: 1,
-    borderColor: '#1A6FAF',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  btnEditarTxt: { fontSize: 13, color: '#1A6FAF', fontWeight: '600' },
 
   // ── Badge "Só leitura" ────────────────────────────────────────────────────────
   badgeSoLeitura: {
