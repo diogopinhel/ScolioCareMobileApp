@@ -9,11 +9,15 @@ function NavigationGuard() {
   useEffect(() => {
     if (aCarregar) return;
 
-    const inAuthGroup = segments[0] === '(auth)';
+    const segs = segments as string[];
+    const inAuthGroup = segs[0] === '(auth)';
+    // Allow the post-registration confirmation screen even when authenticated,
+    // so the 2FA suggestion sheet can be shown before entering the main app.
+    const isEmailConfirmed = inAuthGroup && segs[1] === 'email-confirmed';
 
-    if (estaAutenticado && inAuthGroup) {
+    if (estaAutenticado && inAuthGroup && !isEmailConfirmed) {
       router.replace('/(tabs)/home');
-    } else if (!estaAutenticado && !inAuthGroup && segments[0] !== 'onboarding') {
+    } else if (!estaAutenticado && !inAuthGroup && segs[0] !== 'onboarding') {
       router.replace('/(auth)/login');
     }
   }, [estaAutenticado, aCarregar, segments]);

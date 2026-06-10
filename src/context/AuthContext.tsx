@@ -13,6 +13,7 @@ interface AuthContextValue {
   verificarEAtivar2FA: (email: string, token: string) => Promise<void>;
   enviarOtp2FA: (email: string) => Promise<void>;
   desativar2FA: () => Promise<void>;
+  completarVerificacaoEmail: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -72,6 +73,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setPendente2FA(null);
   }
 
+  async function completarVerificacaoEmail(): Promise<void> {
+    const paciente = await authRepo.obterPacienteAtual();
+    if (paciente) setUtilizador(paciente);
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -85,6 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         verificarEAtivar2FA,
         enviarOtp2FA,
         desativar2FA,
+        completarVerificacaoEmail,
       }}
     >
       {children}

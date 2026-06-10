@@ -1,3 +1,4 @@
+import * as Linking from 'expo-linking';
 import { supabase } from '../../lib/supabase';
 import { Paciente } from '../types';
 
@@ -107,6 +108,7 @@ export async function registar(dados: DadosRegisto): Promise<{ needsEmailConfirm
     email: dados.email,
     password: dados.password,
     options: {
+      emailRedirectTo: Linking.createURL('email-confirmed'),
       data: {
         nome_completo: dados.nomeCompleto,
         data_nascimento: dados.dataNascimento,
@@ -144,9 +146,7 @@ export async function registar(dados: DadosRegisto): Promise<{ needsEmailConfirm
         cartao_cidadao: dados.cartaoCidadao,
       })
       .eq('id', data.user.id);
-    if (profileError) {
-      console.warn('[registar] actualização de perfil:', profileError.message);
-    }
+    if (profileError) throw profileError;
     return { needsEmailConfirmation: false };
   }
 
@@ -156,6 +156,42 @@ export async function registar(dados: DadosRegisto): Promise<{ needsEmailConfirm
 export async function logout(): Promise<void> {
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
+}
+
+export async function reenviarEmailVerificacao(email: string): Promise<void> {
+  const { error } = await supabase.auth.resend({ type: 'signup', email });
+  if (error) throw error;
+}
+
+export async function verificarTokenEmail(tokenHash: string): Promise<void> {
+  const { error } = await supabase.auth.verifyOtp({
+    token_hash: tokenHash,
+    type: 'signup',
+  });
+  if (error) throw error;
+}
+
+export async function ativarDoisFatoresAtual(): Promise<void> {
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError) throw userError;
+  if (!user) throw new Error('Utilizador não autenticado.');
+  const { error } = await supabase
+    .from('utilizadores')
+    .update({ two_factor_ativo: true })
+    .eq('id', user.id);
+  if (error) throw error;
+}
+
+export async function obterPacienteAtual(): Promise<Paciente | null> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data: utilizador } = await supabase
+    .from('utilizadores')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+  if (!utilizador || utilizador.perfil !== 'PACIENTE') return null;
+  return utilizador as Paciente;
 }
 
 export function subscribeToMudancasAuth(

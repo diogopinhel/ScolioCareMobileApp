@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useFocusEffect } from 'expo-router';
 import {
   View,
@@ -13,8 +13,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { Bell, FileText, TrendingDown, TrendingUp, Minus, Activity, Clock } from 'lucide-react-native';
 import Svg, { Polyline, Circle, Line, Text as SvgText } from 'react-native-svg';
+import * as SecureStore from 'expo-secure-store';
 import { useAuth } from '../../src/context/AuthContext';
+import { ativarDoisFatoresAtual } from '../../src/data/repository/auth';
 import { getEstudosDoPaciente } from '../../src/data/repository/estudos';
+import BottomSheet2FA from '../../src/components/BottomSheet2FA';
 import { getNotificacoesDoPaciente, marcarComoLida, Notificacao } from '../../src/data/repository/notificacoes';
 import { EstudoComResultado } from '../../src/data/types';
 
@@ -196,6 +199,28 @@ export default function HomeScreen() {
   const [estudos, setEstudos] = useState<EstudoComResultado[]>([]);
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [aCarregar, setACarregar] = useState(true);
+  const [mostrarSheet2FA, setMostrarSheet2FA] = useState(false);
+
+  useEffect(() => {
+    if (!utilizador || utilizador.two_factor_ativo) return;
+    let cancelado = false;
+    SecureStore.getItemAsync('hasDismissed2FASuggestion').then((val) => {
+      if (!cancelado && val !== 'true') {
+        setTimeout(() => { if (!cancelado) setMostrarSheet2FA(true); }, 800);
+      }
+    });
+    return () => { cancelado = true; };
+  }, [utilizador?.id]);
+
+  async function handleAtivar2FA() {
+    await ativarDoisFatoresAtual();
+    setMostrarSheet2FA(false);
+  }
+
+  async function handleDispensar2FA() {
+    setMostrarSheet2FA(false);
+    await SecureStore.setItemAsync('hasDismissed2FASuggestion', 'true');
+  }
 
   const carregar = useCallback(async () => {
     if (!utilizador) return;
@@ -445,6 +470,12 @@ export default function HomeScreen() {
           </>
         )}
       </ScrollView>
+
+      <BottomSheet2FA
+        visivel={mostrarSheet2FA}
+        onAtivar={handleAtivar2FA}
+        onMaisLarde={handleDispensar2FA}
+      />
     </SafeAreaView>
   );
 }

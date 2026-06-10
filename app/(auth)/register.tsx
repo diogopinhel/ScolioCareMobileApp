@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -90,7 +91,7 @@ function traduzirErro(msg: string): string {
   return 'Ocorreu um erro ao criar a conta. Tente novamente.';
 }
 
-// ─── Componente auxiliar de campo ────────────────────────────────────────────
+// ─── Componente de campo ──────────────────────────────────────────────────────
 
 function Campo({
   label,
@@ -112,319 +113,388 @@ function Campo({
   );
 }
 
-// ─── Ecrã de sucesso ──────────────────────────────────────────────────────────
-
-function EcraSucesso({ email }: { email: string }) {
-  return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.sucessoWrap}>
-        <View style={styles.sucessoIcon}>
-          <Check size={38} color="#FFFFFF" />
-        </View>
-        <Text style={styles.sucessoTitulo}>Conta criada!</Text>
-        <Text style={styles.sucessoDesc}>
-          Foi enviado um email de confirmação para{' '}
-          <Text style={{ fontWeight: '700' }}>{email}</Text>.{'\n\n'}
-          Após confirmar o email, a sua conta será ativada pelo técnico responsável antes de poder
-          aceder a todos os serviços.
-        </Text>
-        <TouchableOpacity
-          style={styles.btnSucesso}
-          onPress={() => router.replace('/(auth)/login' as never)}
-          activeOpacity={0.85}
-        >
-          <Text style={styles.btnSucessoTxt}>Ir para o início de sessão</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
-  );
-}
-
 // ─── Ecrã principal ───────────────────────────────────────────────────────────
 
 export default function RegisterScreen() {
+  const [etapa, setEtapa] = useState<1 | 2 | 3>(1);
+
+  // Dados pessoais
   const [nome, setNome] = useState('');
-  const [email, setEmail] = useState('');
   const [dataNasc, setDataNasc] = useState('');
   const [genero, setGenero] = useState<Genero | null>(null);
   const [cartaoCidadao, setCartaoCidadao] = useState('');
   const [numeroUtente, setNumeroUtente] = useState('');
+
+  // Contacto
   const [contacto, setContacto] = useState('');
   const [morada, setMorada] = useState('');
+
+  // Acesso
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmarPw, setConfirmarPw] = useState('');
   const [pwVisivel, setPwVisivel] = useState(false);
   const [confirmarPwVisivel, setConfirmarPwVisivel] = useState(false);
+
   const [aCarregar, setACarregar] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
-  const [sucesso, setSucesso] = useState(false);
+
+  const larguraAtiva = useRef(new Animated.Value(10)).current;
+
+  // Animar o dot ativo sempre que a etapa muda
+  useEffect(() => {
+    larguraAtiva.setValue(10);
+    Animated.spring(larguraAtiva, {
+      toValue: 28,
+      useNativeDriver: false,
+      damping: 12,
+      stiffness: 120,
+    }).start();
+  }, [etapa, larguraAtiva]);
 
   const forca = avaliarForca(password);
 
-  if (sucesso) return <EcraSucesso email={email} />;
+  // ─── Validações por etapa ──────────────────────────────────────────────────
+
+  function validarEtapa1(): string | null {
+    if (!nome.trim()) return 'O nome completo é obrigatório.';
+    if (!validarDataNasc(dataNasc))
+      return 'Data de nascimento inválida. Use o formato DD/MM/AAAA.';
+    if (!genero) return 'Selecione o sexo.';
+    if (!cartaoCidadao.trim()) return 'O Cartão de Cidadão é obrigatório.';
+    return null;
+  }
+
+  function validarEtapa2(): string | null {
+    if (!contacto.trim()) return 'O contacto é obrigatório.';
+    if (!morada.trim()) return 'A morada é obrigatória.';
+    return null;
+  }
+
+  function avancar() {
+    setErro(null);
+    const erroAtual = etapa === 1 ? validarEtapa1() : validarEtapa2();
+    if (erroAtual) return setErro(erroAtual);
+    setEtapa((p) => (p + 1) as 1 | 2 | 3);
+  }
+
+  function recuar() {
+    setErro(null);
+    if (etapa === 1) router.back();
+    else setEtapa((p) => (p - 1) as 1 | 2 | 3);
+  }
+
+  // ─── Submissão final ───────────────────────────────────────────────────────
 
   async function handleRegistar() {
     setErro(null);
-    if (!nome.trim()) return setErro('O nome completo é obrigatório.');
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
       return setErro('Introduza um email válido.');
-    if (!validarDataNasc(dataNasc))
-      return setErro('Data de nascimento inválida. Use o formato DD/MM/AAAA.');
-    if (!genero) return setErro('Selecione o sexo.');
-    if (!cartaoCidadao.trim()) return setErro('O Cartão de Cidadão é obrigatório.');
-    if (!contacto.trim()) return setErro('O contacto é obrigatório.');
-    if (!morada.trim()) return setErro('A morada é obrigatória.');
     if (forca.pontos < 4)
       return setErro('A password não cumpre todos os critérios de segurança.');
     if (password !== confirmarPw) return setErro('As passwords não coincidem.');
 
     setACarregar(true);
+    let needsConfirmation = false;
     try {
       const resultado = await registar({
         email: email.trim().toLowerCase(),
         password,
         nomeCompleto: nome.trim(),
         dataNascimento: dataParaIso(dataNasc),
-        genero,
+        genero: genero!,
         cartaoCidadao: cartaoCidadao.trim(),
         numeroUtente: numeroUtente.trim() || null,
         contacto: contacto.trim(),
         morada: morada.trim(),
       });
-
-      if (resultado.needsEmailConfirmation) {
-        setSucesso(true);
-      } else {
-        router.replace('/(tabs)/home' as never);
-      }
+      needsConfirmation = resultado.needsEmailConfirmation;
     } catch (e: unknown) {
+      console.log('[Register] erro ao criar conta:', e);
       const msg = e instanceof Error ? e.message : '';
       setErro(traduzirErro(msg));
-    } finally {
       setACarregar(false);
+      return;
+    }
+    setACarregar(false);
+
+    // Navegação fora do try/catch para não confundir erros de routing com erros de conta
+    if (needsConfirmation) {
+      const encodedEmail = encodeURIComponent(email.trim().toLowerCase());
+      router.replace(`/(auth)/email-verification?email=${encodedEmail}` as never);
+    } else {
+      router.replace('/(tabs)/home' as never);
     }
   }
 
+  // ─── Metadados de cada etapa ───────────────────────────────────────────────
+
+  const metaEtapa = [
+    { titulo: 'Dados pessoais', descricao: 'Introduz os teus dados de identificação.' },
+    { titulo: 'Contacto', descricao: 'Como podemos contactar-te?' },
+    { titulo: 'Acesso', descricao: 'Define as credenciais de acesso à conta.' },
+  ];
+
+  // ─── Render ────────────────────────────────────────────────────────────────
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={styles.btnVoltar}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <ChevronLeft size={24} color="#1A1A2E" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitulo}>Criar conta</Text>
-          <View style={{ width: 40 }} />
-        </View>
+      {/* Cabeçalho azul */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={recuar}
+          style={styles.btnVoltar}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <ChevronLeft size={22} color="#FFFFFF" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitulo}>{metaEtapa[etapa - 1].titulo}</Text>
+        <View style={{ width: 40 }} />
+      </View>
 
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
         <ScrollView
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* ── Dados pessoais ───────────────────────────── */}
-          <Text style={styles.seccaoTitulo}>Dados pessoais</Text>
+          {/* Indicador de progresso */}
+          <View style={styles.progresso}>
+            {[0, 1, 2, 3].map((i) => {
+              const idx = etapa - 1;
+              if (i < idx)
+                return <View key={i} style={[styles.progPonto, styles.progConcluido]} />;
+              if (i === idx)
+                return (
+                  <Animated.View key={i} style={[styles.progPilula, { width: larguraAtiva }]} />
+                );
+              return <View key={i} style={[styles.progPonto, styles.progInativo]} />;
+            })}
+          </View>
 
-          <Campo label="Nome completo" obrigatorio>
-            <TextInput
-              style={styles.input}
-              value={nome}
-              onChangeText={(v) => { setNome(v); setErro(null); }}
-              placeholder="Maria da Silva"
-              placeholderTextColor="#9CA3AF"
-              autoCapitalize="words"
-              returnKeyType="next"
-            />
-          </Campo>
+          {/* Descrição da etapa */}
+          <Text style={styles.etapaDesc}>{metaEtapa[etapa - 1].descricao}</Text>
 
-          <Campo label="Data de nascimento" obrigatorio>
-            <TextInput
-              style={styles.input}
-              value={dataNasc}
-              onChangeText={(v) => { setDataNasc(formatarDataNasc(v)); setErro(null); }}
-              placeholder="DD/MM/AAAA"
-              placeholderTextColor="#9CA3AF"
-              keyboardType="number-pad"
-              maxLength={10}
-            />
-          </Campo>
+          {/* ── Etapa 1: Dados pessoais ─────────────────────── */}
+          {etapa === 1 && (
+            <>
+              <Campo label="Nome completo" obrigatorio>
+                <TextInput
+                  style={styles.input}
+                  value={nome}
+                  onChangeText={(v) => { setNome(v); setErro(null); }}
+                  placeholder="Maria da Silva"
+                  placeholderTextColor="#9CA3AF"
+                  autoCapitalize="words"
+                  returnKeyType="next"
+                />
+              </Campo>
 
-          <Campo label="Sexo" obrigatorio>
-            <View style={styles.generoRow}>
-              {GENEROS.map((g) => (
-                <TouchableOpacity
-                  key={g.key}
-                  style={[styles.generoBtn, genero === g.key && styles.generoBtnAtivo]}
-                  onPress={() => { setGenero(g.key); setErro(null); }}
-                  activeOpacity={0.7}
-                >
-                  <Text style={[styles.generoBtnTxt, genero === g.key && styles.generoBtnTxtAtivo]}>
-                    {g.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </Campo>
+              <Campo label="Data de nascimento" obrigatorio>
+                <TextInput
+                  style={styles.input}
+                  value={dataNasc}
+                  onChangeText={(v) => { setDataNasc(formatarDataNasc(v)); setErro(null); }}
+                  placeholder="DD/MM/AAAA"
+                  placeholderTextColor="#9CA3AF"
+                  keyboardType="number-pad"
+                  maxLength={10}
+                />
+              </Campo>
 
-          <Campo label="Nº Cartão de Cidadão" obrigatorio>
-            <TextInput
-              style={styles.input}
-              value={cartaoCidadao}
-              onChangeText={(v) => { setCartaoCidadao(v); setErro(null); }}
-              placeholder="12345678 0ZZ4"
-              placeholderTextColor="#9CA3AF"
-              autoCapitalize="characters"
-            />
-          </Campo>
-
-          <Campo label="Nº de Utente SNS">
-            <TextInput
-              style={styles.input}
-              value={numeroUtente}
-              onChangeText={(v) => { setNumeroUtente(v); setErro(null); }}
-              placeholder="123456789"
-              placeholderTextColor="#9CA3AF"
-              keyboardType="number-pad"
-            />
-          </Campo>
-
-          {/* ── Contacto ─────────────────────────────────── */}
-          <Text style={[styles.seccaoTitulo, { marginTop: 8 }]}>Contacto</Text>
-
-          <Campo label="Telemóvel" obrigatorio>
-            <TextInput
-              style={styles.input}
-              value={contacto}
-              onChangeText={(v) => { setContacto(v); setErro(null); }}
-              placeholder="912 345 678"
-              placeholderTextColor="#9CA3AF"
-              keyboardType="phone-pad"
-            />
-          </Campo>
-
-          <Campo label="Morada" obrigatorio>
-            <TextInput
-              style={styles.input}
-              value={morada}
-              onChangeText={(v) => { setMorada(v); setErro(null); }}
-              placeholder="Rua Exemplo, nº 1, 5000-000 Vila Real"
-              placeholderTextColor="#9CA3AF"
-              autoCapitalize="words"
-            />
-          </Campo>
-
-          {/* ── Acesso ───────────────────────────────────── */}
-          <Text style={[styles.seccaoTitulo, { marginTop: 8 }]}>Acesso</Text>
-
-          <Campo label="Email" obrigatorio>
-            <TextInput
-              style={styles.input}
-              value={email}
-              onChangeText={(v) => { setEmail(v); setErro(null); }}
-              placeholder="exemplo@email.com"
-              placeholderTextColor="#9CA3AF"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-            />
-          </Campo>
-
-          <Campo label="Password" obrigatorio>
-            <View style={styles.inputRow}>
-              <TextInput
-                style={styles.inputFlex}
-                value={password}
-                onChangeText={(v) => { setPassword(v); setErro(null); }}
-                placeholder="••••••••"
-                placeholderTextColor="#9CA3AF"
-                secureTextEntry={!pwVisivel}
-              />
-              <TouchableOpacity
-                onPress={() => setPwVisivel((v) => !v)}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              >
-                <Text style={styles.eyeTxt}>{pwVisivel ? 'Ocultar' : 'Ver'}</Text>
-              </TouchableOpacity>
-            </View>
-
-            {password.length > 0 && (
-              <View style={styles.forcaWrap}>
-                <View style={styles.forcaBars}>
-                  {[1, 2, 3, 4].map((n) => (
-                    <View
-                      key={n}
-                      style={[
-                        styles.forcaBar,
-                        { backgroundColor: n <= forca.pontos ? forca.cor : '#E5E7EB' },
-                      ]}
-                    />
-                  ))}
-                  {forca.label ? (
-                    <Text style={[styles.forcaLabel, { color: forca.cor }]}>{forca.label}</Text>
-                  ) : null}
-                </View>
-                <View style={styles.criteriosList}>
-                  {forca.criterios.map((c) => (
-                    <View key={c.label} style={styles.criterioRow}>
-                      {c.ok
-                        ? <Check size={12} color="#1D9E75" />
-                        : <X size={12} color="#9CA3AF" />
-                      }
-                      <Text style={[styles.criterioTxt, c.ok && styles.criterioOk]}>
-                        {c.label}
+              <Campo label="Sexo" obrigatorio>
+                <View style={styles.generoRow}>
+                  {GENEROS.map((g) => (
+                    <TouchableOpacity
+                      key={g.key}
+                      style={[styles.generoBtn, genero === g.key && styles.generoBtnAtivo]}
+                      onPress={() => { setGenero(g.key); setErro(null); }}
+                      activeOpacity={0.7}
+                    >
+                      <Text
+                        style={[
+                          styles.generoBtnTxt,
+                          genero === g.key && styles.generoBtnTxtAtivo,
+                        ]}
+                      >
+                        {g.label}
                       </Text>
-                    </View>
+                    </TouchableOpacity>
                   ))}
                 </View>
-              </View>
-            )}
-          </Campo>
+              </Campo>
 
-          <Campo label="Confirmar password" obrigatorio>
-            <View style={styles.inputRow}>
-              <TextInput
-                style={styles.inputFlex}
-                value={confirmarPw}
-                onChangeText={(v) => { setConfirmarPw(v); setErro(null); }}
-                placeholder="••••••••"
-                placeholderTextColor="#9CA3AF"
-                secureTextEntry={!confirmarPwVisivel}
-              />
-              <TouchableOpacity
-                onPress={() => setConfirmarPwVisivel((v) => !v)}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              >
-                <Text style={styles.eyeTxt}>{confirmarPwVisivel ? 'Ocultar' : 'Ver'}</Text>
-              </TouchableOpacity>
-            </View>
-            {confirmarPw.length > 0 && password !== confirmarPw && (
-              <Text style={styles.pwErroTxt}>As passwords não coincidem.</Text>
-            )}
-          </Campo>
+              <Campo label="Nº Cartão de Cidadão" obrigatorio>
+                <TextInput
+                  style={styles.input}
+                  value={cartaoCidadao}
+                  onChangeText={(v) => { setCartaoCidadao(v); setErro(null); }}
+                  placeholder="12345678 0ZZ4"
+                  placeholderTextColor="#9CA3AF"
+                  autoCapitalize="characters"
+                />
+              </Campo>
 
+              <Campo label="Nº de Utente SNS">
+                <TextInput
+                  style={styles.input}
+                  value={numeroUtente}
+                  onChangeText={(v) => { setNumeroUtente(v); setErro(null); }}
+                  placeholder="123456789"
+                  placeholderTextColor="#9CA3AF"
+                  keyboardType="number-pad"
+                />
+              </Campo>
+            </>
+          )}
+
+          {/* ── Etapa 2: Contacto ───────────────────────────── */}
+          {etapa === 2 && (
+            <>
+              <Campo label="Telemóvel" obrigatorio>
+                <TextInput
+                  style={styles.input}
+                  value={contacto}
+                  onChangeText={(v) => { setContacto(v); setErro(null); }}
+                  placeholder="912 345 678"
+                  placeholderTextColor="#9CA3AF"
+                  keyboardType="phone-pad"
+                />
+              </Campo>
+
+              <Campo label="Morada" obrigatorio>
+                <TextInput
+                  style={styles.input}
+                  value={morada}
+                  onChangeText={(v) => { setMorada(v); setErro(null); }}
+                  placeholder="Rua Exemplo, nº 1, 5000-000 Vila Real"
+                  placeholderTextColor="#9CA3AF"
+                  autoCapitalize="words"
+                />
+              </Campo>
+            </>
+          )}
+
+          {/* ── Etapa 3: Acesso ─────────────────────────────── */}
+          {etapa === 3 && (
+            <>
+              <Campo label="Email" obrigatorio>
+                <TextInput
+                  style={styles.input}
+                  value={email}
+                  onChangeText={(v) => { setEmail(v); setErro(null); }}
+                  placeholder="exemplo@email.com"
+                  placeholderTextColor="#9CA3AF"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoComplete="email"
+                />
+              </Campo>
+
+              <Campo label="Password" obrigatorio>
+                <View style={styles.inputRow}>
+                  <TextInput
+                    style={styles.inputFlex}
+                    value={password}
+                    onChangeText={(v) => { setPassword(v); setErro(null); }}
+                    placeholder="••••••••"
+                    placeholderTextColor="#9CA3AF"
+                    secureTextEntry={!pwVisivel}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setPwVisivel((v) => !v)}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  >
+                    <Text style={styles.eyeTxt}>{pwVisivel ? 'Ocultar' : 'Ver'}</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {password.length > 0 && (
+                  <View style={styles.forcaWrap}>
+                    <View style={styles.forcaBars}>
+                      {[1, 2, 3, 4].map((n) => (
+                        <View
+                          key={n}
+                          style={[
+                            styles.forcaBar,
+                            { backgroundColor: n <= forca.pontos ? forca.cor : '#E5E7EB' },
+                          ]}
+                        />
+                      ))}
+                      {forca.label ? (
+                        <Text style={[styles.forcaLabel, { color: forca.cor }]}>
+                          {forca.label}
+                        </Text>
+                      ) : null}
+                    </View>
+                    <View style={styles.criteriosList}>
+                      {forca.criterios.map((c) => (
+                        <View key={c.label} style={styles.criterioRow}>
+                          {c.ok
+                            ? <Check size={12} color="#1D9E75" />
+                            : <X size={12} color="#9CA3AF" />
+                          }
+                          <Text style={[styles.criterioTxt, c.ok && styles.criterioOk]}>
+                            {c.label}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                )}
+              </Campo>
+
+              <Campo label="Confirmar password" obrigatorio>
+                <View style={styles.inputRow}>
+                  <TextInput
+                    style={styles.inputFlex}
+                    value={confirmarPw}
+                    onChangeText={(v) => { setConfirmarPw(v); setErro(null); }}
+                    placeholder="••••••••"
+                    placeholderTextColor="#9CA3AF"
+                    secureTextEntry={!confirmarPwVisivel}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setConfirmarPwVisivel((v) => !v)}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  >
+                    <Text style={styles.eyeTxt}>{confirmarPwVisivel ? 'Ocultar' : 'Ver'}</Text>
+                  </TouchableOpacity>
+                </View>
+                {confirmarPw.length > 0 && password !== confirmarPw && (
+                  <Text style={styles.pwErroTxt}>As passwords não coincidem.</Text>
+                )}
+              </Campo>
+            </>
+          )}
+
+          {/* Erro */}
           {erro && (
             <View style={styles.erroBox}>
               <Text style={styles.erroTxt}>{erro}</Text>
             </View>
           )}
 
+          {/* Botão de ação */}
           <TouchableOpacity
-            style={[styles.btnRegistar, aCarregar && styles.btnDisabled]}
-            onPress={handleRegistar}
+            style={[styles.btnPrimario, aCarregar && styles.btnDisabled]}
+            onPress={etapa < 3 ? avancar : handleRegistar}
             disabled={aCarregar}
             activeOpacity={0.85}
           >
-            {aCarregar
-              ? <ActivityIndicator color="#FFFFFF" />
-              : <Text style={styles.btnRegistarTxt}>Criar conta</Text>
-            }
+            {aCarregar ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={styles.btnPrimarioTxt}>
+                {etapa < 3 ? 'Continuar' : 'Criar conta'}
+              </Text>
+            )}
           </TouchableOpacity>
 
-          <View style={{ height: 40 }} />
+          <View style={{ height: 32 }} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -437,31 +507,41 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#F8FAFC' },
   flex: { flex: 1 },
 
+  // Cabeçalho azul
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 12,
+    height: 52,
+    backgroundColor: '#1A6FAF',
   },
   btnVoltar: { width: 40, height: 44, alignItems: 'flex-start', justifyContent: 'center' },
-  headerTitulo: { fontSize: 17, fontWeight: '700', color: '#1A1A2E' },
+  headerTitulo: { fontSize: 17, fontWeight: '600', color: '#FFFFFF' },
 
-  scroll: { padding: 20 },
+  scroll: { paddingHorizontal: 20, paddingTop: 28, paddingBottom: 16 },
 
-  seccaoTitulo: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#1A6FAF',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 14,
-    marginTop: 4,
+  // Indicador de progresso
+  progresso: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16,
+    alignSelf: 'center',
+  },
+  progPonto: { width: 10, height: 10, borderRadius: 5 },
+  progConcluido: { backgroundColor: '#1D9E75' },
+  progInativo: { backgroundColor: '#E5E7EB' },
+  progPilula: { height: 10, borderRadius: 5, backgroundColor: '#1A6FAF' },
+
+  etapaDesc: {
+    fontSize: 13,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: 28,
   },
 
+  // Campos
   campo: { marginBottom: 16 },
   label: { fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 6 },
 
@@ -488,6 +568,7 @@ const styles = StyleSheet.create({
   inputFlex: { flex: 1, fontSize: 15, color: '#1A1A2E' },
   eyeTxt: { fontSize: 13, color: '#1A6FAF', fontWeight: '500', paddingLeft: 8 },
 
+  // Selector de género
   generoRow: { flexDirection: 'row', gap: 10 },
   generoBtn: {
     flex: 1,
@@ -503,6 +584,7 @@ const styles = StyleSheet.create({
   generoBtnTxt: { fontSize: 14, fontWeight: '500', color: '#6B7280' },
   generoBtnTxtAtivo: { color: '#1A6FAF', fontWeight: '700' },
 
+  // Força da password
   forcaWrap: { marginTop: 10 },
   forcaBars: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 },
   forcaBar: { flex: 1, height: 5, borderRadius: 3 },
@@ -513,6 +595,7 @@ const styles = StyleSheet.create({
   criterioOk: { color: '#1D9E75' },
   pwErroTxt: { fontSize: 12, color: '#EF4444', marginTop: 6 },
 
+  // Feedback
   erroBox: {
     backgroundColor: '#FEF2F2',
     borderRadius: 8,
@@ -523,52 +606,21 @@ const styles = StyleSheet.create({
   },
   erroTxt: { color: '#EF4444', fontSize: 13, textAlign: 'center' },
 
-  btnRegistar: {
+  // Botão principal
+  btnPrimario: {
     backgroundColor: '#1A6FAF',
-    borderRadius: 12,
-    height: 52,
+    borderRadius: 11,
+    height: 46,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 8,
     shadowColor: '#1A6FAF',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
   },
   btnDisabled: { opacity: 0.65 },
-  btnRegistarTxt: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
+  btnPrimarioTxt: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
 
-  sucessoWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 },
-  sucessoIcon: {
-    width: 84,
-    height: 84,
-    borderRadius: 42,
-    backgroundColor: '#1D9E75',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 24,
-  },
-  sucessoTitulo: { fontSize: 28, fontWeight: '800', color: '#1A1A2E', marginBottom: 16 },
-  sucessoDesc: {
-    fontSize: 15,
-    color: '#6B7280',
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 36,
-  },
-  btnSucesso: {
-    backgroundColor: '#1A6FAF',
-    borderRadius: 12,
-    height: 52,
-    paddingHorizontal: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#1A6FAF',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  btnSucessoTxt: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
 });
