@@ -1,0 +1,246 @@
+{
+  "versao": "1.2",
+  "ultima_revisao": "2026-06-10",
+  "perguntas": [
+    {
+      "id": "escoliose-definicao",
+      "categoria": "Informação geral",
+      "pergunta": "O que é a escoliose?",
+      "palavras_chave": ["o que é", "definição", "escoliose", "curvatura", "coluna"],
+      "resposta": "A escoliose é uma curvatura lateral anormal da coluna vertebral. Em vez de a coluna ser direita quando vista de frente, apresenta uma ou mais curvas em forma de \"S\" ou \"C\". Pode afectar pessoas de qualquer idade, mas é mais comum em adolescentes durante a fase de crescimento rápido.\n\nImportante saber: a escoliose idiopática não é causada por má postura, por carregar mochilas pesadas ou por dormir em determinadas posições. Estas crenças são muito comuns, mas não têm suporte científico.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "escoliose-causas-mitos",
+      "categoria": "Informação geral",
+      "pergunta": "A escoliose é causada por má postura ou por carregar mochilas pesadas?",
+      "palavras_chave": ["causa", "causas", "postura", "mochila", "mochila pesada", "dormir", "má postura", "origem", "porquê"],
+      "resposta": "Não. A escoliose idiopática — a forma mais comum — não é causada por má postura, por carregar mochilas pesadas, por dormir em determinadas posições nem por praticar desporto. A causa exacta é desconhecida, embora exista um componente genético.\n\nEstas crenças são muito frequentes, mas não têm qualquer suporte científico. São mitos que podem criar culpa desnecessária no paciente ou na família — e que não devem influenciar o plano de tratamento.\n\nSe tiver outras dúvidas sobre o que pode ou não ter contribuído para o seu diagnóstico, coloque-as ao seu médico.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "escoliose-adolescente",
+      "categoria": "Informação geral",
+      "pergunta": "O que é a escoliose adolescente idiopática?",
+      "palavras_chave": ["adolescente", "adolescência", "jovem", "idiopática", "crescimento", "puberdade"],
+      "resposta": "A escoliose adolescente idiopática (EAI) é o tipo mais frequente de escoliose, diagnosticado entre os 10 e os 18 anos. A palavra \"idiopática\" significa que não tem uma causa identificada.\n\nAlguns factos relevantes:\n• Afecta principalmente raparigas, numa proporção de cerca de 3 para 1 relativamente aos rapazes.\n• Surge tipicamente durante o período de crescimento acelerado da adolescência.\n• O risco de progressão é maior enquanto o esqueleto ainda não está maduro (Risser baixo).\n• A maioria dos casos é leve e não requer tratamento activo, apenas monitorização.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "escoliose-tipos",
+      "categoria": "Informação geral",
+      "pergunta": "Quais são os tipos de escoliose?",
+      "palavras_chave": ["tipos", "tipo", "idiopática", "congénita", "neuromuscular", "degenerativa"],
+      "resposta": "Existem vários tipos de escoliose:\n\n• Idiopática — sem causa conhecida, representa cerca de 80% dos casos. É a forma mais comum e inclui a escoliose adolescente idiopática.\n• Congénita — presente desde o nascimento, por má formação das vértebras durante o desenvolvimento fetal.\n• Neuromuscular — associada a condições como paralisia cerebral ou distrofia muscular.\n• Degenerativa — relacionada com o envelhecimento e desgaste das vértebras, mais comum em adultos acima dos 50 anos.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "escoliose-hereditaria",
+      "categoria": "Informação geral",
+      "pergunta": "A escoliose é hereditária?",
+      "palavras_chave": ["hereditária", "hereditário", "genética", "família", "familiar", "herdar"],
+      "resposta": "A escoliose idiopática tem um componente genético — se tiver familiares próximos (pais, irmãos) com escoliose, o risco de a desenvolver é maior. No entanto, não se herda necessariamente a condição, mas sim uma predisposição. Ter história familiar não significa que vai desenvolver escoliose, nem que vai ter um caso grave.\n\nA presença de escoliose na família é um factor importante a comunicar ao médico, pois pode influenciar a frequência de rastreio.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "escoliose-prevencao",
+      "categoria": "Informação geral",
+      "pergunta": "A escoliose pode ser prevenida?",
+      "palavras_chave": ["prevenir", "prevenção", "evitar", "impedir"],
+      "resposta": "A escoliose idiopática — a forma mais comum — não pode ser prevenida, porque a sua causa exacta é desconhecida e tem um componente genético. Não há hábitos de vida, exercícios ou posturas que impeçam o seu aparecimento.\n\nO que é possível fazer:\n• Detecção precoce — o rastreio regular na adolescência permite identificar curvaturas pequenas antes de progredirem.\n• Monitorização — seguir o plano de acompanhamento definido pelo médico é a melhor forma de controlar a progressão.\n\nSe tiver filhos com história familiar de escoliose, mencione-o ao pediatra para que possa ser feita vigilância adequada.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "escoliose-vs-cifose",
+      "categoria": "Informação geral",
+      "pergunta": "Qual é a diferença entre escoliose e cifose?",
+      "palavras_chave": ["cifose", "diferença", "corcunda", "arqueada", "costas", "coluna"],
+      "resposta": "São dois tipos diferentes de curvatura da coluna:\n\n• Escoliose — curvatura lateral da coluna (para o lado), visível quando se olha a coluna de frente.\n• Cifose — curvatura exagerada para a frente (costas arqueadas), visível de lado.\n\nPodem coexistir na mesma pessoa. Ambas são avaliadas pelo médico com critérios e medições específicas.",
+      "fonte": "NHS — Scoliosis"
+    },
+    {
+      "id": "escoliose-adulto",
+      "categoria": "Informação geral",
+      "pergunta": "A escoliose em adultos é diferente da dos adolescentes?",
+      "palavras_chave": ["adulto", "adultos", "idade", "degenerativa", "envelhecimento", "50 anos", "mais velho"],
+      "resposta": "Sim, há diferenças importantes:\n\n• Escoliose adolescente idiopática — desenvolve-se durante o crescimento. O principal risco é a progressão enquanto o esqueleto ainda não está maduro. Após o fim do crescimento, a maioria das curvaturas leves a moderadas estabiliza.\n• Escoliose degenerativa do adulto — surge ou agrava-se a partir dos 50–60 anos, associada ao desgaste das vértebras e dos discos. A dor é frequentemente o sintoma principal, ao contrário da escoliose adolescente, que muitas vezes não dói.\n\nUm adulto que recebe este diagnóstico pela primeira vez pode ter tido uma curvatura não detectada na adolescência que progrediu com o envelhecimento, ou pode ter desenvolvido a curvatura em idade adulta por degeneração.\n\nO plano de tratamento é diferente consoante a origem e a idade. Consulte o seu médico para uma avaliação adequada ao seu caso.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "angulo-cobb",
+      "categoria": "Diagnóstico e exames",
+      "pergunta": "O que é o ângulo de Cobb?",
+      "palavras_chave": ["ângulo de cobb", "angulo de cobb", "cobb", "ângulo", "medição", "graus"],
+      "resposta": "O ângulo de Cobb é a medida utilizada pelos médicos para quantificar a curvatura da coluna em graus. É calculado em radiografias, traçando linhas paralelas às faces das vértebras mais inclinadas acima e abaixo da curva, e medindo o ângulo entre elas.\n\nQuanto maior o ângulo de Cobb, mais pronunciada é a curvatura. Valores abaixo de 10° são considerados normais. É o principal indicador usado para classificar a severidade e decidir o tratamento.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "graus-severidade",
+      "categoria": "Diagnóstico e exames",
+      "pergunta": "O que significam os diferentes graus de severidade?",
+      "palavras_chave": ["grau", "severidade", "leve", "moderado", "moderada", "grave", "classificação", "nível"],
+      "resposta": "Atenção: estes valores são orientações gerais. A decisão clínica depende de múltiplos factores — não use estes números para se auto-classificar ou tirar conclusões sobre o seu tratamento. Só o seu médico pode avaliar o seu caso na totalidade.\n\nA severidade da escoliose classifica-se em função do ângulo de Cobb:\n\n• Menos de 10° — dentro dos valores normais, sem escoliose clinicamente significativa.\n• 10° a 25° — escoliose leve — habitualmente monitorizada com consultas periódicas.\n• 25° a 40° — escoliose moderada — pode ser tratada com colete ortopédico.\n• Acima de 40°–45° — escoliose grave — pode ser considerada intervenção cirúrgica.\n\nEm adultos, a indicação de tratamento é mais complexa: sintomas neurológicos, dor e velocidade de progressão podem ser determinantes independentemente do ângulo. A decisão terapêutica depende sempre de uma avaliação completa pelo médico ortopedista.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "risser",
+      "categoria": "Diagnóstico e exames",
+      "pergunta": "O que é a escala de Risser?",
+      "palavras_chave": ["risser", "maturidade óssea", "crescimento ósseo", "osso", "esqueleto", "maturidade"],
+      "resposta": "A escala de Risser é uma forma de perceber quanto crescimento ainda tem pela frente — é como um «marcador de maturidade óssea». É avaliada em radiografias, observando o grau de formação de um osso específico da bacia (a crista ilíaca), numa escala de 0 a 5:\n\n• Risser 0 — crescimento activo; requer acompanhamento mais próximo enquanto o crescimento está em curso.\n• Risser 1–2 — crescimento ainda em curso; vigilância importante.\n• Risser 3–4 — crescimento a abrandar.\n• Risser 5 — crescimento concluído; menor probabilidade de progressão da curva.\n\nEsta informação é importante porque ajuda o médico a definir a frequência das consultas e o plano de tratamento mais adequado. Um valor baixo não é motivo de alarme — é um sinal de que o acompanhamento deve ser regular.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "diagnostico",
+      "categoria": "Diagnóstico e exames",
+      "pergunta": "Como se diagnostica a escoliose?",
+      "palavras_chave": ["diagnóstico", "diagnostico", "como se detecta", "detectar", "radiografia", "exame", "adams"],
+      "resposta": "O diagnóstico é feito por um médico em duas fases:\n\n1. Observação clínica — o médico pede ao doente para se inclinar para a frente com os braços soltos (teste de Adams) e observa assimetrias no tronco, ombros ou bacia.\n2. Imagiologia — confirmado por radiografia da coluna em carga (de pé), onde se mede o ângulo de Cobb e se avalia a maturidade óssea (escala de Risser).\n\nNalguns casos pode ser pedida ressonância magnética para excluir causas subjacentes.",
+      "fonte": "NHS — Scoliosis"
+    },
+    {
+      "id": "teste-adams",
+      "categoria": "Diagnóstico e exames",
+      "pergunta": "O que é o teste de Adams?",
+      "palavras_chave": ["teste de adams", "adams", "inclinar", "dobrar", "observação", "exame físico", "assimetria"],
+      "resposta": "O teste de Adams é um exame clínico simples e indolor. O médico pede-lhe que se incline para a frente, com os braços a pender livremente e os joelhos esticados, como se fosse tocar nos pés.\n\nNesta posição, o médico observa as costas à procura de assimetrias — por exemplo, uma elevação de um lado do tronco (costelas ou músculos lombares mais salientes de um lado). Esta assimetria pode indicar a presença de uma rotação vertebral, que é uma das características da escoliose.\n\nO teste não dói, dura apenas alguns segundos, e é habitualmente o primeiro passo antes de ser pedida uma radiografia.",
+      "fonte": "NHS — Scoliosis"
+    },
+    {
+      "id": "radiografia-radiacao",
+      "categoria": "Diagnóstico e exames",
+      "pergunta": "As radiografias repetidas fazem mal? Preocupa-me a exposição à radiação.",
+      "palavras_chave": ["radiação", "radiografia", "raios x", "raios-x", "exposição", "repetida", "fazer mal", "segurança"],
+      "resposta": "É uma preocupação compreensível e muito frequente, especialmente em quem precisa de radiografias periódicas ao longo de anos.\n\nO que é importante saber:\n• A dose de radiação de uma radiografia da coluna é baixa — semelhante à radiação natural a que estamos expostos no dia-a-dia durante alguns dias.\n• O benefício de monitorizar a curvatura ao longo do tempo supera largamente o risco da exposição.\n• Em muitos centros, estão disponíveis sistemas de baixa dose (como o EOS) que reduzem significativamente a exposição em relação às radiografias convencionais.\n• O médico define a frequência das radiografias com base na necessidade clínica — não são pedidas sem indicação.\n\nSe esta preocupação for importante para si, fale com o seu médico sobre as opções disponíveis no seu centro de tratamento.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "consulta-ortopedia",
+      "categoria": "Diagnóstico e exames",
+      "pergunta": "O que devo esperar numa consulta de ortopedia da coluna?",
+      "palavras_chave": ["consulta", "ortopedia", "médico", "primeira consulta", "o que acontece", "o que esperar", "ortopedista"],
+      "resposta": "Na primeira consulta de ortopedia da coluna, habitualmente acontece o seguinte:\n\n1. O médico pergunta sobre sintomas, histórico familiar e fase de crescimento.\n2. É pedido que se incline para a frente com os braços soltos (teste de Adams) — o médico observa assimetrias.\n3. É realizada ou analisada uma radiografia da coluna de pé.\n4. O médico mede o ângulo de Cobb e avalia a maturidade óssea (Risser).\n5. É explicado o diagnóstico e, se aplicável, o plano de tratamento.\n\nNão é uma consulta dolorosa. Pode ser útil levar as suas dúvidas escritas para não se esquecer de as colocar.",
+      "fonte": "NHS — Scoliosis"
+    },
+    {
+      "id": "frequencia-exames",
+      "categoria": "Diagnóstico e exames",
+      "pergunta": "Com que frequência devo fazer exames de acompanhamento?",
+      "palavras_chave": ["frequência", "frequencia", "intervalo", "quando", "consulta", "acompanhamento", "monitorização"],
+      "resposta": "A frequência dos exames depende da severidade da curvatura e da fase de crescimento:\n\n• Escoliose leve em fase de crescimento activo — habitualmente de 6 em 6 meses.\n• Escoliose leve em adultos estáveis — pode ser anual ou conforme indicação médica.\n• Escoliose moderada ou em tratamento com colete — conforme indicação do médico ortopedista, podendo ser mais frequente.\n\nÉ o seu médico quem define o intervalo adequado ao seu caso específico.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "tratamentos",
+      "categoria": "Tratamento",
+      "pergunta": "Quais são os tratamentos disponíveis para a escoliose?",
+      "palavras_chave": ["tratamento", "tratar", "opções", "terapia", "o que fazer"],
+      "resposta": "Os tratamentos dependem da severidade, da fase de crescimento e da idade:\n\n• Observação e monitorização — para curvaturas leves, sem tratamento activo, com acompanhamento periódico.\n• Colete ortopédico — para curvaturas moderadas em fase de crescimento, com o objectivo de travar a progressão.\n• Fisioterapia e exercício — complemento importante em todos os graus, para fortalecer a musculatura de suporte.\n• Gestão da dor — em adultos, pode incluir analgesia, fisioterapia e outras abordagens de controlo sintomático.\n• Cirurgia — considerada para curvaturas graves ou progressivas acima de 45°–50°.\n\nO tratamento é sempre definido pelo médico ortopedista com base na avaliação completa do caso.",
+      "fonte": "NHS — Scoliosis"
+    },
+    {
+      "id": "cirurgia",
+      "categoria": "Tratamento",
+      "pergunta": "Quando é necessária cirurgia?",
+      "palavras_chave": ["cirurgia", "operação", "operar", "quando se opera", "artrodese"],
+      "resposta": "A cirurgia é sempre uma decisão médica, tomada após avaliação detalhada. Os factores que o seu médico pode considerar incluem:\n\n• Curvatura que ultrapassa 45°–50° e continua a progredir.\n• Compromisso da função pulmonar ou cardíaca.\n• Dor significativa que não responde a outros tratamentos.\n• Progressão rápida apesar do tratamento conservador.\n\nA presença de um ou mais destes factores não significa automaticamente que a cirurgia é necessária — nem a sua ausência a exclui em todos os casos. Esta informação serve para contextualizar a conversa com o seu médico, não para tirar conclusões sobre o seu caso. Consulte o seu ortopedista para uma avaliação completa.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "colete",
+      "categoria": "Tratamento",
+      "pergunta": "O que é o colete ortopédico e para que serve?",
+      "palavras_chave": ["colete", "ortopédico", "colete ortopédico", "brace", "corsé"],
+      "resposta": "O colete ortopédico é um dispositivo rígido que envolve o tronco. O seu objectivo é exercer pressão sobre a curva e travar a progressão da curvatura durante o período de crescimento ósseo.\n\nImportante saber:\n• Não corrige a curvatura já existente — apenas impede que piore.\n• Existe mais do que um tipo de colete: alguns são usados durante o dia (habitualmente 16 a 23 horas) e outros são de uso nocturno, usados apenas durante o sono. Os coletes nocturnos têm indicações clínicas muito específicas e não são uma alternativa universal ao colete diurno — o médico define qual o mais adequado para o perfil de curvatura de cada doente.\n• Geralmente é retirado quando o crescimento ósseo está completo (Risser 4–5).\n\nO tipo, o uso e a duração do colete são sempre definidos pelo médico ortopedista.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "colete-vida-quotidiana",
+      "categoria": "Tratamento",
+      "pergunta": "Como é a vida quotidiana com um colete ortopédico?",
+      "palavras_chave": ["colete", "dia-a-dia", "escola", "amigos", "roupa", "desporto", "retirar", "usar", "vida", "social", "incómodo"],
+      "resposta": "Usar um colete pode ser um desafio, especialmente no início — é normal sentir desconforto físico e alguma insegurança social. Estas preocupações são válidas e muito comuns.\n\nAlgumas questões práticas:\n• Roupa — o colete usa-se habitualmente debaixo da roupa. Tops e t-shirts mais largas e de tecido liso tendem a ser mais confortáveis e menos visíveis por cima.\n• Na escola — a maioria dos jovens adapta-se ao colete na escola ao longo das primeiras semanas. Não há obrigação de o explicar a ninguém, mas muitos jovens referem que contar a pessoas próximas alivia a pressão.\n• Desporto — dependendo do tipo de colete e das indicações do médico, pode ser autorizado retirar o colete para a prática desportiva. Confirme sempre com o seu médico o que é permitido no seu caso.\n• Higiene — o colete deve ser limpo regularmente conforme as instruções do fabricante; a pele deve ser verificada para evitar irritações.\n\nSe estiver a ter dificuldades em adaptar-se — fisicamente ou emocionalmente —, fale com o seu médico ou fisioterapeuta. Não está sozinho neste processo.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "fisioterapia",
+      "categoria": "Tratamento",
+      "pergunta": "A fisioterapia ajuda na escoliose?",
+      "palavras_chave": ["fisioterapia", "fisioterapeuta", "reabilitação", "exercícios específicos", "schroth"],
+      "resposta": "Sim, a fisioterapia é um complemento importante no tratamento da escoliose. Os métodos mais estudados incluem:\n\n• Método Schroth — é o método de fisioterapia específica para escoliose mais estudado, com evidência científica crescente para a escoliose idiopática. Baseia-se em exercícios de correcção tridimensional da postura.\n• Fisioterapia geral — fortalecimento muscular, flexibilidade e consciência postural.\n\nA fisioterapia não substitui o acompanhamento médico, mas complementa-o. Deve ser prescrita e acompanhada por um profissional de saúde.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "exercicio",
+      "categoria": "Vida quotidiana",
+      "pergunta": "Posso fazer exercício físico com escoliose?",
+      "palavras_chave": ["exercício", "exercicio", "desporto", "actividade física", "nadar", "natação", "ginásio", "yoga", "pilates"],
+      "resposta": "Em geral, sim — a actividade física é benéfica e recomendada para a maioria das pessoas com escoliose. O exercício ajuda a fortalecer os músculos de suporte da coluna e a melhorar o bem-estar geral.\n\nModalidades frequentemente referidas como complementares:\n• Natação\n• Pilates\n• Yoga\n• Caminhada\n\nA maioria dos desportos de contacto também é permitida, salvo indicação contrária do médico. Consulte sempre o seu médico ou fisioterapeuta para saber quais as actividades mais indicadas para o seu caso específico.",
+      "fonte": "Spine-health"
+    },
+    {
+      "id": "desporto-especifico",
+      "categoria": "Vida quotidiana",
+      "pergunta": "Há desportos que devo evitar com escoliose?",
+      "palavras_chave": ["desporto", "ginástica", "halterofilia", "equitação", "carga", "coluna", "evitar", "proibido", "restricão", "restrição"],
+      "resposta": "Para a maioria das pessoas com escoliose leve a moderada, não há restrições desportivas significativas. No entanto, algumas modalidades envolvem cargas axiais elevadas (carga sobre a coluna) ou movimentos de hiperextensão repetidos — como ginástica artística, halterofilia olímpica ou equitação competitiva — sobre as quais podem existir dúvidas.\n\nO que é importante saber:\n• As restrições, se existirem, dependem do grau de curvatura, da maturidade óssea e de estar ou não a usar colete.\n• Se estiver a usar colete com indicação de uso durante o dia, o médico deve ser consultado sobre quando e se pode retirá-lo para treino.\n• Não há uma lista universal de desportos proibidos — a indicação é sempre individualizada.\n\nSe pratica ou quer praticar uma modalidade de alta carga sobre a coluna, fale com o seu médico ortopedista antes de iniciar ou continuar.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "mochilas",
+      "categoria": "Vida quotidiana",
+      "pergunta": "Posso usar mochilas ou sacos pesados?",
+      "palavras_chave": ["mochila", "saco", "peso", "carregar", "escola", "pesado"],
+      "resposta": "Não existe evidência científica de que mochilas pesadas causem ou agravem a escoliose idiopática. Este é um dos mitos mais comuns sobre a condição.\n\nDito isto, carregar peso excessivo causa fadiga muscular em qualquer pessoa, com ou sem escoliose. As recomendações gerais de saúde postural aplicam-se a todos:\n• Use a mochila nas duas alças, com o peso distribuído e próximo das costas.\n• Evite sobrecarregar além do necessário.\n\nSe tiver dúvidas específicas sobre o seu caso, consulte o seu médico.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "dor",
+      "categoria": "Vida quotidiana",
+      "pergunta": "A escoliose causa dores?",
+      "palavras_chave": ["dor", "dores", "doer", "costas doem", "dói", "desconforto"],
+      "resposta": "Depende da severidade e da idade:\n\n• Escoliose leve em adolescentes — frequentemente não causa dor.\n• Escoliose moderada a grave — pode surgir tensão muscular e dores nas costas.\n• Em casos muito graves (curvaturas acima de 70°–80°, que são raras) pode existir dificuldade respiratória — mas isto não se aplica à grande maioria das pessoas com escoliose leve a moderada, cuja função pulmonar não está comprometida.\n• Em adultos — a degeneração associada ao envelhecimento pode aumentar o desconforto, mesmo em curvaturas anteriormente estáveis.\n\nQualquer dor deve ser comunicada ao seu médico para avaliação e orientação adequadas.",
+      "fonte": "NHS — Scoliosis"
+    },
+    {
+      "id": "progressao",
+      "categoria": "Vida quotidiana",
+      "pergunta": "A escoliose piora com o tempo?",
+      "palavras_chave": ["piora", "piorar", "progressão", "progresso", "avança", "avançar", "estabilizar", "estável"],
+      "resposta": "Na maioria dos adultos com escoliose leve a moderada, a curvatura estabiliza após o fim do crescimento. Em alguns casos pode progredir ligeiramente ao longo dos anos — mas o ritmo é geralmente lento.\n\n• Curvaturas abaixo de 25°–30° em adultos têm baixa probabilidade de progressão significativa.\n• Curvaturas mais acentuadas (acima de 40°–50°) têm maior probabilidade de progredir lentamente em adultos, tipicamente 1°–2° por ano.\n• Em adolescentes em crescimento activo (Risser baixo), a progressão pode ser mais rápida, o que justifica monitorização mais frequente.\n\nA monitorização regular é fundamental — permite detectar progressão atempadamente e ajustar o plano de tratamento. O seu médico é quem melhor avalia a tendência no seu caso.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "sinais-alarme",
+      "categoria": "Vida quotidiana",
+      "pergunta": "Quando devo contactar o médico fora das consultas habituais?",
+      "palavras_chave": ["urgência", "urgente", "preocupação", "alarme", "quando ligar", "quando ir ao médico", "sintomas novos", "piorou", "emergência"],
+      "resposta": "Para a maioria das pessoas com escoliose leve a moderada, as consultas periódicas são suficientes. Contudo, deve contactar o seu médico sem esperar pela próxima consulta se surgirem:\n\n• Dor intensa e de início súbito, diferente da habitual.\n• Fraqueza, dormência ou formigueiro nos braços ou pernas.\n• Dificuldade em caminhar ou em controlar os movimentos.\n• Dificuldade respiratória que não estava presente antes.\n• Alterações na bexiga ou intestino (urgência ou perda de controlo).\n• Progressão rápida e visível da curvatura num curto espaço de tempo.\n\nEstes sintomas são raros na escoliose idiopática leve a moderada, mas devem ser avaliados com brevidade. Em caso de dúvida, contacte o seu médico — é sempre melhor verificar.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "gravidez",
+      "categoria": "Vida quotidiana",
+      "pergunta": "A escoliose afecta a gravidez?",
+      "palavras_chave": ["gravidez", "grávida", "gestação", "bebé", "filhos", "engravidar", "parto", "epidural"],
+      "resposta": "A grande maioria das mulheres com escoliose idiopática tem gestações sem complicações relacionadas com a coluna. Alguns pontos a ter em conta:\n\n• Curvaturas leves a moderadas geralmente não afectam a gravidez nem o parto.\n• Em curvaturas mais acentuadas, pode ser recomendado acompanhamento adicional por obstetra e ortopedista.\n• Quanto à anestesia epidural: na maioria das mulheres com escoliose idiopática sem cirurgia prévia da coluna, a epidural é tecnicamente possível. No entanto, se tiver sido submetida a cirurgia da coluna ou tiver curvaturas muito acentuadas, é importante informar o anestesista e o obstetra com antecedência, para que o parto possa ser planeado de forma adequada.\n• A gravidez não agrava significativamente a curvatura na maioria das mulheres.\n\nSe planeia engravidar e tem escoliose, informe o seu médico para que possa ser acompanhada de forma adequada.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "impacto-psicologico",
+      "categoria": "Vida quotidiana",
+      "pergunta": "A escoliose tem impacto psicológico?",
+      "palavras_chave": ["psicológico", "ansiedade", "depressão", "emocional", "autoestima", "imagem corporal", "preocupação", "medo", "sentir"],
+      "resposta": "Sim, e é completamente normal. Sentir ansiedade, preocupação com a imagem corporal ou insegurança após um diagnóstico de escoliose é uma resposta humana válida, especialmente na adolescência. A investigação científica confirma que estes sentimentos são comuns entre jovens com escoliose, independentemente do grau da curvatura.\n\nAlguns pontos importantes:\n• O impacto emocional é tão real e válido como o físico — não deve ser ignorado.\n• Partilhe estas preocupações com o seu médico; podem orientar para apoio psicológico.\n• Grupos de apoio e comunidades de pacientes existem e podem ajudar.\n• A grande maioria dos jovens com escoliose leva uma vida completamente normal.\n\nNão esteja sozinho com estas preocupações.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "recursos-apoio",
+      "categoria": "Apoio e recursos",
+      "pergunta": "Onde posso encontrar mais informação credível sobre escoliose?",
+      "palavras_chave": ["informação", "recursos", "associação", "comunidade", "onde aprender", "sites", "livros", "apoio", "grupos"],
+      "resposta": "Para além do acompanhamento com o seu médico, existem fontes de informação reconhecidas internacionalmente:\n\n• Scoliosis Research Society (srs.org) — principal sociedade científica mundial dedicada à escoliose, com recursos educativos para doentes.\n• SOSORT (sosort.net) — sociedade internacional de ortopedia e reabilitação da coluna, com foco no tratamento conservador.\n• NHS (nhs.uk) — serviço nacional de saúde britânico, com páginas acessíveis sobre escoliose em inglês.\n\nExistem também comunidades online e grupos de apoio a nível nacional e internacional, onde doentes e familiares partilham experiências. O seu médico ou fisioterapeuta pode indicar grupos ou recursos específicos para a sua situação.\n\nDesconfie de fontes que prometam curas, suplementos ou tratamentos alternativos sem evidência científica.",
+      "fonte": "Scoliosis Research Society; SOSORT"
+    }
+  ]
+}
