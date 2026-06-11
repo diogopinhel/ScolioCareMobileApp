@@ -149,10 +149,31 @@ export default function ProfileEditScreen() {
     setErro(null);
 
     if (!nome.trim()) return setErro('O nome completo é obrigatório.');
+    if (nome.trim().length < 3) return setErro('O nome deve ter pelo menos 3 caracteres.');
+    if (!/^[a-zA-ZÀ-ÿ\s]+$/.test(nome.trim())) return setErro('O nome só pode conter letras e espaços.');
     if (dataNasc && !validarDataNasc(dataNasc))
       return setErro('Data de nascimento inválida. Use o formato DD/MM/AAAA.');
     if (!contacto.trim()) return setErro('O número de telemóvel é obrigatório.');
+    const digitosContacto = contacto.replace(/\D/g, '');
+    if (digitosContacto.length < 7 || digitosContacto.length > 15)
+      return setErro('Introduza um número de telefone válido (mínimo 7 dígitos).');
+    if (!/^\+?[\d\s\-().]+$/.test(contacto.trim()))
+      return setErro('O número de telefone contém caracteres inválidos.');
     if (!morada.trim()) return setErro('A morada é obrigatória.');
+    if (morada.trim().length < 10) return setErro('A morada deve ter pelo menos 10 caracteres.');
+
+    let pesoNum: number | null = null;
+    if (pesoStr.trim() !== '') {
+      pesoNum = parseFloat(pesoStr.replace(',', '.'));
+      if (isNaN(pesoNum) || pesoNum < 1 || pesoNum > 300)
+        return setErro('O peso deve estar entre 1 e 300 kg.');
+    }
+    let alturaNum: number | null = null;
+    if (alturaStr.trim() !== '') {
+      alturaNum = parseInt(alturaStr, 10);
+      if (isNaN(alturaNum) || alturaNum < 50 || alturaNum > 250)
+        return setErro('A altura deve estar entre 50 e 250 cm.');
+    }
 
     setACarregar(true);
     try {
@@ -165,6 +186,8 @@ export default function ProfileEditScreen() {
         genero,
         contacto: contacto.trim(),
         morada: morada.trim(),
+        peso: pesoNum,
+        altura: alturaNum,
       });
       await refreshUtilizador();
       router.back();
@@ -241,6 +264,7 @@ export default function ProfileEditScreen() {
                     placeholder="Nome completo"
                     placeholderTextColor="#9CA3AF"
                     autoCapitalize="words"
+                    maxLength={100}
                   />
                 </View>
               </View>
@@ -284,6 +308,46 @@ export default function ProfileEditScreen() {
                     </TouchableOpacity>
                   ))}
                 </View>
+              </View>
+            </View>
+
+            {/* ── DADOS CLÍNICOS ──────────────────────── */}
+            <Text style={s.seccaoLabel}>DADOS CLÍNICOS</Text>
+            <View style={s.card}>
+              <View style={s.campo}>
+                <Text style={s.campoLabel}>Peso (kg)</Text>
+                <View style={s.inputWrap}>
+                  <Activity size={16} color="#9CA3AF" />
+                  <TextInput
+                    style={s.input}
+                    value={pesoStr}
+                    onChangeText={(v) => { setPesoStr(v); setErro(null); }}
+                    placeholder="Ex: 65"
+                    placeholderTextColor="#9CA3AF"
+                    keyboardType="decimal-pad"
+                    maxLength={5}
+                  />
+                </View>
+                <Text style={s.dicaCampo}>Entre 1 e 300 kg</Text>
+              </View>
+
+              <Separador />
+
+              <View style={s.campo}>
+                <Text style={s.campoLabel}>Altura (cm)</Text>
+                <View style={s.inputWrap}>
+                  <Ruler size={16} color="#9CA3AF" />
+                  <TextInput
+                    style={s.input}
+                    value={alturaStr}
+                    onChangeText={(v) => { setAlturaStr(v.replace(/\D/g, '')); setErro(null); }}
+                    placeholder="Ex: 170"
+                    placeholderTextColor="#9CA3AF"
+                    keyboardType="number-pad"
+                    maxLength={3}
+                  />
+                </View>
+                <Text style={s.dicaCampo}>Entre 50 e 250 cm</Text>
               </View>
             </View>
 
@@ -337,9 +401,10 @@ export default function ProfileEditScreen() {
                     style={s.input}
                     value={contacto}
                     onChangeText={(v) => { setContacto(v); setErro(null); }}
-                    placeholder="912 345 678"
+                    placeholder="+351 912 345 678"
                     placeholderTextColor="#9CA3AF"
                     keyboardType="phone-pad"
+                    maxLength={20}
                   />
                 </View>
               </View>
@@ -360,6 +425,7 @@ export default function ProfileEditScreen() {
                     placeholder="Rua Exemplo, nº 1, 5000-000 Vila Real"
                     placeholderTextColor="#9CA3AF"
                     autoCapitalize="words"
+                    maxLength={200}
                   />
                 </View>
               </View>
@@ -517,6 +583,7 @@ const s = StyleSheet.create({
   },
   obrig: { color: '#EF4444' },
   soLeituraBadge: { fontSize: 11, color: '#9CA3AF', fontWeight: '500' },
+  dicaCampo: { fontSize: 11, color: '#9CA3AF', marginTop: 6 },
 
   // ── Input editável ────────────────────────────────────────────────────────────
   inputWrap: {

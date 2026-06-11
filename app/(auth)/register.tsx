@@ -158,16 +158,29 @@ export default function RegisterScreen() {
 
   function validarEtapa1(): string | null {
     if (!nome.trim()) return 'O nome completo é obrigatório.';
+    if (nome.trim().length < 3) return 'O nome deve ter pelo menos 3 caracteres.';
+    if (!/^[a-zA-ZÀ-ÿ\s]+$/.test(nome.trim())) return 'O nome só pode conter letras e espaços.';
     if (!validarDataNasc(dataNasc))
       return 'Data de nascimento inválida. Use o formato DD/MM/AAAA.';
     if (!genero) return 'Selecione o sexo.';
     if (!cartaoCidadao.trim()) return 'O Cartão de Cidadão é obrigatório.';
+    if (!/^\d{9}$/.test(cartaoCidadao.trim()))
+      return 'O número do Cartão de Cidadão deve ter exactamente 9 dígitos.';
+    if (!numeroUtente.trim()) return 'O número de utente é obrigatório.';
+    if (!/^\d{9}$/.test(numeroUtente.trim()))
+      return 'O número de utente deve ter exactamente 9 dígitos.';
     return null;
   }
 
   function validarEtapa2(): string | null {
-    if (!contacto.trim()) return 'O contacto é obrigatório.';
+    if (!contacto.trim()) return 'O número de telemóvel é obrigatório.';
+    const digitos = contacto.replace(/\D/g, '');
+    if (digitos.length < 7 || digitos.length > 15)
+      return 'Introduza um número de telefone válido (mínimo 7 dígitos).';
+    if (!/^\+?[\d\s\-().]+$/.test(contacto.trim()))
+      return 'O número de telefone contém caracteres inválidos.';
     if (!morada.trim()) return 'A morada é obrigatória.';
+    if (morada.trim().length < 10) return 'A morada deve ter pelo menos 10 caracteres.';
     return null;
   }
 
@@ -188,10 +201,11 @@ export default function RegisterScreen() {
 
   async function handleRegistar() {
     setErro(null);
-    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
+    if (!email.trim() || !/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(email.trim()))
       return setErro('Introduza um email válido.');
-    if (forca.pontos < 4)
-      return setErro('A password não cumpre todos os critérios de segurança.');
+    const coreOk = password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password);
+    if (!coreOk)
+      return setErro('A password deve ter pelo menos 8 caracteres, uma maiúscula e um número.');
     if (password !== confirmarPw) return setErro('As passwords não coincidem.');
 
     setACarregar(true);
@@ -289,6 +303,7 @@ export default function RegisterScreen() {
                   placeholder="Maria da Silva"
                   placeholderTextColor="#9CA3AF"
                   autoCapitalize="words"
+                  maxLength={100}
                   returnKeyType="next"
                 />
               </Campo>
@@ -331,21 +346,23 @@ export default function RegisterScreen() {
                 <TextInput
                   style={styles.input}
                   value={cartaoCidadao}
-                  onChangeText={(v) => { setCartaoCidadao(v); setErro(null); }}
-                  placeholder="12345678 0ZZ4"
+                  onChangeText={(v) => { setCartaoCidadao(v.replace(/\D/g, '')); setErro(null); }}
+                  placeholder="000000000"
                   placeholderTextColor="#9CA3AF"
-                  autoCapitalize="characters"
+                  keyboardType="number-pad"
+                  maxLength={9}
                 />
               </Campo>
 
-              <Campo label="Nº de Utente SNS">
+              <Campo label="Nº de Utente SNS" obrigatorio>
                 <TextInput
                   style={styles.input}
                   value={numeroUtente}
-                  onChangeText={(v) => { setNumeroUtente(v); setErro(null); }}
+                  onChangeText={(v) => { setNumeroUtente(v.replace(/\D/g, '')); setErro(null); }}
                   placeholder="123456789"
                   placeholderTextColor="#9CA3AF"
                   keyboardType="number-pad"
+                  maxLength={9}
                 />
               </Campo>
             </>
@@ -359,9 +376,10 @@ export default function RegisterScreen() {
                   style={styles.input}
                   value={contacto}
                   onChangeText={(v) => { setContacto(v); setErro(null); }}
-                  placeholder="912 345 678"
+                  placeholder="+351 912 345 678"
                   placeholderTextColor="#9CA3AF"
                   keyboardType="phone-pad"
+                  maxLength={20}
                 />
               </Campo>
 
@@ -373,6 +391,7 @@ export default function RegisterScreen() {
                   placeholder="Rua Exemplo, nº 1, 5000-000 Vila Real"
                   placeholderTextColor="#9CA3AF"
                   autoCapitalize="words"
+                  maxLength={200}
                 />
               </Campo>
             </>
