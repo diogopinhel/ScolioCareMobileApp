@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useFocusEffect } from 'expo-router';
 import {
   View,
@@ -17,11 +17,29 @@ import * as SecureStore from 'expo-secure-store';
 import { useAuth } from '../../src/context/AuthContext';
 import { ativarDoisFatoresAtual } from '../../src/data/repository/auth';
 import { getEstudosDoPaciente } from '../../src/data/repository/estudos';
+import { getWellnessLogDoPaciente } from '../../src/data/repository/wellness';
 import BottomSheet2FA from '../../src/components/BottomSheet2FA';
 import { getNotificacoesDoPaciente, marcarComoLida, Notificacao } from '../../src/data/repository/notificacoes';
-import { EstudoComResultado } from '../../src/data/types';
+import { EstudoComResultado, WellnessLogEntry } from '../../src/data/types';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
+
+function dataHojeISO(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function calcularContagemHome(): string {
+  const agora = new Date();
+  const meianoite = new Date(agora);
+  meianoite.setDate(meianoite.getDate() + 1);
+  meianoite.setHours(0, 0, 0, 0);
+  const diff = Math.max(0, meianoite.getTime() - agora.getTime());
+  const h = Math.floor(diff / 3600000);
+  const min = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  return `${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
 
 function primeiroNome(nomeCompleto: string): string {
   return nomeCompleto.split(' ')[0] ?? nomeCompleto;
@@ -198,8 +216,11 @@ export default function HomeScreen() {
   const { utilizador } = useAuth();
   const [estudos, setEstudos] = useState<EstudoComResultado[]>([]);
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
+  const [wellnessEntradas, setWellnessEntradas] = useState<WellnessLogEntry[]>([]);
+  const [contagemWellness, setContagemWellness] = useState(calcularContagemHome);
   const [aCarregar, setACarregar] = useState(true);
   const [mostrarSheet2FA, setMostrarSheet2FA] = useState(false);
+  const intervaloWellnessRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (!utilizador || utilizador.two_factor_ativo) return;
@@ -211,6 +232,18 @@ export default function HomeScreen() {
     });
     return () => { cancelado = true; };
   }, [utilizador?.id]);
+
+  const registadoHoje = wellnessEntradas.some((e) => e.data_registo === dataHojeISO());
+
+  useEffect(() => {
+    if (!registadoHoje) {
+      if (intervaloWellnessRef.current) clearInterval(intervaloWellnessRef.current);
+      return;
+    }
+    setContagemWellness(calcularContagemHome());
+    intervaloWellnessRef.current = setInterval(() => setContagemWellness(calcularContagemHome()), 1000);
+    return () => { if (intervaloWellnessRef.current) clearInterval(intervaloWellnessRef.current); };
+  }, [registadoHoje]);
 
   async function handleAtivar2FA() {
     await ativarDoisFatoresAtual();
@@ -225,12 +258,14 @@ export default function HomeScreen() {
   const carregar = useCallback(async () => {
     if (!utilizador) return;
     try {
-      const [e, n] = await Promise.all([
+      const [e, n, w] = await Promise.all([
         getEstudosDoPaciente(utilizador.id),
         getNotificacoesDoPaciente(utilizador.id),
+        getWellnessLogDoPaciente(utilizador.id),
       ]);
       setEstudos(e);
       setNotificacoes(n);
+      setWellnessEntradas(w);
     } finally {
       setACarregar(false);
     }
@@ -256,6 +291,21 @@ export default function HomeScreen() {
   }
 
   const delta = deltaCobb();
+
+  const ultimaEntradaDor = wellnessEntradas[0] ?? null;
+  const entradaAnteriorDor = wellnessEntradas[1] ?? null;
+
+  function deltaWellnessSinal(): string {
+    if (!ultimaEntradaDor || !entradaAnteriorDor) return '→';
+    const diff = ultimaEntradaDor.nivel_dor - entradaAnteriorDor.nivel_dor;
+    return diff > 0 ? '↗' : diff < 0 ? '↘' : '→';
+  }
+
+  function deltaWellnessCor(): string {
+    if (!ultimaEntradaDor || !entradaAnteriorDor) return '#6B7280';
+    const diff = ultimaEntradaDor.nivel_dor - entradaAnteriorDor.nivel_dor;
+    return diff > 0 ? '#EF4444' : diff < 0 ? '#1D9E75' : '#6B7280';
+  }
 
   async function aoTocarNotificacao(n: Notificacao) {
     if (!n.data_leitura) {
@@ -448,11 +498,31 @@ export default function HomeScreen() {
             )}
 
             {/* ── Bem-estar ─────────────────────────────────────────── */}
-            <Text style={[styles.seccaoTitulo, { marginTop: 8 }]}>O meu bem-estar</Text>
+            <View style={[styles.seccaoRow, { marginTop: 8 }]}>
+              <Text style={styles.seccaoTitulo}>O meu bem-estar</Text>
+              <TouchableOpacity onPress={() => router.push('/(tabs)/wellness-log' as never)}>
+                <Text style={styles.linkTxt}>Ver histórico</Text>
+              </TouchableOpacity>
+            </View>
 
             <View style={styles.wellnessCard}>
-              <View style={styles.wellnessIconWrap}>
-                <Activity size={24} color="#FFFFFF" />
+              <View style={styles.wellnessTopRow}>
+                <View style={styles.wellnessIconWrap}>
+                  <Activity size={24} color="#FFFFFF" />
+                </View>
+                {ultimaEntradaDor && (
+                  <View style={styles.wellnessDorRow}>
+                    <Text style={styles.wellnessDorLabel}>Último registo de dor</Text>
+                    <View style={styles.wellnessDorValorRow}>
+                      <Text style={styles.wellnessDorValor}>
+                        {ultimaEntradaDor.nivel_dor + 1}/10
+                      </Text>
+                      <Text style={[styles.wellnessDorSeta, { color: deltaWellnessCor() }]}>
+                        {deltaWellnessSinal()}
+                      </Text>
+                    </View>
+                  </View>
+                )}
               </View>
               <View style={styles.wellnessTextos}>
                 <Text style={styles.wellnessTitulo}>Como se sente hoje?</Text>
@@ -460,12 +530,23 @@ export default function HomeScreen() {
                   Registe o seu nível de dor, mobilidade e bem-estar geral
                 </Text>
               </View>
-              <TouchableOpacity
-                style={styles.wellnessBtn}
-                onPress={() => router.push('/(tabs)/wellness-log' as never)}
-              >
-                <Text style={styles.wellnessBtnTxt}>Registar bem-estar</Text>
-              </TouchableOpacity>
+              {registadoHoje ? (
+                <TouchableOpacity
+                  style={styles.wellnessBtnRegistado}
+                  onPress={() => router.push('/(tabs)/wellness-log' as never)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.wellnessBtnRegistadoTxt}>Registado hoje ✓</Text>
+                  <Text style={styles.wellnessBtnContagem}>{contagemWellness}</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={styles.wellnessBtn}
+                  onPress={() => router.push('/(tabs)/wellness-log' as never)}
+                >
+                  <Text style={styles.wellnessBtnTxt}>Registar bem-estar</Text>
+                </TouchableOpacity>
+              )}
             </View>
           </>
         )}
@@ -613,6 +694,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 4,
   },
+  wellnessTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 10,
+  },
   wellnessIconWrap: {
     width: 44,
     height: 44,
@@ -620,8 +707,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#1D9E75',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
   },
+  wellnessDorRow: { flex: 1 },
+  wellnessDorLabel: { fontSize: 11, color: '#374151' },
+  wellnessDorValorRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 },
+  wellnessDorValor: { fontSize: 20, fontWeight: '800', color: '#1A1A2E' },
+  wellnessDorSeta: { fontSize: 18, fontWeight: '700' },
   wellnessTextos: { marginBottom: 14 },
   wellnessTitulo: { fontSize: 16, fontWeight: '700', color: '#1A1A2E' },
   wellnessDesc: { fontSize: 13, color: '#374151', marginTop: 4 },
@@ -633,6 +724,16 @@ const styles = StyleSheet.create({
     minHeight: 44,
   },
   wellnessBtnTxt: { color: '#FFFFFF', fontWeight: '700', fontSize: 15 },
+  wellnessBtnRegistado: {
+    backgroundColor: '#7DAA95',
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: 'center',
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  wellnessBtnRegistadoTxt: { color: '#FFFFFF', fontWeight: '700', fontSize: 14 },
+  wellnessBtnContagem: { color: 'rgba(255,255,255,0.8)', fontSize: 12, fontWeight: '500', marginTop: 2 },
 
   bannerPendente: {
     flexDirection: 'row',

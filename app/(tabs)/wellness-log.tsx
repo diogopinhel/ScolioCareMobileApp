@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,14 +6,14 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ChevronLeft, Smile, Meh, Frown, AlertCircle, Info, Clock } from 'lucide-react-native';
 import { useAuth } from '../../src/context/AuthContext';
-import { addWellnessEntry } from '../../src/data/repository/wellness';
+import { addWellnessEntry, getWellnessLogDoPaciente } from '../../src/data/repository/wellness';
+import { WellnessLogEntry } from '../../src/data/types';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -27,13 +27,51 @@ function dataHoje(): string {
 }
 
 function dataHojeISO(): string {
-  return new Date().toISOString().slice(0, 10);
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function calcularContagem(): string {
+  const agora = new Date();
+  const meianoite = new Date(agora);
+  meianoite.setDate(meianoite.getDate() + 1);
+  meianoite.setHours(0, 0, 0, 0);
+  const diff = Math.max(0, meianoite.getTime() - agora.getTime());
+  const h = Math.floor(diff / 3600000);
+  const min = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  return `${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
 function corDor(nivel: number): string {
   if (nivel <= 3) return '#1D9E75';
   if (nivel <= 6) return '#F59E0B';
   return '#EF4444';
+}
+
+function labelDesconforto(valor: string | null): string {
+  const map: Record<string, string> = {
+    none: 'Nenhum',
+    mild: 'Ligeiro',
+    moderate: 'Moderado',
+    intense: 'Intenso',
+  };
+  return valor ? (map[valor] ?? valor) : '—';
+}
+
+function corDesconforto(valor: string | null): string {
+  if (valor === 'none') return '#1D9E75';
+  if (valor === 'intense') return '#EF4444';
+  if (valor === 'mild' || valor === 'moderate') return '#F59E0B';
+  return '#6B7280';
+}
+
+function dataFormatadaCurta(iso: string): string {
+  const d = new Date(`${iso}T00:00:00`);
+  return d.toLocaleDateString('pt-PT', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -65,22 +103,193 @@ function iconeDesconforto(valor: OpcaoDesconforto, sel: boolean) {
 
 export default function WellnessLogScreen() {
   const { utilizador } = useAuth();
+
   const [nivelDor, setNivelDor] = useState(5);
   const [desconforto, setDesconforto] = useState<OpcaoDesconforto>('none');
   const [notas, setNotas] = useState('');
   const [aGuardar, setAGuardar] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+
+  const [entradaHoje, setEntradaHoje] = useState<WellnessLogEntry | null>(null);
+  const [historicoEntradas, setHistoricoEntradas] = useState<WellnessLogEntry[]>([]);
+  const [aCarregarDados, setACarregarDados] = useState(true);
+  const [expandidos, setExpandidos] = useState<Set<string>>(new Set());
+
+  function toggleExpandido(dataRegisto: string) {
+    setExpandidos((prev) => {
+      const next = new Set(prev);
+      next.has(dataRegisto) ? next.delete(dataRegisto) : next.add(dataRegisto);
+      return next;
+    });
+  }
+
+  const [contagem, setContagem] = useState(calcularContagem);
+  const intervaloRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const contaPendente = !!utilizador && !utilizador.conta_ativada;
+
+  // Load today's entry on mount
+  useEffect(() => {
+    if (!utilizador || contaPendente) {
+      setACarregarDados(false);
+      return;
+    }
+    (async () => {
+      try {
+        const entradas = await getWellnessLogDoPaciente(utilizador.id);
+        const hoje = dataHojeISO();
+        const entrada = entradas.find((e) => e.data_registo === hoje) ?? null;
+        setEntradaHoje(entrada);
+        setHistoricoEntradas(entradas.filter((e) => e.data_registo !== hoje));
+      } catch {
+        // silently fail — form stays available
+      } finally {
+        setACarregarDados(false);
+      }
+    })();
+  }, [utilizador?.id, contaPendente]);
+
+  // Countdown interval — only active when locked
+  useEffect(() => {
+    if (!entradaHoje) {
+      if (intervaloRef.current) {
+        clearInterval(intervaloRef.current);
+        intervaloRef.current = null;
+      }
+      return;
+    }
+    setContagem(calcularContagem());
+    intervaloRef.current = setInterval(() => setContagem(calcularContagem()), 1000);
+    return () => {
+      if (intervaloRef.current) clearInterval(intervaloRef.current);
+    };
+  }, [entradaHoje]);
+
+  async function guardarRegisto() {
+    if (!utilizador) return;
+    setErro(null);
+    setAGuardar(true);
+    try {
+      const hoje = dataHojeISO();
+      await addWellnessEntry({
+        paciente_id: utilizador.id,
+        data_registo: hoje,
+        nivel_dor: nivelDor - 1, // display 1–10, store 0–9 in DB
+        desconforto,
+        notas: notas.trim() || null,
+      });
+      setEntradaHoje({
+        id: '',
+        paciente_id: utilizador.id,
+        data_registo: hoje,
+        nivel_dor: nivelDor - 1,
+        desconforto,
+        notas: notas.trim() || null,
+        criado_em: new Date().toISOString(),
+      });
+    } catch {
+      setErro('Não foi possível guardar o registo. Tente novamente.');
+    } finally {
+      setAGuardar(false);
+    }
+  }
+
+  const cor = corDor(nivelDor);
+
+  // ─── Histórico (partilhado por ambos os estados de render) ────────────────
+
+  function renderHistorico() {
+    return (
+      <>
+        <View style={styles.histCabecalho}>
+          <Text style={styles.histTitulo}>Histórico</Text>
+          {historicoEntradas.length > 0 && (
+            <Text style={styles.histContagem}>
+              ({historicoEntradas.length} {historicoEntradas.length === 1 ? 'registo' : 'registos'})
+            </Text>
+          )}
+        </View>
+
+        {historicoEntradas.length === 0 ? (
+          <View style={styles.histVazio}>
+            <Clock size={28} color="#9CA3AF" />
+            <Text style={styles.histVazioTxt}>Ainda não há registos anteriores</Text>
+          </View>
+        ) : (
+          historicoEntradas.map((entrada) => {
+            const dor = entrada.nivel_dor + 1;
+            const corDorItem = corDor(dor);
+            const chave = entrada.id || entrada.data_registo;
+            const temNotas = !!entrada.notas;
+            const expandido = expandidos.has(entrada.data_registo);
+            return (
+              <View key={chave} style={styles.histItem}>
+                {/* Linha principal */}
+                <View style={styles.histLinhaTop}>
+                  <View style={styles.histItemEsq}>
+                    <Text style={styles.histData} numberOfLines={1}>
+                      {dataFormatadaCurta(entrada.data_registo)}
+                    </Text>
+                  </View>
+                  <View style={styles.histItemCentro}>
+                    <View style={styles.histDorRow}>
+                      <Text style={[styles.histDorNum, { color: corDorItem }]}>{dor}</Text>
+                      <Text style={styles.histDorEscala}>/10</Text>
+                    </View>
+                    <View style={styles.histBarra}>
+                      {Array.from({ length: 10 }, (_, i) => (
+                        <View
+                          key={i}
+                          style={[
+                            styles.histBarraSeg,
+                            i < dor && { backgroundColor: corDorItem },
+                          ]}
+                        />
+                      ))}
+                    </View>
+                  </View>
+                  <View style={styles.histItemDir}>
+                    <Text style={[styles.histDesconforto, { color: corDesconforto(entrada.desconforto) }]}>
+                      {labelDesconforto(entrada.desconforto)}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Pill "Ver notas" — só se tiver notas */}
+                {temNotas && (
+                  <>
+                    {expandido && (
+                      <>
+                        <View style={styles.histSeparador} />
+                        <Text style={styles.histNotasExpandidas}>{entrada.notas}</Text>
+                      </>
+                    )}
+                    <TouchableOpacity
+                      style={styles.histPill}
+                      onPress={() => toggleExpandido(entrada.data_registo)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={styles.histPillTxt}>
+                        {expandido ? 'Ocultar ↑' : 'Ver notas ↓'}
+                      </Text>
+                    </TouchableOpacity>
+                  </>
+                )}
+              </View>
+            );
+          })
+        )}
+      </>
+    );
+  }
+
+  // ─── Pending ───────────────────────────────────────────────────────────────
 
   if (contaPendente) {
     return (
       <SafeAreaView style={styles.safe} edges={['top']}>
         <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.btnVoltar}
-            onPress={() => router.back()}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
+          <TouchableOpacity style={styles.btnVoltar} onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <ChevronLeft size={24} color="#1A1A2E" />
           </TouchableOpacity>
           <Text style={styles.titulo}>Registar bem-estar</Text>
@@ -100,40 +309,107 @@ export default function WellnessLogScreen() {
     );
   }
 
-  async function guardarRegisto() {
-    if (!utilizador) return;
-    setAGuardar(true);
-    try {
-      await addWellnessEntry({
-        paciente_id: utilizador.id,
-        data_registo: dataHojeISO(),
-        nivel_dor: nivelDor - 1, // display 1–10, store 0–9 in DB
-        desconforto,
-        notas: notas.trim() || null,
-      });
-      Alert.alert(
-        'Registo guardado',
-        'O seu registo de bem-estar foi guardado com sucesso.',
-        [{ text: 'OK', onPress: () => router.back() }],
-      );
-    } catch {
-      Alert.alert('Erro', 'Não foi possível guardar o registo. Tente novamente.');
-    } finally {
-      setAGuardar(false);
-    }
+  // ─── Loading ───────────────────────────────────────────────────────────────
+
+  if (aCarregarDados) {
+    return (
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.btnVoltar} onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            <ChevronLeft size={24} color="#1A1A2E" />
+          </TouchableOpacity>
+          <Text style={styles.titulo}>Registar bem-estar</Text>
+          <View style={{ width: 40 }} />
+        </View>
+        <ActivityIndicator size="large" color="#1A6FAF" style={{ marginTop: 60 }} />
+      </SafeAreaView>
+    );
   }
 
-  const cor = corDor(nivelDor);
+  // ─── Locked (already registered today) ────────────────────────────────────
+
+  if (entradaHoje) {
+    const dorExibida = entradaHoje.nivel_dor + 1; // 0–9 in DB → 1–10 displayed
+    const corEntrada = corDor(dorExibida);
+
+    return (
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.btnVoltar} onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            <ChevronLeft size={24} color="#1A1A2E" />
+          </TouchableOpacity>
+          <Text style={styles.titulo}>Registar bem-estar</Text>
+          <View style={{ width: 40 }} />
+        </View>
+
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
+          <Text style={styles.dataHoje}>{dataHoje()}</Text>
+
+          <View style={styles.seccao}>
+            <View style={styles.registadoHeader}>
+              <Text style={styles.seccaoTitulo}>Registo de hoje</Text>
+              <View style={styles.badgeRegistado}>
+                <Text style={styles.badgeRegistadoTxt}>Registado ✓</Text>
+              </View>
+            </View>
+
+            <View style={styles.dorRow}>
+              <View style={styles.dorValorWrap}>
+                <Text style={[styles.dorNumero, { color: corEntrada }]}>{dorExibida}</Text>
+                <Text style={styles.dorEscala}>/10</Text>
+              </View>
+            </View>
+            <View style={styles.barraContainer}>
+              {Array.from({ length: 10 }, (_, i) => (
+                <View key={i} style={[styles.barraSeg, i < dorExibida && { backgroundColor: corEntrada }]} />
+              ))}
+            </View>
+            <View style={styles.barraLabels}>
+              <Text style={styles.barraLabelTxt}>Sem dor</Text>
+              <Text style={styles.barraLabelTxt}>Dor intensa</Text>
+            </View>
+
+            <View style={styles.separador} />
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Desconforto</Text>
+              <Text style={styles.infoValor}>{labelDesconforto(entradaHoje.desconforto)}</Text>
+            </View>
+
+            {entradaHoje.notas ? (
+              <>
+                <View style={styles.separador} />
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Notas</Text>
+                  <Text style={[styles.infoValor, styles.notasLeitura]}>{entradaHoje.notas}</Text>
+                </View>
+              </>
+            ) : null}
+          </View>
+
+          <View style={styles.contagemBanner}>
+            <Clock size={18} color="#1A6FAF" />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.contagemLabel}>Próximo registo disponível em</Text>
+              <Text style={styles.contagemValor}>{contagem}</Text>
+            </View>
+          </View>
+
+          <TouchableOpacity style={[styles.btnGuardar, styles.btnBloqueado]} disabled>
+            <Text style={styles.btnGuardarTxt}>Já registaste hoje</Text>
+          </TouchableOpacity>
+
+          {renderHistorico()}
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  // ─── Form (available) ──────────────────────────────────────────────────────
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.btnVoltar}
-          onPress={() => router.back()}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
+        <TouchableOpacity style={styles.btnVoltar} onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
           <ChevronLeft size={24} color="#1A1A2E" />
         </TouchableOpacity>
         <Text style={styles.titulo}>Registar bem-estar</Text>
@@ -141,7 +417,6 @@ export default function WellnessLogScreen() {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-        {/* Date */}
         <Text style={styles.dataHoje}>{dataHoje()}</Text>
 
         {/* Nível de dor */}
@@ -150,25 +425,18 @@ export default function WellnessLogScreen() {
           <Text style={styles.seccaoSub}>Selecione o seu nível de dor hoje</Text>
 
           <View style={styles.dorRow}>
-            <TouchableOpacity
-              style={styles.dorBtn}
-              onPress={() => setNivelDor((v) => Math.max(1, v - 1))}
-            >
+            <TouchableOpacity style={styles.dorBtn} onPress={() => setNivelDor((v) => Math.max(1, v - 1))}>
               <Text style={styles.dorBtnTxt}>−</Text>
             </TouchableOpacity>
             <View style={styles.dorValorWrap}>
               <Text style={[styles.dorNumero, { color: cor }]}>{nivelDor}</Text>
               <Text style={styles.dorEscala}>/10</Text>
             </View>
-            <TouchableOpacity
-              style={styles.dorBtn}
-              onPress={() => setNivelDor((v) => Math.min(10, v + 1))}
-            >
+            <TouchableOpacity style={styles.dorBtn} onPress={() => setNivelDor((v) => Math.min(10, v + 1))}>
               <Text style={styles.dorBtnTxt}>+</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Segmented bar */}
           <View style={styles.barraContainer}>
             {Array.from({ length: 10 }, (_, i) => (
               <TouchableOpacity
@@ -199,16 +467,14 @@ export default function WellnessLogScreen() {
                   activeOpacity={0.7}
                 >
                   {iconeDesconforto(opcao.valor, sel)}
-                  <Text style={[styles.gridLabel, sel && styles.gridLabelSel]}>
-                    {opcao.label}
-                  </Text>
+                  <Text style={[styles.gridLabel, sel && styles.gridLabelSel]}>{opcao.label}</Text>
                 </TouchableOpacity>
               );
             })}
           </View>
         </View>
 
-        {/* Notas adicionais */}
+        {/* Notas */}
         <View style={styles.seccao}>
           <Text style={styles.seccaoTitulo}>Notas adicionais</Text>
           <Text style={styles.seccaoSub}>Opcional — partilhe mais detalhes sobre como se sente</Text>
@@ -221,10 +487,13 @@ export default function WellnessLogScreen() {
             multiline
             numberOfLines={4}
             textAlignVertical="top"
+            maxLength={500}
           />
+          {notas.length > 400 && (
+            <Text style={styles.notasContador}>{notas.length}/500</Text>
+          )}
         </View>
 
-        {/* Aviso de privacidade */}
         <View style={styles.aviso}>
           <Info size={16} color="#1A6FAF" />
           <Text style={styles.avisoTxt}>
@@ -232,7 +501,12 @@ export default function WellnessLogScreen() {
           </Text>
         </View>
 
-        {/* Botão guardar */}
+        {erro && (
+          <View style={styles.erroBox}>
+            <Text style={styles.erroTxt}>{erro}</Text>
+          </View>
+        )}
+
         <TouchableOpacity
           style={[styles.btnGuardar, aGuardar && styles.btnGuardarDisabled]}
           onPress={guardarRegisto}
@@ -245,6 +519,8 @@ export default function WellnessLogScreen() {
             <Text style={styles.btnGuardarTxt}>Guardar registo</Text>
           )}
         </TouchableOpacity>
+
+        {renderHistorico()}
       </ScrollView>
     </SafeAreaView>
   );
@@ -266,21 +542,11 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E5E7EB',
     backgroundColor: '#FFFFFF',
   },
-  btnVoltar: {
-    width: 40,
-    height: 44,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-  },
+  btnVoltar: { width: 40, height: 44, alignItems: 'flex-start', justifyContent: 'center' },
   titulo: { fontSize: 18, fontWeight: '700', color: '#1A1A2E' },
 
   scroll: { padding: 16, paddingBottom: 40 },
-  dataHoje: {
-    fontSize: 13,
-    color: '#6B7280',
-    marginBottom: 16,
-    textTransform: 'capitalize',
-  },
+  dataHoje: { fontSize: 13, color: '#6B7280', marginBottom: 16, textTransform: 'capitalize' },
 
   seccao: {
     backgroundColor: '#FFFFFF',
@@ -296,7 +562,20 @@ const styles = StyleSheet.create({
   seccaoTitulo: { fontSize: 16, fontWeight: '700', color: '#1A1A2E', marginBottom: 2 },
   seccaoSub: { fontSize: 13, color: '#6B7280', marginBottom: 16 },
 
-  // Nível de dor
+  registadoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  badgeRegistado: {
+    backgroundColor: '#1D9E75',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  badgeRegistadoTxt: { color: '#FFFFFF', fontSize: 12, fontWeight: '700' },
+
   dorRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -322,7 +601,13 @@ const styles = StyleSheet.create({
   barraLabels: { flexDirection: 'row', justifyContent: 'space-between' },
   barraLabelTxt: { fontSize: 11, color: '#9CA3AF' },
 
-  // Desconforto grid
+  separador: { height: 1, backgroundColor: '#F3F4F6', marginVertical: 12 },
+
+  infoRow: { gap: 4 },
+  infoLabel: { fontSize: 11, color: '#6B7280' },
+  infoValor: { fontSize: 15, color: '#1A1A2E', fontWeight: '500' },
+  notasLeitura: { fontSize: 14, fontWeight: '400', lineHeight: 20 },
+
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   gridItem: {
     width: '47%',
@@ -339,7 +624,6 @@ const styles = StyleSheet.create({
   gridLabel: { fontSize: 13, color: '#6B7280', fontWeight: '500' },
   gridLabelSel: { color: '#1A1A2E', fontWeight: '700' },
 
-  // Notas
   notasInput: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
@@ -352,8 +636,20 @@ const styles = StyleSheet.create({
     color: '#1A1A2E',
     minHeight: 100,
   },
+  notasContador: { fontSize: 11, color: '#9CA3AF', textAlign: 'right', marginTop: 4 },
 
-  // Aviso
+  contagemBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#EFF6FF',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 16,
+  },
+  contagemLabel: { fontSize: 13, color: '#1A6FAF' },
+  contagemValor: { fontSize: 22, fontWeight: '800', color: '#1A6FAF', marginTop: 2 },
+
   aviso: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -365,7 +661,16 @@ const styles = StyleSheet.create({
   },
   avisoTxt: { flex: 1, fontSize: 12, color: '#1A6FAF', lineHeight: 18 },
 
-  // Botão guardar
+  erroBox: {
+    backgroundColor: '#FEF2F2',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#FECACA',
+  },
+  erroTxt: { color: '#EF4444', fontSize: 13, textAlign: 'center' },
+
   btnGuardar: {
     backgroundColor: '#1A6FAF',
     borderRadius: 12,
@@ -375,7 +680,70 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   btnGuardarDisabled: { opacity: 0.6 },
+  btnBloqueado: { backgroundColor: '#9CA3AF', opacity: 0.7 },
   btnGuardarTxt: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
+
+  // ── Histórico ────────────────────────────────────────────────────────────
+  histCabecalho: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 8,
+    marginBottom: 10,
+  },
+  histTitulo: { fontSize: 17, fontWeight: '700', color: '#1A1A2E' },
+  histContagem: { fontSize: 13, color: '#1A6FAF', fontWeight: '500' },
+
+  histVazio: {
+    alignItems: 'center',
+    paddingVertical: 28,
+    gap: 10,
+  },
+  histVazioTxt: { fontSize: 14, color: '#9CA3AF', textAlign: 'center' },
+
+  histItem: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingTop: 12,
+    paddingBottom: 10,
+    marginBottom: 8,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
+  },
+  histItemEsq: { width: 68 },
+  histData: { fontSize: 12, fontWeight: '600', color: '#1A1A2E', textTransform: 'capitalize' },
+
+  histItemCentro: { flex: 1 },
+  histDorRow: { flexDirection: 'row', alignItems: 'baseline', gap: 2, marginBottom: 4 },
+  histDorNum: { fontSize: 18, fontWeight: '800' },
+  histDorEscala: { fontSize: 11, color: '#9CA3AF' },
+  histBarra: { flexDirection: 'row', gap: 2 },
+  histBarraSeg: { flex: 1, height: 5, borderRadius: 3, backgroundColor: '#E5E7EB' },
+
+  histItemDir: { width: 72, alignItems: 'flex-end' },
+  histDesconforto: { fontSize: 12, fontWeight: '600' },
+
+  histLinhaTop: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 2 },
+  histSeparador: { height: 1, backgroundColor: '#F3F4F6', marginTop: 10, marginBottom: 8 },
+  histNotasExpandidas: {
+    fontSize: 13,
+    color: '#374151',
+    lineHeight: 20,
+    marginBottom: 8,
+  },
+  histPill: {
+    alignSelf: 'flex-start',
+    marginTop: 8,
+    backgroundColor: '#EFF6FF',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+  },
+  histPillTxt: { fontSize: 12, color: '#1A6FAF', fontWeight: '600' },
 
   pendente: {
     flex: 1,
