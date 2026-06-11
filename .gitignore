@@ -45,3 +45,4 @@ schema.sql
 docs/
 mockups/
 .claude/
+multiagents/
