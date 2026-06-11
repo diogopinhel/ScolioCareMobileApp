@@ -162,19 +162,6 @@ export default function ProfileEditScreen() {
     if (!morada.trim()) return setErro('A morada é obrigatória.');
     if (morada.trim().length < 10) return setErro('A morada deve ter pelo menos 10 caracteres.');
 
-    let pesoNum: number | null = null;
-    if (pesoStr.trim() !== '') {
-      pesoNum = parseFloat(pesoStr.replace(',', '.'));
-      if (isNaN(pesoNum) || pesoNum < 1 || pesoNum > 300)
-        return setErro('O peso deve estar entre 1 e 300 kg.');
-    }
-    let alturaNum: number | null = null;
-    if (alturaStr.trim() !== '') {
-      alturaNum = parseInt(alturaStr, 10);
-      if (isNaN(alturaNum) || alturaNum < 50 || alturaNum > 250)
-        return setErro('A altura deve estar entre 50 e 250 cm.');
-    }
-
     setACarregar(true);
     try {
       if (novaFoto) {
@@ -186,8 +173,6 @@ export default function ProfileEditScreen() {
         genero,
         contacto: contacto.trim(),
         morada: morada.trim(),
-        peso: pesoNum,
-        altura: alturaNum,
       });
       await refreshUtilizador();
       router.back();
@@ -308,46 +293,6 @@ export default function ProfileEditScreen() {
                     </TouchableOpacity>
                   ))}
                 </View>
-              </View>
-            </View>
-
-            {/* ── DADOS CLÍNICOS ──────────────────────── */}
-            <Text style={s.seccaoLabel}>DADOS CLÍNICOS</Text>
-            <View style={s.card}>
-              <View style={s.campo}>
-                <Text style={s.campoLabel}>Peso (kg)</Text>
-                <View style={s.inputWrap}>
-                  <Activity size={16} color="#9CA3AF" />
-                  <TextInput
-                    style={s.input}
-                    value={pesoStr}
-                    onChangeText={(v) => { setPesoStr(v); setErro(null); }}
-                    placeholder="Ex: 65"
-                    placeholderTextColor="#9CA3AF"
-                    keyboardType="decimal-pad"
-                    maxLength={5}
-                  />
-                </View>
-                <Text style={s.dicaCampo}>Entre 1 e 300 kg</Text>
-              </View>
-
-              <Separador />
-
-              <View style={s.campo}>
-                <Text style={s.campoLabel}>Altura (cm)</Text>
-                <View style={s.inputWrap}>
-                  <Ruler size={16} color="#9CA3AF" />
-                  <TextInput
-                    style={s.input}
-                    value={alturaStr}
-                    onChangeText={(v) => { setAlturaStr(v.replace(/\D/g, '')); setErro(null); }}
-                    placeholder="Ex: 170"
-                    placeholderTextColor="#9CA3AF"
-                    keyboardType="number-pad"
-                    maxLength={3}
-                  />
-                </View>
-                <Text style={s.dicaCampo}>Entre 50 e 250 cm</Text>
               </View>
             </View>
 
@@ -583,7 +528,6 @@ const s = StyleSheet.create({
   },
   obrig: { color: '#EF4444' },
   soLeituraBadge: { fontSize: 11, color: '#9CA3AF', fontWeight: '500' },
-  dicaCampo: { fontSize: 11, color: '#9CA3AF', marginTop: 6 },
 
   // ── Input editável ────────────────────────────────────────────────────────────
   inputWrap: {

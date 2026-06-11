@@ -20,10 +20,8 @@ import {
   Users,
   Lock,
   ShieldCheck,
-  Smartphone,
   Languages,
   Bell,
-  Activity,
   Brain,
   Info,
   FileText,
@@ -197,7 +195,6 @@ export default function ProfileScreen() {
   const [email, setEmail] = useState<string | null>(null);
   const [medico, setMedico] = useState<MedicoResponsavel | null>(null);
   const [consentimento, setConsentimento] = useState<ConsentimentoTreino | null>(null);
-  const [notifPush, setNotifPush] = useState(true);
   const [aCarregar, setACarregar] = useState(true);
   const [hasDismissed2FA, setHasDismissed2FA] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -453,15 +450,6 @@ export default function ProfileScreen() {
             badge={hasDismissed2FA && !utilizador?.two_factor_ativo ? 'Recomendado' : undefined}
             carregando={aGuardar}
           />
-          <View style={styles.separador} />
-          <LinhaAcao
-            icone={<Smartphone size={18} color="#1A6FAF" />}
-            label="Sessões ativas"
-            descricao="Gerir dispositivos com sessão iniciada"
-            onPress={() =>
-              Alert.alert('Em breve', 'A gestão de sessões estará disponível numa próxima versão.')
-            }
-          />
         </View>
 
         {/* ── PREFERÊNCIAS ─────────────────────────────── */}
@@ -473,23 +461,15 @@ export default function ProfileScreen() {
             valor={`${idiomaLabel(utilizador?.idioma ?? 'pt')} · Mais idiomas em breve`}
           />
           <View style={styles.separador} />
-          <LinhaToggle
+          <LinhaAcao
             icone={<Bell size={18} color="#F59E0B" />}
             fundoIcone="#FEF3C7"
             label="Notificações push"
-            valor={notifPush}
-            onChange={setNotifPush}
-          />
-          <View style={styles.separador} />
-          <LinhaAcao
-            icone={<Activity size={18} color="#1D9E75" />}
-            fundoIcone="#D1FAE5"
-            label="Registo de bem-estar"
-            valor="Diário"
+            descricao="Brevemente disponível"
             onPress={() =>
               Alert.alert(
-                'Em breve',
-                'Configuração do registo de bem-estar disponível numa próxima versão.',
+                'Notificações push',
+                'As notificações push estarão disponíveis numa próxima versão.',
               )
             }
           />
@@ -521,7 +501,7 @@ export default function ProfileScreen() {
             icone={<FileText size={18} color="#1A6FAF" />}
             label="Política de privacidade"
             onPress={() =>
-              Alert.alert('Em breve', 'A política de privacidade estará disponível em breve.')
+              Alert.alert('Política de privacidade', 'Brevemente disponível nesta secção.')
             }
           />
           <View style={styles.separador} />
@@ -529,7 +509,7 @@ export default function ProfileScreen() {
             icone={<ScrollText size={18} color="#1A6FAF" />}
             label="Termos e condições"
             onPress={() =>
-              Alert.alert('Em breve', 'Os termos e condições estarão disponíveis em breve.')
+              Alert.alert('Termos e condições', 'Brevemente disponível nesta secção.')
             }
           />
         </View>

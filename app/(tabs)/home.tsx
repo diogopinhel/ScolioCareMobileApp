@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -15,7 +16,7 @@ import { Bell, FileText, TrendingDown, TrendingUp, Minus, Activity, Clock } from
 import Svg, { Polyline, Circle, Line, Text as SvgText } from 'react-native-svg';
 import * as SecureStore from 'expo-secure-store';
 import { useAuth } from '../../src/context/AuthContext';
-import { ativarDoisFatoresAtual } from '../../src/data/repository/auth';
+import { getEmailDoPaciente } from '../../src/data/repository/perfil';
 import { getEstudosDoPaciente } from '../../src/data/repository/estudos';
 import { getWellnessLogDoPaciente } from '../../src/data/repository/wellness';
 import BottomSheet2FA from '../../src/components/BottomSheet2FA';
@@ -216,7 +217,7 @@ function MiniGrafico({ estudos, largura }: GraficoProps) {
 // ─── Componente principal ────────────────────────────────────────────────────
 
 export default function HomeScreen() {
-  const { utilizador } = useAuth();
+  const { utilizador, enviarOtp2FA } = useAuth();
   const [estudos, setEstudos] = useState<EstudoComResultado[]>([]);
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [wellnessEntradas, setWellnessEntradas] = useState<WellnessLogEntry[]>([]);
@@ -250,8 +251,22 @@ export default function HomeScreen() {
   }, [registadoHoje]);
 
   async function handleAtivar2FA() {
-    await ativarDoisFatoresAtual();
-    setMostrarSheet2FA(false);
+    try {
+      const emailDoUtilizador = await getEmailDoPaciente();
+      if (!emailDoUtilizador) return;
+      await enviarOtp2FA(emailDoUtilizador);
+      setMostrarSheet2FA(false);
+      router.push({
+        pathname: '/(auth)/two-factor-verify' as never,
+        params: { email: emailDoUtilizador, modo: 'ativar' },
+      });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : '';
+      const descricao = msg.toLowerCase().includes('rate limit')
+        ? 'Limite de emails atingido. Aguarde alguns minutos e tente novamente.'
+        : 'Não foi possível enviar o código de verificação. Tente novamente.';
+      Alert.alert('Erro', descricao);
+    }
   }
 
   async function handleDispensar2FA() {

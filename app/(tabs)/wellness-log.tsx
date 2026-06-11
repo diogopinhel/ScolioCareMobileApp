@@ -159,7 +159,14 @@ export default function WellnessLogScreen() {
       return;
     }
     setContagem(calcularContagem());
-    intervaloRef.current = setInterval(() => setContagem(calcularContagem()), 1000);
+    intervaloRef.current = setInterval(() => {
+      const nova = calcularContagem();
+      setContagem(nova);
+      if (nova === '00:00:00') {
+        setEntradaHoje(null);
+        setHistoricoEntradas([]);
+      }
+    }, 1000);
     return () => {
       if (intervaloRef.current) clearInterval(intervaloRef.current);
     };

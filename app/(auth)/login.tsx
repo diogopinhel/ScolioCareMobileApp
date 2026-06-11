@@ -132,6 +132,14 @@ export default function Login() {
             </TouchableOpacity>
 
             <TouchableOpacity
+              style={styles.esqueciLink}
+              onPress={() => router.push('/(auth)/recuperar-password' as never)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Text style={styles.esqueciLinkTxt}>Esqueceu a palavra-passe?</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
               style={styles.demoBox}
               onPress={() => {
                 setEmail('maria.silva@scolio.pt');
@@ -298,6 +306,9 @@ const styles = StyleSheet.create({
   },
   criarContaTxt: { fontSize: 14, color: '#6B7280' },
   criarContaLink: { fontSize: 14, color: '#1A6FAF', fontWeight: '700' },
+
+  esqueciLink: { alignItems: 'center', marginTop: 14 },
+  esqueciLinkTxt: { fontSize: 13, color: '#1A6FAF', fontWeight: '500' },
 
   footer: { paddingVertical: 24, alignItems: 'center' },
   footerText: {

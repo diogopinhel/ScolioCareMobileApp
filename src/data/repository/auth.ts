@@ -182,6 +182,32 @@ export async function ativarDoisFatoresAtual(): Promise<void> {
   if (error) throw error;
 }
 
+export async function enviarEmailRecuperacaoPassword(email: string): Promise<void> {
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: { shouldCreateUser: false },
+  });
+  if (error) throw error;
+}
+
+export async function definirNovaPassword(
+  email: string,
+  token: string,
+  novaPassword: string,
+): Promise<void> {
+  const { error: verifyError } = await supabase.auth.verifyOtp({
+    email,
+    token,
+    type: 'email',
+  });
+  if (verifyError) throw verifyError;
+
+  const { error: updateError } = await supabase.auth.updateUser({ password: novaPassword });
+  if (updateError) throw updateError;
+
+  await supabase.auth.signOut();
+}
+
 export async function obterPacienteAtual(): Promise<Paciente | null> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
