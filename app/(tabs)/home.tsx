@@ -114,9 +114,10 @@ function estadoCor(estado: string): string {
 
 interface GraficoProps {
   estudos: EstudoComResultado[];
+  largura: number;
 }
 
-function MiniGrafico({ estudos }: GraficoProps) {
+function MiniGrafico({ estudos, largura }: GraficoProps) {
   const dados = estudos
     .filter((e) => e.resultado?.angulo_cobb != null)
     .slice(0, 5)
@@ -130,7 +131,7 @@ function MiniGrafico({ estudos }: GraficoProps) {
     );
   }
 
-  const W = 280;
+  const W = largura;
   const H = 100;
   const PAD_L = 36;
   const PAD_R = 12;
@@ -153,6 +154,8 @@ function MiniGrafico({ estudos }: GraficoProps) {
   const pontos = dados.map((e, i) => `${xPx(i)},${yPx(e.resultado!.angulo_cobb)}`).join(' ');
 
   const yTicks = [min, Math.round((min + max) / 2), max];
+
+  if (W <= 0) return null;
 
   return (
     <Svg width={W} height={H}>
@@ -217,6 +220,7 @@ export default function HomeScreen() {
   const [estudos, setEstudos] = useState<EstudoComResultado[]>([]);
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [wellnessEntradas, setWellnessEntradas] = useState<WellnessLogEntry[]>([]);
+  const [larguraGrafico, setLarguraGrafico] = useState(0);
   const [contagemWellness, setContagemWellness] = useState(calcularContagemHome);
   const [aCarregar, setACarregar] = useState(true);
   const [mostrarSheet2FA, setMostrarSheet2FA] = useState(false);
@@ -452,10 +456,11 @@ export default function HomeScreen() {
               style={styles.card}
               activeOpacity={0.85}
               onPress={() => router.push('/(tabs)/exams/evolution' as never)}
+              onLayout={(e) => setLarguraGrafico(e.nativeEvent.layout.width - 32)}
             >
               <Text style={styles.graficoSub}>Ângulo de Cobb – Últimos 5 exames</Text>
               {estudos.length >= 2 ? (
-                <MiniGrafico estudos={estudos} />
+                <MiniGrafico estudos={estudos} largura={larguraGrafico} />
               ) : (
                 <View style={styles.graficoVazio}>
                   <Text style={styles.graficoVazioTxt}>
