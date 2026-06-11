@@ -158,6 +158,13 @@ export async function logout(): Promise<void> {
   if (error) throw error;
 }
 
+export async function alterarPassword(email: string, passwordAtual: string, novaPassword: string): Promise<void> {
+  const { error: authError } = await supabase.auth.signInWithPassword({ email, password: passwordAtual });
+  if (authError) throw new Error('A password atual está incorreta.');
+  const { error: updateError } = await supabase.auth.updateUser({ password: novaPassword });
+  if (updateError) throw updateError;
+}
+
 export async function reenviarEmailVerificacao(email: string): Promise<void> {
   const { error } = await supabase.auth.resend({ type: 'signup', email });
   if (error) throw error;

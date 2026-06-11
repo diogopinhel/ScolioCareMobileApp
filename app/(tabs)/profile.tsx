@@ -435,9 +435,7 @@ export default function ProfileScreen() {
           <LinhaAcao
             icone={<Lock size={18} color="#1A6FAF" />}
             label="Alterar palavra-passe"
-            onPress={() =>
-              Alert.alert('Em breve', 'Esta funcionalidade estará disponível numa próxima versão.')
-            }
+            onPress={() => router.push('/change-password' as never)}
           />
           <View style={styles.separador} />
           <LinhaToggle
