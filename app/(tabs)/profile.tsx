@@ -150,6 +150,7 @@ function LinhaToggle({
   valor,
   onChange,
   badge,
+  carregando,
 }: {
   icone: ReactNode;
   fundoIcone?: string;
@@ -158,6 +159,7 @@ function LinhaToggle({
   valor: boolean;
   onChange: (v: boolean) => void;
   badge?: string;
+  carregando?: boolean;
 }) {
   return (
     <View style={styles.linha}>
@@ -173,12 +175,16 @@ function LinhaToggle({
         </View>
         {descricao && <Text style={styles.linhaDesc}>{descricao}</Text>}
       </View>
-      <Switch
-        value={valor}
-        onValueChange={onChange}
-        trackColor={{ false: '#E5E7EB', true: '#1D9E75' }}
-        thumbColor="#FFFFFF"
-      />
+      {carregando ? (
+        <ActivityIndicator size="small" color="#1A6FAF" style={{ width: 51 }} />
+      ) : (
+        <Switch
+          value={valor}
+          onValueChange={onChange}
+          trackColor={{ false: '#E5E7EB', true: '#1D9E75' }}
+          thumbColor="#FFFFFF"
+        />
+      )}
     </View>
   );
 }
@@ -194,6 +200,8 @@ export default function ProfileScreen() {
   const [notifPush, setNotifPush] = useState(true);
   const [aCarregar, setACarregar] = useState(true);
   const [hasDismissed2FA, setHasDismissed2FA] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+  const [aGuardar, setAGuardar] = useState(false);
 
   const carregar = useCallback(async () => {
     if (!utilizador) return;
@@ -220,6 +228,8 @@ export default function ProfileScreen() {
 
   async function toggleTreinoIa(ativo: boolean) {
     if (!utilizador) return;
+    setErro(null);
+    setAGuardar(true);
     try {
       if (ativo) {
         await darConsentimentoTreino(utilizador.id);
@@ -229,13 +239,17 @@ export default function ProfileScreen() {
         setConsentimento({ ...consentimento, data_revogacao: new Date().toISOString() });
       }
     } catch {
-      Alert.alert('Erro', 'Não foi possível actualizar o consentimento. Tente novamente.');
+      setErro('Não foi possível actualizar o consentimento. Tente novamente.');
+    } finally {
+      setAGuardar(false);
     }
   }
 
   async function toggle2FA(ativo: boolean) {
     if (!email) return;
+    setErro(null);
     if (ativo) {
+      setAGuardar(true);
       try {
         await enviarOtp2FA(email);
         router.push({
@@ -248,7 +262,9 @@ export default function ProfileScreen() {
         const descricao = msg.toLowerCase().includes('rate limit')
           ? 'Limite de emails atingido. Aguarde alguns minutos e tente novamente.'
           : 'Não foi possível enviar o código de verificação. Tente novamente.';
-        Alert.alert('Erro', descricao);
+        setErro(descricao);
+      } finally {
+        setAGuardar(false);
       }
     } else {
       Alert.alert(
@@ -260,10 +276,13 @@ export default function ProfileScreen() {
             text: 'Desativar',
             style: 'destructive',
             onPress: async () => {
+              setAGuardar(true);
               try {
                 await desativar2FA();
               } catch {
-                Alert.alert('Erro', 'Não foi possível desativar a autenticação. Tente novamente.');
+                setErro('Não foi possível desativar a autenticação. Tente novamente.');
+              } finally {
+                setAGuardar(false);
               }
             },
           },
@@ -285,7 +304,7 @@ export default function ProfileScreen() {
             try {
               await logout();
             } catch {
-              Alert.alert('Erro', 'Não foi possível terminar a sessão.');
+              setErro('Não foi possível terminar a sessão. Tente novamente.');
             }
           },
         },
@@ -337,6 +356,13 @@ export default function ProfileScreen() {
           <Text style={styles.headerNome}>{nomeExibido}</Text>
           <Text style={styles.headerEmail}>{email ?? '—'}</Text>
         </View>
+
+        {/* ── Erro inline ──────────────────────────────── */}
+        {erro && (
+          <View style={styles.erroBox}>
+            <Text style={styles.erroTxt}>{erro}</Text>
+          </View>
+        )}
 
         {/* ── OS MEUS DADOS ─────────────────────────────── */}
         <Text style={styles.seccaoTitulo}>OS MEUS DADOS</Text>
@@ -425,6 +451,7 @@ export default function ProfileScreen() {
             valor={utilizador?.two_factor_ativo ?? false}
             onChange={toggle2FA}
             badge={hasDismissed2FA && !utilizador?.two_factor_ativo ? 'Recomendado' : undefined}
+            carregando={aGuardar}
           />
           <View style={styles.separador} />
           <LinhaAcao
@@ -440,13 +467,10 @@ export default function ProfileScreen() {
         {/* ── PREFERÊNCIAS ─────────────────────────────── */}
         <Text style={styles.seccaoTitulo}>PREFERÊNCIAS</Text>
         <View style={styles.card}>
-          <LinhaAcao
+          <LinhaInfo
             icone={<Languages size={18} color="#1A6FAF" />}
             label="Idioma"
-            valor={idiomaLabel(utilizador?.idioma ?? 'pt')}
-            onPress={() =>
-              Alert.alert('Em breve', 'Definições de idioma disponíveis numa próxima versão.')
-            }
+            valor={`${idiomaLabel(utilizador?.idioma ?? 'pt')} · Mais idiomas em breve`}
           />
           <View style={styles.separador} />
           <LinhaToggle
@@ -480,6 +504,7 @@ export default function ProfileScreen() {
             descricao="Dados clínicos anonimizados para melhorar a IA"
             valor={treino_ia_ativo}
             onChange={toggleTreinoIa}
+            carregando={aGuardar}
           />
         </View>
 
@@ -665,6 +690,19 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   badgeRecomendadoTxt: { fontSize: 9, color: '#1A6FAF', fontWeight: '600' },
+
+  // ── Erro inline ──────────────────────────────────────────────────────────────
+  erroBox: {
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    borderRadius: 12,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  erroTxt: { fontSize: 13, color: '#EF4444', fontWeight: '500', lineHeight: 18 },
 
   // ── Botão Logout ─────────────────────────────────────────────────────────────
   btnLogout: {

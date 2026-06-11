@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -109,6 +110,7 @@ export default function NotificationsScreen() {
   const { utilizador } = useAuth();
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [aCarregar, setACarregar] = useState(true);
+  const [notifDetalhe, setNotifDetalhe] = useState<Notificacao | null>(null);
 
   const carregar = useCallback(async () => {
     if (!utilizador) return;
@@ -135,9 +137,11 @@ export default function NotificationsScreen() {
       );
     }
 
-    // Navega para a entidade referenciada
+    // Navega para a entidade referenciada, ou mostra detalhe se não houver destino
     if (notificacao.referencia_entidade === 'estudos' && notificacao.referencia_id) {
       router.push(`/(tabs)/exams/${notificacao.referencia_id}` as never);
+    } else {
+      setNotifDetalhe(notificacao);
     }
   }
 
@@ -203,6 +207,37 @@ export default function NotificationsScreen() {
           showsVerticalScrollIndicator={false}
           ItemSeparatorComponent={() => <View style={styles.separador} />}
         />
+      )}
+      {/* Modal de detalhe para notificações sem destino de navegação */}
+      {notifDetalhe && (
+        <Modal
+          visible
+          transparent
+          animationType="fade"
+          onRequestClose={() => setNotifDetalhe(null)}
+        >
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={() => setNotifDetalhe(null)}
+          >
+            <View style={styles.modalCaixa}>
+              <View style={[styles.modalIconWrap, { backgroundColor: iconeParaTipo(notifDetalhe.tipo).bgCor }]}>
+                {iconeParaTipo(notifDetalhe.tipo).icone}
+              </View>
+              <Text style={styles.modalTitulo}>{notifDetalhe.titulo}</Text>
+              <Text style={styles.modalMensagem}>{notifDetalhe.mensagem}</Text>
+              <Text style={styles.modalTempo}>{tempoAtras(notifDetalhe.data_envio)}</Text>
+              <TouchableOpacity
+                style={styles.modalBtnFechar}
+                onPress={() => setNotifDetalhe(null)}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.modalBtnFecharTxt}>Fechar</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </Modal>
       )}
     </SafeAreaView>
   );
@@ -291,4 +326,62 @@ const styles = StyleSheet.create({
   },
   vazioTitulo: { fontSize: 17, fontWeight: '700', color: '#1A1A2E' },
   vazioDesc: { fontSize: 14, color: '#6B7280', textAlign: 'center', lineHeight: 22 },
+
+  // ── Modal de detalhe ──────────────────────────────────────────────────────────
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  modalCaixa: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 24,
+    width: '100%',
+    alignItems: 'center',
+    gap: 10,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+  },
+  modalIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
+  modalTitulo: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1A1A2E',
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  modalMensagem: {
+    fontSize: 14,
+    color: '#4B5563',
+    textAlign: 'center',
+    lineHeight: 21,
+  },
+  modalTempo: {
+    fontSize: 12,
+    color: '#9CA3AF',
+    marginTop: 2,
+  },
+  modalBtnFechar: {
+    marginTop: 8,
+    backgroundColor: '#EFF6FF',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    width: '100%',
+    alignItems: 'center',
+  },
+  modalBtnFecharTxt: { fontSize: 14, fontWeight: '700', color: '#1A6FAF' },
 });
