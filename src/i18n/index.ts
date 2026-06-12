@@ -1,6 +1,5 @@
 import i18n from 'i18next';
 import { initReactI18next, useTranslation } from 'react-i18next';
-import { getLocales } from 'expo-localization';
 
 import pt from './locales/pt';
 import en from './locales/en';
@@ -11,29 +10,17 @@ export type IdiomaSuportado = (typeof IDIOMAS_SUPORTADOS)[number];
 
 export const IDIOMA_FALLBACK: IdiomaSuportado = 'pt-PT';
 
-// ─── Device language detection (initial fallback only) ────────────────────────
-// Maps the device locale to one of our supported languages.
-// Anything that is not English falls back to pt-PT.
-function detetarIdiomaDispositivo(): IdiomaSuportado {
-  try {
-    const locales = getLocales();
-    const codigo = locales[0]?.languageCode?.toLowerCase() ?? 'pt';
-    return codigo === 'en' ? 'en' : 'pt-PT';
-  } catch {
-    return IDIOMA_FALLBACK;
-  }
-}
-
 // ─── Init ─────────────────────────────────────────────────────────────────────
+// O idioma de arranque é SEMPRE pt-PT (não segue o idioma do dispositivo).
+// A preferência guardada do utilizador (utilizadores.idioma) é aplicada no
+// login/restauro de sessão pelo AuthContext.
 i18n.use(initReactI18next).init({
   resources: {
     'pt-PT': { translation: pt },
     en: { translation: en },
   },
-  lng: detetarIdiomaDispositivo(),
+  lng: IDIOMA_FALLBACK,
   fallbackLng: IDIOMA_FALLBACK,
-  // 'pt' (without region) should resolve to 'pt-PT'
-  nonExplicitSupportedLngs: true,
   supportedLngs: [...IDIOMAS_SUPORTADOS],
   interpolation: {
     escapeValue: false, // React already escapes
