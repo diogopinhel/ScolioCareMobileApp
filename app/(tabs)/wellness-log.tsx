@@ -15,11 +15,12 @@ import { useAuth } from '../../src/context/AuthContext';
 import { addWellnessEntry, getWellnessLogDoPaciente } from '../../src/data/repository/wellness';
 import { WellnessLogEntry } from '../../src/data/types';
 import { i18n, useTranslation } from '../../src/i18n';
+import { localeDeData } from '../../src/i18n/dateLocale';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function dataHoje(): string {
-  return new Date().toLocaleDateString('pt-PT', {
+  return new Date().toLocaleDateString(localeDeData(), {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -72,7 +73,7 @@ function corDesconforto(valor: string | null): string {
 
 function dataFormatadaCurta(iso: string): string {
   const d = new Date(`${iso}T00:00:00`);
-  return d.toLocaleDateString('pt-PT', { weekday: 'short', day: 'numeric', month: 'short' });
+  return d.toLocaleDateString(localeDeData(), { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────

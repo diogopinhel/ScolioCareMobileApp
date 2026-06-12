@@ -27,11 +27,12 @@ import {
 import { getEstudoPorId, getUrlRelatorioPdf, getUrlImagemEstudo } from '../../../src/data/repository/estudos';
 import { EstudoDetalhe, EstadoEstudo } from '../../../src/data/types';
 import { i18n, useTranslation } from '../../../src/i18n';
+import { localeDeData } from '../../../src/i18n/dateLocale';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 function dataFormatada(iso: string): string {
-  return new Date(iso).toLocaleDateString('pt-PT', {
+  return new Date(iso).toLocaleDateString(localeDeData(), {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
@@ -39,7 +40,7 @@ function dataFormatada(iso: string): string {
 }
 
 function dataFormatadaLonga(iso: string): string {
-  return new Date(iso).toLocaleDateString('pt-PT', {
+  return new Date(iso).toLocaleDateString(localeDeData(), {
     day: 'numeric',
     month: 'long',
     year: 'numeric',

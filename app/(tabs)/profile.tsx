@@ -43,12 +43,13 @@ import {
 } from '../../src/data/repository/perfil';
 import { MedicoResponsavel } from '../../src/data/types';
 import { i18n, useTranslation } from '../../src/i18n';
+import { localeDeData } from '../../src/i18n/dateLocale';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function dataFormatada(iso: string | null): string {
   if (!iso) return i18n.t('perfil.naoDefinido');
-  return new Date(iso).toLocaleDateString('pt-PT', {
+  return new Date(iso).toLocaleDateString(localeDeData(), {
     day: 'numeric',
     month: 'short',
     year: 'numeric',

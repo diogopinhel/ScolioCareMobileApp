@@ -15,13 +15,14 @@ import { useAuth } from '../../../src/context/AuthContext';
 import { getEstudosDoPaciente, getUrlImagemEstudo } from '../../../src/data/repository/estudos';
 import { EstudoComResultado, EstadoEstudo } from '../../../src/data/types';
 import { i18n, useTranslation } from '../../../src/i18n';
+import { localeDeData } from '../../../src/i18n/dateLocale';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 type Filtro = 'todos' | 'analisados' | 'pendentes';
 
 function dataFormatada(iso: string): string {
-  return new Date(iso).toLocaleDateString('pt-PT', {
+  return new Date(iso).toLocaleDateString(localeDeData(), {
     day: 'numeric',
     month: 'short',
     year: 'numeric',

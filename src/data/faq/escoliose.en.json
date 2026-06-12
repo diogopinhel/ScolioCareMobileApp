@@ -1,0 +1,246 @@
+{
+  "versao": "1.2",
+  "ultima_revisao": "2026-06-10",
+  "perguntas": [
+    {
+      "id": "escoliose-definicao",
+      "categoria": "General information",
+      "pergunta": "What is scoliosis?",
+      "palavras_chave": ["what is", "definition", "scoliosis", "curvature", "spine", "spinal", "curved spine"],
+      "resposta": "Scoliosis is an abnormal lateral curvature of the spine. Instead of the spine being straight when viewed from the front, it has one or more curves in the shape of an \"S\" or \"C\". It can affect people of any age, but is most common in adolescents during periods of rapid growth.\n\nImportant to know: idiopathic scoliosis is not caused by poor posture, carrying heavy bags, or sleeping in certain positions. These are very common beliefs, but they have no scientific basis.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "escoliose-causas-mitos",
+      "categoria": "General information",
+      "pergunta": "Is scoliosis caused by poor posture or carrying heavy bags?",
+      "palavras_chave": ["cause", "causes", "posture", "bag", "heavy bag", "backpack", "sleeping", "poor posture", "origin", "why", "myth"],
+      "resposta": "No. Idiopathic scoliosis — the most common form — is not caused by poor posture, carrying heavy bags, sleeping in certain positions, or playing sport. The exact cause is unknown, although there is a genetic component.\n\nThese beliefs are very common, but they have no scientific basis whatsoever. They are myths that can create unnecessary guilt in the patient or family — and should not influence the treatment plan.\n\nIf you have other questions about what may or may not have contributed to your diagnosis, raise them with your doctor.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "escoliose-adolescente",
+      "categoria": "General information",
+      "pergunta": "What is adolescent idiopathic scoliosis?",
+      "palavras_chave": ["adolescent", "adolescence", "teenager", "idiopathic", "growth", "puberty", "young", "AIS"],
+      "resposta": "Adolescent idiopathic scoliosis (AIS) is the most common type of scoliosis, diagnosed between the ages of 10 and 18. The word \"idiopathic\" means it has no identified cause.\n\nSome relevant facts:\n• It mainly affects girls, in a ratio of approximately 3 to 1 compared to boys.\n• It typically arises during the period of accelerated growth in adolescence.\n• The risk of progression is higher while the skeleton is still immature (low Risser).\n• Most cases are mild and do not require active treatment, only monitoring.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "escoliose-tipos",
+      "categoria": "General information",
+      "pergunta": "What are the types of scoliosis?",
+      "palavras_chave": ["types", "type", "idiopathic", "congenital", "neuromuscular", "degenerative", "kinds"],
+      "resposta": "There are several types of scoliosis:\n\n• Idiopathic — no known cause, accounting for about 80% of cases. It is the most common form and includes adolescent idiopathic scoliosis.\n• Congenital — present from birth, due to malformation of the vertebrae during foetal development.\n• Neuromuscular — associated with conditions such as cerebral palsy or muscular dystrophy.\n• Degenerative — related to ageing and wear of the vertebrae, more common in adults over 50.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "escoliose-hereditaria",
+      "categoria": "General information",
+      "pergunta": "Is scoliosis hereditary?",
+      "palavras_chave": ["hereditary", "genetic", "family", "familial", "inherit", "genes", "parents"],
+      "resposta": "Idiopathic scoliosis has a genetic component — if you have close relatives (parents, siblings) with scoliosis, your risk of developing it is higher. However, you do not necessarily inherit the condition itself, but rather a predisposition. Having a family history does not mean you will develop scoliosis, nor that you will have a severe case.\n\nThe presence of scoliosis in the family is an important factor to communicate to your doctor, as it may influence the frequency of screening.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "escoliose-prevencao",
+      "categoria": "General information",
+      "pergunta": "Can scoliosis be prevented?",
+      "palavras_chave": ["prevent", "prevention", "avoid", "stop", "stop it developing"],
+      "resposta": "Idiopathic scoliosis — the most common form — cannot be prevented, because its exact cause is unknown and has a genetic component. There are no lifestyle habits, exercises, or postures that prevent it from developing.\n\nWhat is possible:\n• Early detection — regular screening in adolescence allows small curves to be identified before they progress.\n• Monitoring — following the monitoring plan defined by your doctor is the best way to control progression.\n\nIf you have children with a family history of scoliosis, mention it to your paediatrician so that appropriate surveillance can be carried out.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "escoliose-vs-cifose",
+      "categoria": "General information",
+      "pergunta": "What is the difference between scoliosis and kyphosis?",
+      "palavras_chave": ["kyphosis", "difference", "hunchback", "arched", "back", "spine", "rounded back"],
+      "resposta": "These are two different types of spinal curvature:\n\n• Scoliosis — lateral curvature of the spine (sideways), visible when looking at the spine from the front.\n• Kyphosis — exaggerated forward curvature (rounded back), visible from the side.\n\nThey can coexist in the same person. Both are assessed by the doctor using specific criteria and measurements.",
+      "fonte": "NHS — Scoliosis"
+    },
+    {
+      "id": "escoliose-adulto",
+      "categoria": "General information",
+      "pergunta": "Is adult scoliosis different from adolescent scoliosis?",
+      "palavras_chave": ["adult", "adults", "age", "degenerative", "ageing", "aging", "50 years", "older", "elderly"],
+      "resposta": "Yes, there are important differences:\n\n• Adolescent idiopathic scoliosis — develops during growth. The main risk is progression while the skeleton is still immature. After growth ends, most mild to moderate curves stabilise.\n• Adult degenerative scoliosis — arises or worsens from the age of 50–60, associated with wear of the vertebrae and discs. Pain is frequently the main symptom, unlike adolescent scoliosis, which often does not cause pain.\n\nAn adult receiving this diagnosis for the first time may have had an undetected curve in adolescence that progressed with age, or may have developed the curve in adulthood due to degeneration.\n\nThe treatment plan differs depending on the origin and age. Consult your doctor for an appropriate assessment for your case.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "angulo-cobb",
+      "categoria": "Diagnosis and exams",
+      "pergunta": "What is the Cobb angle?",
+      "palavras_chave": ["Cobb angle", "cobb", "angle", "measurement", "degrees", "measuring the curve"],
+      "resposta": "The Cobb angle is the measurement used by doctors to quantify the curvature of the spine in degrees. It is calculated on X-rays by drawing lines parallel to the end plates of the most tilted vertebrae above and below the curve, and measuring the angle between them.\n\nThe larger the Cobb angle, the more pronounced the curvature. Values below 10° are considered normal. It is the main indicator used to classify severity and decide on treatment.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "graus-severidade",
+      "categoria": "Diagnosis and exams",
+      "pergunta": "What do the different severity grades mean?",
+      "palavras_chave": ["grade", "severity", "mild", "moderate", "severe", "classification", "level", "severity grades", "degrees"],
+      "resposta": "Please note: these values are general guidelines. The clinical decision depends on multiple factors — do not use these numbers to classify yourself or draw conclusions about your treatment. Only your doctor can assess your case in its entirety.\n\nThe severity of scoliosis is classified according to the Cobb angle:\n\n• Less than 10° — within normal values, no clinically significant scoliosis.\n• 10° to 25° — mild scoliosis — usually monitored with periodic consultations.\n• 25° to 40° — moderate scoliosis — may be treated with an orthopaedic brace.\n• Above 40°–45° — severe scoliosis — surgical intervention may be considered.\n\nIn adults, the treatment indication is more complex: neurological symptoms, pain and rate of progression can be determining factors regardless of the angle. The therapeutic decision always depends on a complete assessment by the orthopaedic surgeon.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "risser",
+      "categoria": "Diagnosis and exams",
+      "pergunta": "What is the Risser scale?",
+      "palavras_chave": ["Risser", "bone maturity", "bone growth", "skeleton", "skeletal maturity", "growth remaining"],
+      "resposta": "The Risser scale is a way of understanding how much growth you still have ahead — it is like a 'bone maturity marker'. It is assessed on X-rays by observing the degree of formation of a specific pelvic bone (the iliac crest), on a scale of 0 to 5:\n\n• Risser 0 — active growth; requires closer monitoring whilst growth is ongoing.\n• Risser 1–2 — growth still in progress; important to monitor.\n• Risser 3–4 — growth slowing down.\n• Risser 5 — growth complete; lower probability of curve progression.\n\nThis information is important because it helps your doctor define the frequency of consultations and the most appropriate treatment plan. A low value is not cause for alarm — it is a signal that follow-up should be regular.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "diagnostico",
+      "categoria": "Diagnosis and exams",
+      "pergunta": "How is scoliosis diagnosed?",
+      "palavras_chave": ["diagnosis", "how is it detected", "detect", "X-ray", "xray", "exam", "Adams test", "screening"],
+      "resposta": "Diagnosis is made by a doctor in two stages:\n\n1. Clinical observation — the doctor asks the patient to bend forward with arms hanging loose (Adams forward bend test) and observes asymmetries in the trunk, shoulders, or pelvis.\n2. Imaging — confirmed by a standing X-ray of the spine, where the Cobb angle is measured and bone maturity is assessed (Risser scale).\n\nIn some cases, an MRI may be requested to rule out underlying causes.",
+      "fonte": "NHS — Scoliosis"
+    },
+    {
+      "id": "teste-adams",
+      "categoria": "Diagnosis and exams",
+      "pergunta": "What is the Adams forward bend test?",
+      "palavras_chave": ["Adams test", "adams", "bend forward", "bend", "physical exam", "asymmetry", "forward bend"],
+      "resposta": "The Adams forward bend test is a simple and painless clinical examination. The doctor asks you to bend forward, with your arms hanging freely and your knees straight, as if you were going to touch your toes.\n\nIn this position, the doctor observes the back for asymmetries — for example, a rib hump on one side of the trunk (ribs or lumbar muscles more prominent on one side). This asymmetry may indicate the presence of vertebral rotation, which is one of the characteristics of scoliosis.\n\nThe test does not hurt, lasts only a few seconds, and is usually the first step before an X-ray is requested.",
+      "fonte": "NHS — Scoliosis"
+    },
+    {
+      "id": "radiografia-radiacao",
+      "categoria": "Diagnosis and exams",
+      "pergunta": "Are repeated X-rays harmful? I am concerned about radiation exposure.",
+      "palavras_chave": ["radiation", "X-ray", "xray", "exposure", "repeated", "harmful", "safety", "risk", "EOS"],
+      "resposta": "This is an understandable and very common concern, especially for those who need periodic X-rays over the years.\n\nWhat is important to know:\n• The radiation dose from a spinal X-ray is low — similar to the natural background radiation we are exposed to over a few days.\n• The benefit of monitoring the curve over time far outweighs the risk of exposure.\n• Many centres have low-dose systems available (such as EOS) that significantly reduce exposure compared to conventional X-rays.\n• The doctor sets the frequency of X-rays based on clinical need — they are not requested without indication.\n\nIf this concern is important to you, speak to your doctor about the options available at your treatment centre.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "consulta-ortopedia",
+      "categoria": "Diagnosis and exams",
+      "pergunta": "What should I expect at a spinal orthopaedic consultation?",
+      "palavras_chave": ["consultation", "orthopaedic", "doctor", "first appointment", "what happens", "what to expect", "orthopaedist", "specialist"],
+      "resposta": "At the first spinal orthopaedic consultation, the following usually happens:\n\n1. The doctor asks about symptoms, family history, and growth stage.\n2. You are asked to bend forward with your arms hanging loose (Adams test) — the doctor observes asymmetries.\n3. A standing X-ray of the spine is performed or reviewed.\n4. The doctor measures the Cobb angle and assesses bone maturity (Risser).\n5. The diagnosis is explained and, if applicable, the treatment plan.\n\nIt is not a painful consultation. It can be helpful to bring your questions written down so you don't forget to ask them.",
+      "fonte": "NHS — Scoliosis"
+    },
+    {
+      "id": "frequencia-exames",
+      "categoria": "Diagnosis and exams",
+      "pergunta": "How often should I have follow-up exams?",
+      "palavras_chave": ["frequency", "interval", "when", "consultation", "follow-up", "monitoring", "how often", "check-up"],
+      "resposta": "The frequency of exams depends on the severity of the curve and the growth stage:\n\n• Mild scoliosis in active growth phase — usually every 6 months.\n• Mild scoliosis in stable adults — may be annual or as clinically indicated.\n• Moderate scoliosis or undergoing brace treatment — as indicated by the orthopaedic surgeon, which may be more frequent.\n\nYour doctor defines the appropriate interval for your specific case.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "tratamentos",
+      "categoria": "Treatment",
+      "pergunta": "What treatments are available for scoliosis?",
+      "palavras_chave": ["treatment", "treat", "options", "therapy", "what to do", "management", "conservative"],
+      "resposta": "Treatments depend on severity, growth stage, and age:\n\n• Observation and monitoring — for mild curves, no active treatment, with periodic follow-up.\n• Orthopaedic brace — for moderate curves in the growth phase, with the aim of halting progression.\n• Physiotherapy and exercise — an important complement at all grades, to strengthen the supporting musculature.\n• Pain management — in adults, may include analgesia, physiotherapy, and other symptomatic control approaches.\n• Surgery — considered for severe or progressive curves above 45°–50°.\n\nTreatment is always determined by the orthopaedic surgeon based on a complete assessment of the case.",
+      "fonte": "NHS — Scoliosis"
+    },
+    {
+      "id": "cirurgia",
+      "categoria": "Treatment",
+      "pergunta": "When is surgery needed?",
+      "palavras_chave": ["surgery", "operation", "operate", "when is surgery needed", "spinal fusion", "surgical"],
+      "resposta": "Surgery is always a medical decision, taken after detailed assessment. Factors your doctor may consider include:\n\n• A curve exceeding 45°–50° that continues to progress.\n• Compromise of pulmonary or cardiac function.\n• Significant pain that does not respond to other treatments.\n• Rapid progression despite conservative treatment.\n\nThe presence of one or more of these factors does not automatically mean surgery is necessary — nor does their absence rule it out in all cases. This information serves to contextualise the conversation with your doctor, not to draw conclusions about your case. Consult your orthopaedic surgeon for a complete assessment.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "colete",
+      "categoria": "Treatment",
+      "pergunta": "What is an orthopaedic brace and what is it for?",
+      "palavras_chave": ["brace", "orthopaedic brace", "orthosis", "bracing", "Boston brace", "TLSO", "corsé"],
+      "resposta": "An orthopaedic brace is a rigid device that wraps around the trunk. Its purpose is to exert pressure on the curve and halt the progression of the curvature during the period of bone growth.\n\nImportant to know:\n• It does not correct the existing curvature — it only prevents it from worsening.\n• There is more than one type of brace: some are worn during the day (usually 16 to 23 hours) and others are night-time braces, worn only during sleep. Night-time braces have very specific clinical indications and are not a universal alternative to the daytime brace — the doctor determines which is most appropriate for each patient's curve profile.\n• It is generally removed when bone growth is complete (Risser 4–5).\n\nThe type, use, and duration of the brace are always determined by the orthopaedic surgeon.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "colete-vida-quotidiana",
+      "categoria": "Treatment",
+      "pergunta": "What is daily life like with an orthopaedic brace?",
+      "palavras_chave": ["brace", "daily life", "school", "friends", "clothes", "sport", "remove", "wearing", "life", "social", "discomfort", "living with a brace"],
+      "resposta": "Wearing a brace can be a challenge, especially at first — it is normal to feel physical discomfort and some social insecurity. These concerns are valid and very common.\n\nSome practical points:\n• Clothing — the brace is usually worn under clothing. Looser tops and T-shirts in smooth fabric tend to be more comfortable and less visible over it.\n• At school — most young people adapt to wearing the brace at school over the first few weeks. There is no obligation to explain it to anyone, but many young people report that telling people close to them relieves the pressure.\n• Sport — depending on the type of brace and the doctor's instructions, removing the brace for sport may be permitted. Always confirm with your doctor what is allowed in your case.\n• Hygiene — the brace should be cleaned regularly according to the manufacturer's instructions; the skin should be checked to avoid irritation.\n\nIf you are having difficulty adapting — physically or emotionally — speak to your doctor or physiotherapist. You are not alone in this process.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "fisioterapia",
+      "categoria": "Treatment",
+      "pergunta": "Does physiotherapy help with scoliosis?",
+      "palavras_chave": ["physiotherapy", "physiotherapist", "rehabilitation", "specific exercises", "Schroth", "Schroth method", "physical therapy"],
+      "resposta": "Yes, physiotherapy is an important complement in the treatment of scoliosis. The most studied methods include:\n\n• Schroth method — this is the most studied method of scoliosis-specific physiotherapy, with growing scientific evidence for idiopathic scoliosis. It is based on three-dimensional postural correction exercises.\n• General physiotherapy — muscular strengthening, flexibility, and postural awareness.\n\nPhysiotherapy does not replace medical follow-up, but complements it. It should be prescribed and supervised by a healthcare professional.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "exercicio",
+      "categoria": "Daily life",
+      "pergunta": "Can I exercise with scoliosis?",
+      "palavras_chave": ["exercise", "sport", "physical activity", "swimming", "gym", "yoga", "pilates", "can I exercise", "working out"],
+      "resposta": "In general, yes — physical activity is beneficial and recommended for most people with scoliosis. Exercise helps to strengthen the muscles supporting the spine and to improve overall well-being.\n\nActivities frequently mentioned as complementary:\n• Swimming\n• Pilates\n• Yoga\n• Walking\n\nMost contact sports are also permitted, unless your doctor advises otherwise. Always consult your doctor or physiotherapist to find out which activities are most appropriate for your specific case.",
+      "fonte": "Spine-health"
+    },
+    {
+      "id": "desporto-especifico",
+      "categoria": "Daily life",
+      "pergunta": "Are there sports I should avoid with scoliosis?",
+      "palavras_chave": ["sport", "gymnastics", "weightlifting", "horse riding", "load", "spine", "avoid", "forbidden", "restriction", "restricted sports"],
+      "resposta": "For most people with mild to moderate scoliosis, there are no significant sporting restrictions. However, some activities involve high axial loads (load on the spine) or repeated hyperextension movements — such as artistic gymnastics, Olympic weightlifting, or competitive horse riding — about which there may be questions.\n\nWhat is important to know:\n• Restrictions, if any, depend on the degree of curvature, bone maturity, and whether you are wearing a brace.\n• If you are wearing a brace with a daytime use indication, your doctor should be consulted about when and whether you can remove it for training.\n• There is no universal list of forbidden sports — the indication is always individualised.\n\nIf you practise or want to practise a high-load spinal activity, speak to your orthopaedic surgeon before starting or continuing.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "mochilas",
+      "categoria": "Daily life",
+      "pergunta": "Can I wear heavy bags or backpacks?",
+      "palavras_chave": ["bag", "backpack", "weight", "carry", "school", "heavy", "heavy bag"],
+      "resposta": "There is no scientific evidence that heavy bags cause or worsen idiopathic scoliosis. This is one of the most common myths about the condition.\n\nThat said, carrying excessive weight causes muscular fatigue in anyone, with or without scoliosis. The general postural health recommendations apply to everyone:\n• Use the bag with both shoulder straps, with the weight distributed and close to the back.\n• Avoid overloading beyond what is necessary.\n\nIf you have specific questions about your case, consult your doctor.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "dor",
+      "categoria": "Daily life",
+      "pergunta": "Does scoliosis cause pain?",
+      "palavras_chave": ["pain", "ache", "back pain", "hurt", "discomfort", "painful", "does it hurt"],
+      "resposta": "It depends on the severity and age:\n\n• Mild scoliosis in adolescents — frequently does not cause pain.\n• Moderate to severe scoliosis — muscle tension and back pain may arise.\n• In very severe cases (curves above 70°–80°, which are rare) there may be breathing difficulties — but this does not apply to the vast majority of people with mild to moderate scoliosis, whose lung function is not compromised.\n• In adults — degeneration associated with ageing can increase discomfort, even in previously stable curves.\n\nAny pain should be reported to your doctor for appropriate assessment and guidance.",
+      "fonte": "NHS — Scoliosis"
+    },
+    {
+      "id": "progressao",
+      "categoria": "Daily life",
+      "pergunta": "Does scoliosis worsen over time?",
+      "palavras_chave": ["worsen", "worsening", "progression", "progress", "advance", "stabilise", "stable", "does scoliosis worsen over time", "does it get worse"],
+      "resposta": "In most adults with mild to moderate scoliosis, the curve stabilises after growth ends. In some cases it may progress slightly over the years — but the rate is generally slow.\n\n• Curves below 25°–30° in adults have a low probability of significant progression.\n• More pronounced curves (above 40°–50°) have a higher probability of slow progression in adults, typically 1°–2° per year.\n• In adolescents in active growth (low Risser), progression can be faster, which justifies more frequent monitoring.\n\nRegular monitoring is essential — it allows progression to be detected in time and the treatment plan to be adjusted. Your doctor is best placed to assess the trend in your case.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "sinais-alarme",
+      "categoria": "Daily life",
+      "pergunta": "When should I contact my doctor outside of regular consultations?",
+      "palavras_chave": ["urgent", "urgency", "concern", "alarm", "when to call", "when to see the doctor", "new symptoms", "worsened", "emergency", "warning signs"],
+      "resposta": "For most people with mild to moderate scoliosis, periodic consultations are sufficient. However, you should contact your doctor without waiting for the next appointment if the following arise:\n\n• Intense pain of sudden onset, different from the usual.\n• Weakness, numbness, or tingling in the arms or legs.\n• Difficulty walking or controlling movements.\n• Breathing difficulties that were not present before.\n• Changes in bladder or bowel function (urgency or loss of control).\n• Rapid and visible progression of the curve over a short period of time.\n\nThese symptoms are rare in mild to moderate idiopathic scoliosis, but should be assessed promptly. If in doubt, contact your doctor — it is always better to check.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "gravidez",
+      "categoria": "Daily life",
+      "pergunta": "Does scoliosis affect pregnancy?",
+      "palavras_chave": ["pregnancy", "pregnant", "gestation", "baby", "children", "conceive", "labour", "epidural", "childbirth"],
+      "resposta": "The vast majority of women with idiopathic scoliosis have pregnancies without complications related to the spine. Some points to bear in mind:\n\n• Mild to moderate curves generally do not affect pregnancy or labour.\n• In more pronounced curves, additional monitoring by an obstetrician and orthopaedic surgeon may be recommended.\n• Regarding epidural anaesthesia: in most women with idiopathic scoliosis without prior spinal surgery, an epidural is technically possible. However, if you have undergone spinal surgery or have very pronounced curves, it is important to inform the anaesthetist and obstetrician in advance, so that the birth can be planned appropriately.\n• Pregnancy does not significantly worsen the curve in most women.\n\nIf you are planning a pregnancy and have scoliosis, inform your doctor so that you can be followed up appropriately.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "impacto-psicologico",
+      "categoria": "Daily life",
+      "pergunta": "Does scoliosis have a psychological impact?",
+      "palavras_chave": ["psychological", "anxiety", "depression", "emotional", "self-esteem", "body image", "worry", "fear", "mental health", "feelings"],
+      "resposta": "Yes, and it is completely normal. Feeling anxiety, concern about body image, or insecurity after a scoliosis diagnosis is a valid human response, especially in adolescence. Scientific research confirms that these feelings are common among young people with scoliosis, regardless of the degree of curvature.\n\nSome important points:\n• The emotional impact is just as real and valid as the physical — it should not be ignored.\n• Share these concerns with your doctor; they can direct you to psychological support.\n• Support groups and patient communities exist and can help.\n• The vast majority of young people with scoliosis lead a completely normal life.\n\nDo not face these concerns alone.",
+      "fonte": "Scoliosis Research Society"
+    },
+    {
+      "id": "recursos-apoio",
+      "categoria": "Support and resources",
+      "pergunta": "Where can I find reliable information about scoliosis?",
+      "palavras_chave": ["information", "resources", "association", "community", "where to learn", "sites", "books", "support", "groups", "reliable sources"],
+      "resposta": "In addition to follow-up with your doctor, there are internationally recognised sources of information:\n\n• Scoliosis Research Society (srs.org) — the leading global scientific society dedicated to scoliosis, with educational resources for patients.\n• SOSORT (sosort.net) — the international society for orthopaedic and rehabilitation treatment of the spine, focused on conservative treatment.\n• NHS (nhs.uk) — the British National Health Service, with accessible pages about scoliosis.\n\nThere are also online communities and support groups at national and international level, where patients and families share experiences. Your doctor or physiotherapist can suggest groups or resources specific to your situation.\n\nBe wary of sources that promise cures, supplements, or alternative treatments without scientific evidence.",
+      "fonte": "Scoliosis Research Society; SOSORT"
+    }
+  ]
+}

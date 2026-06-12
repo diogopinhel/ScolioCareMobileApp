@@ -450,6 +450,8 @@ const en = {
     chipCirurgia: 'When is surgery needed?',
     chipExercicio: 'Can I exercise?',
     chipPiora: 'Does scoliosis worsen over time?',
+    respostaForaAmbito: "I don't have information on that topic. For questions specific to your case, please consult your doctor or rephrase the question.",
+    fonteFallback: 'Internal clinical database',
   },
 
   doisFatoresSheet: {

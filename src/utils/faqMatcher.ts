@@ -1,4 +1,6 @@
-import faqData from '../data/faq/escoliose.json';
+import faqDataPt from '../data/faq/escoliose.json';
+import faqDataEn from '../data/faq/escoliose.en.json';
+import { i18n } from '../i18n';
 
 type EntradaFAQ = {
   id: string;
@@ -15,11 +17,6 @@ export type ResultadoFAQ = {
   foraAmbito: boolean;
 };
 
-const FONTE_FALLBACK = 'Base de dados clínica interna';
-
-const RESPOSTA_FORA_AMBITO =
-  'Não tenho informação sobre esse tema. Para questões específicas sobre o seu caso, consulte o seu médico ou reformule a questão.';
-
 function normalizar(texto: string): string {
   return texto
     .toLowerCase()
@@ -31,6 +28,7 @@ function normalizar(texto: string): string {
 }
 
 export function encontrarResposta(pergunta: string): ResultadoFAQ {
+  const faqData = i18n.language === 'en' ? faqDataEn : faqDataPt;
   const normalizado = normalizar(pergunta);
   const entradas = faqData.perguntas as EntradaFAQ[];
 
@@ -51,12 +49,16 @@ export function encontrarResposta(pergunta: string): ResultadoFAQ {
   }
 
   if (!melhorEntrada || melhorScore === 0) {
-    return { resposta: RESPOSTA_FORA_AMBITO, fonte: FONTE_FALLBACK, foraAmbito: true };
+    return {
+      resposta: i18n.t('assistente.respostaForaAmbito'),
+      fonte: i18n.t('assistente.fonteFallback'),
+      foraAmbito: true,
+    };
   }
 
   return {
     resposta: melhorEntrada.resposta,
-    fonte: melhorEntrada.fonte || FONTE_FALLBACK,
+    fonte: melhorEntrada.fonte || i18n.t('assistente.fonteFallback'),
     foraAmbito: false,
   };
 }

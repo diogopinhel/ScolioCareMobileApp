@@ -23,6 +23,7 @@ import BottomSheet2FA from '../../src/components/BottomSheet2FA';
 import { getNotificacoesDoPaciente, marcarComoLida, Notificacao } from '../../src/data/repository/notificacoes';
 import { EstudoComResultado, WellnessLogEntry } from '../../src/data/types';
 import { i18n, useTranslation } from '../../src/i18n';
+import { localeDeData } from '../../src/i18n/dateLocale';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -49,7 +50,7 @@ function primeiroNome(nomeCompleto: string): string {
 
 function dataHoje(): string {
   const agora = new Date();
-  return agora.toLocaleDateString('pt-PT', {
+  return agora.toLocaleDateString(localeDeData(), {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -58,7 +59,7 @@ function dataHoje(): string {
 }
 
 function dataExame(iso: string): string {
-  return new Date(iso).toLocaleDateString('pt-PT', {
+  return new Date(iso).toLocaleDateString(localeDeData(), {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -66,7 +67,7 @@ function dataExame(iso: string): string {
 }
 
 function mesAbreviado(iso: string): string {
-  return new Date(iso).toLocaleDateString('pt-PT', { month: 'short' }).replace('.', '');
+  return new Date(iso).toLocaleDateString(localeDeData(), { month: 'short' }).replace('.', '');
 }
 
 function tempoAtras(iso: string): string {

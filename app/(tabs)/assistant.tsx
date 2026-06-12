@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MessageCircle, AlertTriangle, Info, Send } from 'lucide-react-native';
 import { encontrarResposta } from '../../src/utils/faqMatcher';
 import { useTranslation } from '../../src/i18n';
+import { localeDeData } from '../../src/i18n/dateLocale';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -149,7 +150,7 @@ export default function AssistantScreen() {
   }
 
   function formatarHora(ts: number): string {
-    return new Date(ts).toLocaleTimeString('pt-PT', {
+    return new Date(ts).toLocaleTimeString(localeDeData(), {
       hour: '2-digit',
       minute: '2-digit',
     });

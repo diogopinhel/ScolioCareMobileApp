@@ -468,6 +468,8 @@ const pt = {
     chipCirurgia: 'Quando é necessária cirurgia?',
     chipExercicio: 'Posso fazer exercício?',
     chipPiora: 'A escoliose piora com o tempo?',
+    respostaForaAmbito: 'Não tenho informação sobre esse tema. Para questões específicas sobre o seu caso, consulte o seu médico ou reformule a questão.',
+    fonteFallback: 'Base de dados clínica interna',
   },
 
   doisFatoresSheet: {

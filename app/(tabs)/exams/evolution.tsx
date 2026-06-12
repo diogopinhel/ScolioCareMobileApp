@@ -26,11 +26,12 @@ import { useAuth } from '../../../src/context/AuthContext';
 import { getEstudosDoPaciente } from '../../../src/data/repository/estudos';
 import { EstudoComResultado } from '../../../src/data/types';
 import { i18n, useTranslation } from '../../../src/i18n';
+import { localeDeData } from '../../../src/i18n/dateLocale';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function dataExame(iso: string): string {
-  return new Date(iso).toLocaleDateString('pt-PT', {
+  return new Date(iso).toLocaleDateString(localeDeData(), {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
