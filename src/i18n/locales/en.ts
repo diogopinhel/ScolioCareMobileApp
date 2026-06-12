@@ -40,6 +40,8 @@ const en = {
       erroNaoConfirmado: 'Your account has not been activated yet. Please check your email.',
       erroDemasiadasTentativas: 'Too many attempts. Please wait a few minutes and try again.',
       erroInesperado: 'An unexpected error occurred. Please try again.',
+      erroBloqueada: 'Your account is blocked. Please contact support.',
+      erroApenasPacientes: 'Access restricted. This application is for patients only.',
     },
 
     register: {
@@ -541,6 +543,7 @@ const en = {
     erroNaoCoincidem: 'The passwords do not match.',
     erroIgualAtual: 'The new password must be different from the current one.',
     erroSemEmail: 'Could not retrieve the account email.',
+    erroPasswordAtualIncorreta: 'The current password is incorrect.',
     erroGenerico: 'Could not change the password. Please try again.',
   },
 

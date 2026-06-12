@@ -83,8 +83,12 @@ export default function ChangePasswordScreen() {
         [{ text: t('comum.ok'), onPress: () => router.back() }],
       );
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : '';
-      setErro(msg || t('mudarPassword.erroGenerico'));
+      const msg = e instanceof Error ? e.message.toLowerCase() : '';
+      if (msg.includes('incorreta') || msg.includes('incorrect')) {
+        setErro(t('mudarPassword.erroPasswordAtualIncorreta'));
+      } else {
+        setErro(t('mudarPassword.erroGenerico'));
+      }
     } finally {
       setAGuardar(false);
     }

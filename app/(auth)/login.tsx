@@ -187,8 +187,8 @@ function traduzirErro(mensagem: string, t: TFunction): string {
   if (mensagem.includes('Too many requests')) {
     return t('auth.login.erroDemasiadasTentativas');
   }
-  if (mensagem.includes('bloqueada')) return mensagem;
-  if (mensagem.includes('pacientes')) return mensagem;
+  if (mensagem.includes('bloqueada')) return t('auth.login.erroBloqueada');
+  if (mensagem.includes('pacientes')) return t('auth.login.erroApenasPacientes');
   return t('auth.login.erroInesperado');
 }
 

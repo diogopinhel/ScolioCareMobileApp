@@ -40,6 +40,8 @@ const pt = {
       erroNaoConfirmado: 'A sua conta ainda não foi ativada. Verifique o seu email.',
       erroDemasiadasTentativas: 'Demasiadas tentativas. Aguarde alguns minutos e tente novamente.',
       erroInesperado: 'Ocorreu um erro inesperado. Tente novamente.',
+      erroBloqueada: 'A sua conta está bloqueada. Contacte o suporte.',
+      erroApenasPacientes: 'Acesso restrito. Esta aplicação é apenas para pacientes.',
     },
 
     register: {
@@ -559,6 +561,7 @@ const pt = {
     erroNaoCoincidem: 'As passwords não coincidem.',
     erroIgualAtual: 'A nova password deve ser diferente da atual.',
     erroSemEmail: 'Não foi possível obter o email da conta.',
+    erroPasswordAtualIncorreta: 'A password atual está incorreta.',
     erroGenerico: 'Não foi possível alterar a password. Tente novamente.',
   },
 
