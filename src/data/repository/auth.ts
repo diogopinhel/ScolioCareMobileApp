@@ -55,6 +55,7 @@ export async function login(email: string, password: string): Promise<LoginResul
     return { needsTwoFactor: true, email };
   }
 
+  supabase.rpc('registar_ultimo_login').then(() => undefined, () => undefined);
   return { paciente: utilizador as Paciente };
 }
 
@@ -84,6 +85,7 @@ export async function verificarOtpEmail(email: string, token: string): Promise<P
   if (profileError) throw profileError;
   if (!utilizador) throw new Error('Perfil de utilizador não encontrado.');
 
+  supabase.rpc('registar_ultimo_login').then(() => undefined, () => undefined);
   return utilizador as Paciente;
 }
 
