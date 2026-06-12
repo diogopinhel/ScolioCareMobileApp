@@ -54,6 +54,7 @@ export default function TabsLayout() {
       />
       {/* Rotas escondidas da tab bar — acessíveis via navegação */}
       <Tabs.Screen name="exams/[id]" options={{ href: null }} />
+      <Tabs.Screen name="exams/compare" options={{ href: null }} />
       <Tabs.Screen name="exams/evolution" options={{ href: null }} />
       <Tabs.Screen name="notifications" options={{ href: null }} />
       <Tabs.Screen name="wellness-log" options={{ href: null }} />

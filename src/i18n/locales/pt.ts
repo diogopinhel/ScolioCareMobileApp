@@ -285,6 +285,51 @@ const pt = {
       'Escoliose grave. Requer avaliação médica especializada para eventual intervenção cirúrgica (artrodese vertebral), especialmente em curvaturas progressivas acima de 45°–50°.',
   },
 
+  compararExames: {
+    headerTitulo: 'Comparar exames',
+    erroCarregar: 'Não foi possível carregar os exames. Tente novamente.',
+    semComparacaoTitulo: 'Sem comparação disponível',
+    semComparacaoDesc: 'É necessário ter pelo menos dois exames para os comparar lado a lado.',
+    verExames: 'Ver os meus exames',
+    colunaA: 'EXAME A',
+    colunaB: 'EXAME B',
+    selecionarExame: 'Selecionar exame',
+    anguloCobb: 'Ângulo de Cobb',
+    classificacao: 'Classificação',
+    semData: 'Sem data',
+    semAngulo: '—',
+    // resumo do delta
+    deltaMelhoria: 'Melhoria de {{valor}}° face ao exame anterior',
+    deltaPiora: 'Agravamento de {{valor}}° face ao exame anterior',
+    deltaIgual: 'O ângulo de Cobb manteve-se igual entre os dois exames.',
+    deltaIndisponivel: 'Não há ângulo de Cobb suficiente para comparar.',
+    deltaDisclaimer: 'Esta informação é apenas indicativa. Fale com o seu médico para interpretação clínica.',
+    // imagem
+    tocarAmpliar: 'Toca para ampliar',
+    semRadiografia: 'SEM RADIOGRAFIA',
+    rxTitulo: 'Radiografia',
+    rxRodape: 'Faz pinch para ampliar · Duplo toque para repor',
+    // modal de seleção
+    modalTitulo: 'Escolher exame',
+    // estado (badge)
+    estadoAnalisado: 'Analisado',
+    estadoPendente: 'Pendente',
+    estadoEmAnalise: 'Em análise',
+    estadoArquivado: 'Arquivado',
+    // classificação (badge)
+    classNormal: 'Normal',
+    classLeve: 'Leve',
+    classModerada: 'Moderada',
+    classGrave: 'Grave',
+    // tabela de métricas
+    metricasTitulo: 'Comparação de métricas',
+    estado: 'Estado',
+    data: 'Data',
+    // notas clínicas
+    notasTitulo: 'Notas clínicas',
+    semNotas: 'Sem notas clínicas registadas.',
+  },
+
   wellness: {
     titulo: 'Registar bem-estar',
     contaPendenteTitulo: 'Conta pendente de verificação',

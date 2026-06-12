@@ -313,7 +313,7 @@ export default function ExameDetalheScreen() {
             <TouchableOpacity
               style={styles.btnComparar}
               onPress={() =>
-                Alert.alert(t('exameDetalhe.compararEmBreveTitulo'), t('exameDetalhe.compararEmBreveMensagem'))
+                router.push(`/(tabs)/exams/compare?from=${estudo.id}` as never)
               }
               activeOpacity={0.7}
             >
