@@ -608,6 +608,97 @@ const en = {
     tendAgravamento: 'Worsening',
     tendEstavel: 'Stable',
   },
+
+  politicaPrivacidade: {
+    headerTitulo: 'Privacy Policy',
+    ultimaAtualizacao: 'Last updated: 12 June 2026',
+    intro:
+      'This policy describes how ScolioCare processes your account data and your clinical data (X-rays, Cobb angle and severity classification), under the General Data Protection Regulation (GDPR).',
+    s1Titulo: 'Data controller',
+    s1Corpo:
+      'The controller of your personal data is the University of Trás-os-Montes and Alto Douro (UTAD), with registered offices at Quinta de Prados, 5000-801 Vila Real, Portugal. For privacy-related matters you may contact us at privacidade@scolioscan.pt. Our Data Protection Officer (DPO) is available at dpo@scolioscan.pt.',
+    s2Titulo: 'What data we collect',
+    s2Corpo:
+      'When using the ScolioCare application (patient portal) we may process the following categories of data:',
+    s2Bullets:
+      'Account data: full name, email address, password (stored encrypted) and account settings (language, two-factor authentication).\nProfile data: date of birth, gender, weight and height.\nClinical data (special category — health data): spine X-rays, Cobb angle measurements, scoliosis severity classification, associated medical reports and the identity of the responsible physician.\nUsage data: sign-in records (date and time of last access) and the minimal technical data required for the operation and security of the application.',
+    s3Titulo: 'Consent for artificial intelligence training',
+    s3Corpo:
+      'Your clinical data may, subject to your explicit and separate consent, be used in anonymised form for research and improvement of the artificial intelligence models used for scoliosis detection. This consent is optional, may be given or withdrawn at any time, and your decision does not affect your access to care or to the application.',
+    s4Titulo: 'Purpose of processing',
+    s4Corpo:
+      'We process your data to: (i) create and manage your account; (ii) provide your exams, results and reports; (iii) enable monitoring by your responsible physician; (iv) ensure account security; and (v) where authorised, contribute to clinical research and the improvement of our algorithms.',
+    s5Titulo: 'Legal basis (GDPR)',
+    s5Corpo:
+      'Processing is based on the following legal grounds under Regulation (EU) 2016/679 (GDPR):',
+    s5Bullets:
+      'Performance of a contract (Art. 6(1)(b)) — to provide the patient portal service.\nConsent (Art. 6(1)(a) and Art. 9(2)(a)) — for the processing of health data and for anonymised use in AI training.\nVital interests and provision of healthcare (Art. 9(2)(h)) — for clinical monitoring, where applicable.',
+    s6Titulo: 'Data sharing',
+    s6Corpo:
+      'Your data is accessible to the responsible physician assigned to you and to Jilin University, strictly within the scope of healthcare provision and authorised research. We also rely on technology infrastructure providers (notably Supabase, for database hosting, file storage and authentication), which act as processors and are contractually bound to process the data only on our behalf. We do not sell your personal data to third parties.',
+    s7Titulo: 'Storage and security',
+    s7Corpo:
+      'Data is stored on Supabase infrastructure with encryption in transit and at rest. We apply access control, strong authentication (optional two-factor) and data-minimisation principles. Despite our efforts, no system is entirely immune to risk; we commit to notifying the authorities and data subjects in the event of a breach where required under the GDPR.',
+    s8Titulo: 'International transfers',
+    s8Corpo:
+      'Where data is processed outside the European Economic Area, such transfers will be subject to the appropriate safeguards provided for under the GDPR (for example, the European Commission’s standard contractual clauses).',
+    s9Titulo: 'Your rights',
+    s9Corpo: 'As a data subject, you have the right to:',
+    s9Bullets:
+      'Access your data.\nRequest its rectification.\nRequest its erasure ("right to be forgotten").\nRequest the restriction of, or object to, processing.\nData portability.\nWithdraw consent at any time, without affecting the lawfulness of processing carried out beforehand.',
+    s9CorpoFim:
+      'To exercise these rights, contact privacidade@scolioscan.pt. You also have the right to lodge a complaint with the supervisory authority (in Portugal, the CNPD).',
+    s10Titulo: 'Retention',
+    s10Corpo:
+      'We retain your data for as long as necessary for the purposes described and while your account remains active. Clinical data may be subject to retention periods legally required for health records. After that period, data is deleted or irreversibly anonymised.',
+    s11Titulo: 'Contacts',
+    s11Corpo:
+      'For any questions about this policy or about the processing of your data, please contact privacidade@scolioscan.pt or the DPO at dpo@scolioscan.pt.',
+    rodape: 'Informational document. For questions, contact privacidade@scolioscan.pt.',
+  },
+
+  termosCondicoes: {
+    headerTitulo: 'Terms and Conditions',
+    ultimaAtualizacao: 'Last updated: 12 June 2026',
+    intro:
+      'By creating an account or using the ScolioCare application, you confirm that you have read, understood and accept these Terms and Conditions.',
+    avisoMedico:
+      'This application is for informational and monitoring-support purposes. It does not provide diagnoses and does not replace consultation with a healthcare professional. Never make clinical decisions based solely on the information in the application.',
+    s1Titulo: 'Acceptance of terms',
+    s1Corpo:
+      'By creating an account or using the ScolioCare application, you confirm that you have read, understood and accept these Terms and Conditions. If you do not agree, you should not use the application.',
+    s2Titulo: 'Description of the service',
+    s2Corpo:
+      'ScolioCare is a patient portal that allows you to view your exams, results and reports related to scoliosis screening and monitoring, and to communicate with the responsible clinical team. The application is for informational and monitoring-support purposes only — it does not constitute a medical act, does not provide diagnoses, and does not replace consultation with a healthcare professional.',
+    s3Titulo: 'Important medical disclaimer',
+    s3Corpo:
+      'The results shown in the application (including the Cobb angle and the severity classification) are generated with the support of algorithms and are intended to be interpreted by a qualified healthcare professional. Never make clinical decisions based solely on the information in the application. In an emergency or if symptoms worsen, contact health services immediately.',
+    s4Titulo: 'Eligibility and account',
+    s4Corpo:
+      'Use is intended for patients registered on the ScolioCare platform. You are responsible for keeping your credentials confidential and for all activity carried out under your account. You must notify us immediately of any unauthorised use. Minors may only use the application under the supervision and consent of their legal guardian.',
+    s5Titulo: 'Acceptable use',
+    s5Corpo: 'You agree to use the application only for legitimate purposes and not to:',
+    s5Bullets:
+      "Access other users' data.\nAttempt to compromise the security of the system.\nCopy, decompile or redistribute the application.\nSubmit false information.",
+    s6Titulo: 'Intellectual property',
+    s6Corpo:
+      'The application, its content, design, brand and software are the property of the University of Trás-os-Montes and Alto Douro (UTAD) or its licensors, and are protected by law. Your clinical data and X-rays remain yours; making them available in the application does not transfer ownership of them.',
+    s7Titulo: 'Limitation of liability',
+    s7Corpo:
+      'To the maximum extent permitted by law, UTAD shall not be liable for damages resulting from: (i) decisions made based on the information in the application without medical supervision; (ii) temporary unavailability of the service; or (iii) misuse of credentials by third parties. The application is provided "as is", without warranties that it is entirely free of errors.',
+    s8Titulo: 'Suspension and termination of account',
+    s8Corpo:
+      'You may close your account at any time. We may suspend or terminate access in the event of a breach of these terms or for legal or security reasons. Following termination, your data will be handled in accordance with the Privacy Policy.',
+    s9Titulo: 'Changes to the terms',
+    s9Corpo:
+      'We may update these Terms and Conditions. Material changes will be communicated through the application and the "last updated" date will be revised. Continued use after the changes constitutes your acceptance.',
+    s10Titulo: 'Governing law',
+    s10Corpo:
+      'These terms are governed by the law of the Portuguese Republic, with the courts of the district of Vila Real having jurisdiction, without prejudice to consumer rights provided for by law.',
+    s11Titulo: 'Contacts',
+    s11Corpo: 'For any questions about these terms, please contact privacidade@scolioscan.pt.',
+    rodape: 'For questions about these terms, contact privacidade@scolioscan.pt.',
+  },
 };
 
 export default en;

@@ -528,17 +528,13 @@ export default function ProfileScreen() {
           <LinhaAcao
             icone={<FileText size={18} color="#1A6FAF" />}
             label={t('perfil.politicaPrivacidade')}
-            onPress={() =>
-              Alert.alert(t('perfil.politicaPrivacidade'), t('perfil.politicaEmBreve'))
-            }
+            onPress={() => router.push('/politica-privacidade' as never)}
           />
           <View style={styles.separador} />
           <LinhaAcao
             icone={<ScrollText size={18} color="#1A6FAF" />}
             label={t('perfil.termosCondicoes')}
-            onPress={() =>
-              Alert.alert(t('perfil.termosCondicoes'), t('perfil.termosEmBreve'))
-            }
+            onPress={() => router.push('/termos-condicoes' as never)}
           />
         </View>
 

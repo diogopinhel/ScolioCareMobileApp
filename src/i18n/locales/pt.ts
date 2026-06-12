@@ -631,6 +631,97 @@ const pt = {
     tendAgravamento: 'Agravamento',
     tendEstavel: 'Estável',
   },
+
+  politicaPrivacidade: {
+    headerTitulo: 'Política de Privacidade',
+    ultimaAtualizacao: 'Última atualização: 12 de junho de 2026',
+    intro:
+      'Esta política descreve como a ScolioCare trata os dados da sua conta e os seus dados clínicos (radiografias, ângulo de Cobb e classificação de severidade), no âmbito do Regulamento Geral sobre a Proteção de Dados (RGPD).',
+    s1Titulo: 'Responsável pelo tratamento',
+    s1Corpo:
+      'O responsável pelo tratamento dos seus dados pessoais é a Universidade de Trás-os-Montes e Alto Douro (UTAD), com sede na Quinta de Prados, 5000-801 Vila Real, Portugal. Para questões relacionadas com privacidade pode contactar-nos através de privacidade@scolioscan.pt. O Encarregado de Proteção de Dados (DPO) está disponível em dpo@scolioscan.pt.',
+    s2Titulo: 'Que dados recolhemos',
+    s2Corpo:
+      'No âmbito da utilização da aplicação ScolioCare (portal do paciente) podemos tratar as seguintes categorias de dados:',
+    s2Bullets:
+      'Dados de conta: nome completo, endereço de correio eletrónico, palavra-passe (armazenada de forma encriptada) e definições da conta (idioma, autenticação de dois fatores).\nDados de perfil: data de nascimento, género, peso e altura.\nDados clínicos (categoria especial — dados de saúde): radiografias da coluna, medições do ângulo de Cobb, classificação de severidade da escoliose, relatórios médicos associados e a identificação do médico responsável.\nDados de utilização: registos de início de sessão (data e hora do último acesso) e dados técnicos mínimos necessários ao funcionamento e segurança da aplicação.',
+    s3Titulo: 'Consentimento para treino de inteligência artificial',
+    s3Corpo:
+      'Os seus dados clínicos podem, mediante o seu consentimento explícito e separado, ser utilizados de forma anonimizada para investigação e melhoria dos modelos de inteligência artificial de deteção de escoliose. Este consentimento é facultativo, pode ser dado ou retirado a qualquer momento e a sua decisão não afeta o acesso aos cuidados nem à utilização da aplicação.',
+    s4Titulo: 'Finalidade do tratamento',
+    s4Corpo:
+      'Tratamos os seus dados para: (i) criar e gerir a sua conta; (ii) disponibilizar os seus exames, resultados e relatórios; (iii) permitir o acompanhamento pelo seu médico responsável; (iv) garantir a segurança da conta; e (v) quando autorizado, contribuir para a investigação clínica e melhoria dos algoritmos.',
+    s5Titulo: 'Base legal (RGPD)',
+    s5Corpo:
+      'O tratamento assenta nas seguintes bases legais do Regulamento (UE) 2016/679 (RGPD):',
+    s5Bullets:
+      'Execução de um contrato (art. 6.º, n.º 1, al. b)) — para a prestação do serviço de portal do paciente.\nConsentimento (art. 6.º, n.º 1, al. a) e art. 9.º, n.º 2, al. a)) — para o tratamento de dados de saúde e para a utilização anonimizada em treino de IA.\nInteresse vital e prestação de cuidados de saúde (art. 9.º, n.º 2, al. h)) — para o acompanhamento clínico, quando aplicável.',
+    s6Titulo: 'Partilha de dados',
+    s6Corpo:
+      'Os seus dados são acessíveis ao médico responsável que lhe está atribuído e à Jilin University no estrito âmbito da prestação de cuidados e investigação autorizada. Recorremos ainda a fornecedores de infraestrutura tecnológica (nomeadamente o Supabase, para alojamento da base de dados, armazenamento de ficheiros e autenticação), que atuam como subcontratantes e estão vinculados por contrato a tratar os dados apenas em nosso nome. Não vendemos os seus dados pessoais a terceiros.',
+    s7Titulo: 'Armazenamento e segurança',
+    s7Corpo:
+      'Os dados são armazenados em infraestrutura Supabase com encriptação em trânsito e em repouso. Aplicamos controlo de acessos, autenticação reforçada (opção de dois fatores) e princípios de minimização de dados. Apesar dos esforços, nenhum sistema é totalmente imune a riscos; comprometemo-nos a notificar as autoridades e os titulares em caso de violação que o exija, nos termos do RGPD.',
+    s8Titulo: 'Transferências internacionais',
+    s8Corpo:
+      'Caso os dados sejam tratados fora do Espaço Económico Europeu, essas transferências serão acompanhadas das salvaguardas adequadas previstas no RGPD (por exemplo, cláusulas contratuais-tipo da Comissão Europeia).',
+    s9Titulo: 'Os seus direitos',
+    s9Corpo: 'Enquanto titular dos dados, tem direito a:',
+    s9Bullets:
+      'Aceder aos seus dados.\nSolicitar a sua retificação.\nSolicitar a eliminação ("direito a ser esquecido").\nSolicitar a limitação ou opor-se ao tratamento.\nPortabilidade dos dados.\nRetirar o consentimento a qualquer momento, sem afetar a licitude do tratamento anterior.',
+    s9CorpoFim:
+      'Para exercer estes direitos, contacte privacidade@scolioscan.pt. Tem ainda o direito de apresentar reclamação à autoridade de controlo (em Portugal, a CNPD).',
+    s10Titulo: 'Retenção',
+    s10Corpo:
+      'Conservamos os seus dados durante o período necessário às finalidades descritas e enquanto a sua conta estiver ativa. Os dados clínicos podem estar sujeitos a períodos de conservação legalmente exigidos para registos de saúde. Após esse período, os dados são eliminados ou anonimizados de forma irreversível.',
+    s11Titulo: 'Contactos',
+    s11Corpo:
+      'Para qualquer questão sobre esta política ou sobre o tratamento dos seus dados, contacte privacidade@scolioscan.pt ou o DPO em dpo@scolioscan.pt.',
+    rodape: 'Documento informativo. Para questões, contacte privacidade@scolioscan.pt.',
+  },
+
+  termosCondicoes: {
+    headerTitulo: 'Termos e Condições',
+    ultimaAtualizacao: 'Última atualização: 12 de junho de 2026',
+    intro:
+      'Ao criar uma conta ou ao utilizar a aplicação ScolioCare, declara que leu, compreendeu e aceita os presentes Termos e Condições.',
+    avisoMedico:
+      'Esta aplicação tem caráter informativo e de apoio ao acompanhamento. Não realiza diagnósticos e não substitui a consulta com um profissional de saúde. Nunca tome decisões clínicas com base apenas na informação da aplicação.',
+    s1Titulo: 'Aceitação dos termos',
+    s1Corpo:
+      'Ao criar uma conta ou ao utilizar a aplicação ScolioCare, declara que leu, compreendeu e aceita os presentes Termos e Condições. Se não concordar, não deverá utilizar a aplicação.',
+    s2Titulo: 'Descrição do serviço',
+    s2Corpo:
+      'A ScolioCare é um portal do paciente que lhe permite consultar os seus exames, resultados e relatórios relacionados com o rastreio e acompanhamento da escoliose, e comunicar com a equipa clínica responsável. A aplicação tem caráter exclusivamente informativo e de apoio ao acompanhamento — não constitui um ato médico, não realiza diagnósticos e não substitui a consulta com um profissional de saúde.',
+    s3Titulo: 'Aviso médico importante',
+    s3Corpo:
+      'Os resultados apresentados na aplicação (incluindo o ângulo de Cobb e a classificação de severidade) são gerados com apoio de algoritmos e destinam-se a ser interpretados por um profissional de saúde qualificado. Nunca tome decisões clínicas com base apenas na informação da aplicação. Em caso de emergência ou de agravamento dos sintomas, contacte imediatamente os serviços de saúde.',
+    s4Titulo: 'Elegibilidade e conta',
+    s4Corpo:
+      'A utilização destina-se a pacientes registados na plataforma ScolioCare. É responsável por manter a confidencialidade das suas credenciais e por todas as atividades realizadas na sua conta. Deve notificar-nos de imediato em caso de utilização não autorizada. Os menores de idade só podem utilizar a aplicação sob supervisão e consentimento do representante legal.',
+    s5Titulo: 'Uso aceitável',
+    s5Corpo: 'Compromete-se a utilizar a aplicação apenas para fins legítimos e a não:',
+    s5Bullets:
+      'Aceder a dados de outros utilizadores.\nTentar comprometer a segurança do sistema.\nCopiar, descompilar ou redistribuir a aplicação.\nIntroduzir informação falsa.',
+    s6Titulo: 'Propriedade intelectual',
+    s6Corpo:
+      'A aplicação, o seu conteúdo, design, marca e software são propriedade da Universidade de Trás-os-Montes e Alto Douro (UTAD) ou dos seus licenciadores, e estão protegidos por lei. Os seus dados clínicos e radiografias continuam a pertencer-lhe; a sua disponibilização na aplicação não transfere a respetiva propriedade.',
+    s7Titulo: 'Limitação de responsabilidade',
+    s7Corpo:
+      'Na máxima medida permitida por lei, a UTAD não se responsabiliza por danos resultantes de: (i) decisões tomadas com base na informação da aplicação sem acompanhamento médico; (ii) indisponibilidade temporária do serviço; ou (iii) utilização indevida das credenciais por terceiros. A aplicação é fornecida "tal como está", sem garantias de ausência total de erros.',
+    s8Titulo: 'Suspensão e encerramento de conta',
+    s8Corpo:
+      'Pode encerrar a sua conta a qualquer momento. Podemos suspender ou encerrar o acesso em caso de violação destes termos ou por motivos legais ou de segurança. Após o encerramento, os seus dados serão tratados de acordo com a Política de Privacidade.',
+    s9Titulo: 'Alterações aos termos',
+    s9Corpo:
+      'Podemos atualizar estes Termos e Condições. As alterações relevantes serão comunicadas através da aplicação e a data de "última atualização" será revista. A continuação da utilização após as alterações implica a sua aceitação.',
+    s10Titulo: 'Lei aplicável',
+    s10Corpo:
+      'Os presentes termos regem-se pela lei da República Portuguesa, sendo competente o foro da comarca de Vila Real, sem prejuízo dos direitos do consumidor previstos na lei.',
+    s11Titulo: 'Contactos',
+    s11Corpo: 'Para qualquer questão sobre estes termos, contacte privacidade@scolioscan.pt.',
+    rodape: 'Para questões sobre estes termos, contacte privacidade@scolioscan.pt.',
+  },
 };
 
 export default pt;
