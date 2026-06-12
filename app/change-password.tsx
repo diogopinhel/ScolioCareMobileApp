@@ -17,16 +17,19 @@ import { ChevronLeft } from 'lucide-react-native';
 import { useAuth } from '../src/context/AuthContext';
 import { alterarPassword } from '../src/data/repository/auth';
 import { getEmailDoPaciente } from '../src/data/repository/perfil';
+import { useTranslation } from '../src/i18n';
+import type { TFunction } from 'i18next';
 
-function validarPassword(password: string): string | null {
-  if (password.length < 8) return 'A password deve ter pelo menos 8 caracteres.';
-  if (!/[A-Z]/.test(password)) return 'A password deve conter pelo menos uma letra maiúscula.';
-  if (!/[0-9]/.test(password)) return 'A password deve conter pelo menos um número.';
+function validarPassword(password: string, t: TFunction): string | null {
+  if (password.length < 8) return t('mudarPassword.erroPasswordCurta');
+  if (!/[A-Z]/.test(password)) return t('mudarPassword.erroPasswordMaiuscula');
+  if (!/[0-9]/.test(password)) return t('mudarPassword.erroPasswordNumero');
   return null;
 }
 
 export default function ChangePasswordScreen() {
   const { utilizador } = useAuth();
+  const { t } = useTranslation();
 
   const [passwordAtual, setPasswordAtual] = useState('');
   const [novaPassword, setNovaPassword] = useState('');
@@ -43,23 +46,23 @@ export default function ChangePasswordScreen() {
     setErro(null);
 
     if (!passwordAtual.trim()) {
-      setErro('Introduza a sua password atual.');
+      setErro(t('mudarPassword.erroAtualObrigatoria'));
       return;
     }
 
-    const erroValidacao = validarPassword(novaPassword);
+    const erroValidacao = validarPassword(novaPassword, t);
     if (erroValidacao) {
       setErro(erroValidacao);
       return;
     }
 
     if (novaPassword !== confirmarPassword) {
-      setErro('As passwords não coincidem.');
+      setErro(t('mudarPassword.erroNaoCoincidem'));
       return;
     }
 
     if (novaPassword === passwordAtual) {
-      setErro('A nova password deve ser diferente da atual.');
+      setErro(t('mudarPassword.erroIgualAtual'));
       return;
     }
 
@@ -67,7 +70,7 @@ export default function ChangePasswordScreen() {
 
     const email = await getEmailDoPaciente();
     if (!email) {
-      setErro('Não foi possível obter o email da conta.');
+      setErro(t('mudarPassword.erroSemEmail'));
       return;
     }
 
@@ -75,13 +78,13 @@ export default function ChangePasswordScreen() {
     try {
       await alterarPassword(email, passwordAtual, novaPassword);
       Alert.alert(
-        'Password alterada',
-        'A sua password foi alterada com sucesso.',
-        [{ text: 'OK', onPress: () => router.back() }],
+        t('mudarPassword.sucessoTitulo'),
+        t('mudarPassword.sucessoMensagem'),
+        [{ text: t('comum.ok'), onPress: () => router.back() }],
       );
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : '';
-      setErro(msg || 'Não foi possível alterar a password. Tente novamente.');
+      setErro(msg || t('mudarPassword.erroGenerico'));
     } finally {
       setAGuardar(false);
     }
@@ -97,7 +100,7 @@ export default function ChangePasswordScreen() {
         >
           <ChevronLeft size={24} color="#1A1A2E" />
         </TouchableOpacity>
-        <Text style={styles.headerTitulo}>Alterar palavra-passe</Text>
+        <Text style={styles.headerTitulo}>{t('mudarPassword.headerTitulo')}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -111,18 +114,18 @@ export default function ChangePasswordScreen() {
           showsVerticalScrollIndicator={false}
         >
           <Text style={styles.descricao}>
-            A nova password deve ter pelo menos 8 caracteres, uma letra maiúscula e um número.
+            {t('mudarPassword.descricao')}
           </Text>
 
           {/* Password atual */}
           <View style={styles.campo}>
-            <Text style={styles.label}>Password atual</Text>
+            <Text style={styles.label}>{t('mudarPassword.passwordAtualLabel')}</Text>
             <View style={styles.inputRow}>
               <TextInput
                 style={styles.inputFlex}
                 value={passwordAtual}
                 onChangeText={(v) => { setPasswordAtual(v); setErro(null); }}
-                placeholder="••••••••"
+                placeholder={t('mudarPassword.passwordPlaceholder')}
                 placeholderTextColor="#9CA3AF"
                 secureTextEntry={!verAtual}
                 autoComplete="password"
@@ -132,20 +135,20 @@ export default function ChangePasswordScreen() {
                 onPress={() => setVerAtual((v) => !v)}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
-                <Text style={styles.verTxt}>{verAtual ? 'Ocultar' : 'Ver'}</Text>
+                <Text style={styles.verTxt}>{verAtual ? t('mudarPassword.ocultar') : t('mudarPassword.ver')}</Text>
               </TouchableOpacity>
             </View>
           </View>
 
           {/* Nova password */}
           <View style={styles.campo}>
-            <Text style={styles.label}>Nova password</Text>
+            <Text style={styles.label}>{t('mudarPassword.novaPasswordLabel')}</Text>
             <View style={styles.inputRow}>
               <TextInput
                 style={styles.inputFlex}
                 value={novaPassword}
                 onChangeText={(v) => { setNovaPassword(v); setErro(null); }}
-                placeholder="••••••••"
+                placeholder={t('mudarPassword.passwordPlaceholder')}
                 placeholderTextColor="#9CA3AF"
                 secureTextEntry={!verNova}
                 autoComplete="new-password"
@@ -155,20 +158,20 @@ export default function ChangePasswordScreen() {
                 onPress={() => setVerNova((v) => !v)}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
-                <Text style={styles.verTxt}>{verNova ? 'Ocultar' : 'Ver'}</Text>
+                <Text style={styles.verTxt}>{verNova ? t('mudarPassword.ocultar') : t('mudarPassword.ver')}</Text>
               </TouchableOpacity>
             </View>
           </View>
 
           {/* Confirmar nova password */}
           <View style={styles.campo}>
-            <Text style={styles.label}>Confirmar nova password</Text>
+            <Text style={styles.label}>{t('mudarPassword.confirmarPasswordLabel')}</Text>
             <View style={styles.inputRow}>
               <TextInput
                 style={styles.inputFlex}
                 value={confirmarPassword}
                 onChangeText={(v) => { setConfirmarPassword(v); setErro(null); }}
-                placeholder="••••••••"
+                placeholder={t('mudarPassword.passwordPlaceholder')}
                 placeholderTextColor="#9CA3AF"
                 secureTextEntry={!verConfirmar}
                 autoComplete="new-password"
@@ -179,7 +182,7 @@ export default function ChangePasswordScreen() {
                 onPress={() => setVerConfirmar((v) => !v)}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
-                <Text style={styles.verTxt}>{verConfirmar ? 'Ocultar' : 'Ver'}</Text>
+                <Text style={styles.verTxt}>{verConfirmar ? t('mudarPassword.ocultar') : t('mudarPassword.ver')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -199,7 +202,7 @@ export default function ChangePasswordScreen() {
             {aGuardar ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text style={styles.btnGuardarTxt}>Guardar password</Text>
+              <Text style={styles.btnGuardarTxt}>{t('mudarPassword.guardar')}</Text>
             )}
           </TouchableOpacity>
         </ScrollView>

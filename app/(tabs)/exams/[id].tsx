@@ -26,6 +26,7 @@ import {
 } from 'lucide-react-native';
 import { getEstudoPorId, getUrlRelatorioPdf, getUrlImagemEstudo } from '../../../src/data/repository/estudos';
 import { EstudoDetalhe, EstadoEstudo } from '../../../src/data/types';
+import { i18n, useTranslation } from '../../../src/i18n';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -47,13 +48,14 @@ function dataFormatadaLonga(iso: string): string {
 
 function bandaSeveridade(angulo: number, grau?: string | null): string {
   const g = grau?.toUpperCase() ?? '';
+  const a = angulo.toFixed(1);
   if (g === 'NORMAL' || angulo < 10)
-    return `Um ângulo de ${angulo.toFixed(1)}° está dentro do intervalo normal.`;
+    return i18n.t('exameDetalhe.severidadeNormal', { angulo: a });
   if (g === 'LEVE' || angulo < 25)
-    return `Um ângulo de ${angulo.toFixed(1)}° indica uma curvatura espinhal leve.`;
+    return i18n.t('exameDetalhe.severidadeLeve', { angulo: a });
   if (g === 'MODERADA' || angulo < 40)
-    return `Um ângulo de ${angulo.toFixed(1)}° indica uma curvatura espinhal moderada.`;
-  return `Um ângulo de ${angulo.toFixed(1)}° indica uma curvatura espinhal grave.`;
+    return i18n.t('exameDetalhe.severidadeModerada', { angulo: a });
+  return i18n.t('exameDetalhe.severidadeGrave', { angulo: a });
 }
 
 type ClassifInfo = { label: string; cor: string; bgCor: string };
@@ -61,10 +63,10 @@ type ClassifInfo = { label: string; cor: string; bgCor: string };
 function classifInfo(grau: string | null | undefined): ClassifInfo | null {
   if (!grau) return null;
   switch (grau.toUpperCase()) {
-    case 'NORMAL':   return { label: 'Normal',   cor: '#1D9E75', bgCor: '#DCFCE7' };
-    case 'LEVE':     return { label: 'Leve',     cor: '#D97706', bgCor: '#FEF3C7' };
-    case 'MODERADA': return { label: 'Moderada', cor: '#E8843C', bgCor: '#FEF0E7' };
-    case 'GRAVE':    return { label: 'Grave',    cor: '#EF4444', bgCor: '#FEE2E2' };
+    case 'NORMAL':   return { label: i18n.t('exameDetalhe.classNormal'),   cor: '#1D9E75', bgCor: '#DCFCE7' };
+    case 'LEVE':     return { label: i18n.t('exameDetalhe.classLeve'),     cor: '#D97706', bgCor: '#FEF3C7' };
+    case 'MODERADA': return { label: i18n.t('exameDetalhe.classModerada'), cor: '#E8843C', bgCor: '#FEF0E7' };
+    case 'GRAVE':    return { label: i18n.t('exameDetalhe.classGrave'),    cor: '#EF4444', bgCor: '#FEE2E2' };
     default:         return null;
   }
 }
@@ -75,15 +77,15 @@ function estadoInfo(estado: EstadoEstudo): EstadoInfo {
   switch (estado) {
     case 'DIAGNOSED':
     case 'SENT':
-      return { label: 'Analisado', cor: '#1D9E75', bgCor: '#DCFCE7' };
+      return { label: i18n.t('exameDetalhe.estadoAnalisado'), cor: '#1D9E75', bgCor: '#DCFCE7' };
     case 'PENDING_VALIDATION':
     case 'VALIDATED':
-      return { label: 'Pendente', cor: '#D97706', bgCor: '#FEF3C7' };
+      return { label: i18n.t('exameDetalhe.estadoPendente'), cor: '#D97706', bgCor: '#FEF3C7' };
     case 'UPLOADED':
     case 'PROCESSING':
-      return { label: 'Em análise', cor: '#1A6FAF', bgCor: '#EFF6FF' };
+      return { label: i18n.t('exameDetalhe.estadoEmAnalise'), cor: '#1A6FAF', bgCor: '#EFF6FF' };
     case 'ARCHIVED':
-      return { label: 'Arquivado', cor: '#6B7280', bgCor: '#F3F4F6' };
+      return { label: i18n.t('exameDetalhe.estadoArquivado'), cor: '#6B7280', bgCor: '#F3F4F6' };
   }
 }
 
@@ -93,6 +95,7 @@ const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
 
 export default function ExameDetalheScreen() {
   const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
+  const { t } = useTranslation();
   const [estudo, setEstudo] = useState<EstudoDetalhe | null>(null);
   const [aCarregar, setACarregar] = useState(true);
   const [erroDados, setErroDados] = useState<string | null>(null);
@@ -110,7 +113,7 @@ export default function ExameDetalheScreen() {
         setUrlImagem(url);
       }
     } catch {
-      setErroDados('Não foi possível carregar o exame. Tente novamente.');
+      setErroDados(t('exameDetalhe.erroCarregar'));
     } finally {
       setACarregar(false);
     }
@@ -122,15 +125,15 @@ export default function ExameDetalheScreen() {
     if (!estudo?.ficheiro_pdf) return;
     try {
       const url = await getUrlRelatorioPdf(estudo.ficheiro_pdf);
-      if (!url) { Alert.alert('Erro', 'Não foi possível gerar o link do relatório.'); return; }
+      if (!url) { Alert.alert(t('comum.erro'), t('exameDetalhe.erroLinkRelatorio')); return; }
       const suportado = await Linking.canOpenURL(url);
       if (suportado) {
         await Linking.openURL(url);
       } else {
-        Alert.alert('Erro', 'Não foi possível abrir o relatório PDF.');
+        Alert.alert(t('comum.erro'), t('exameDetalhe.erroAbrirPdf'));
       }
     } catch {
-      Alert.alert('Erro', 'Não foi possível abrir o relatório PDF.');
+      Alert.alert(t('comum.erro'), t('exameDetalhe.erroAbrirPdf'));
     }
   }
 
@@ -154,7 +157,7 @@ export default function ExameDetalheScreen() {
           <ChevronLeft size={24} color="#1A1A2E" />
         </TouchableOpacity>
         <Text style={styles.headerTitulo} numberOfLines={1}>
-          {estudo ? `Exame — ${dataFormatada(estudo.data_estudo)}` : 'Exame'}
+          {estudo ? t('exameDetalhe.headerExameData', { data: dataFormatada(estudo.data_estudo) }) : t('exameDetalhe.headerExame')}
         </Text>
         <View style={{ width: 40 }} />
       </View>
@@ -165,12 +168,12 @@ export default function ExameDetalheScreen() {
         <View style={styles.vazio}>
           <Text style={styles.erroTxt}>{erroDados}</Text>
           <TouchableOpacity style={styles.btnRetry} onPress={carregar}>
-            <Text style={styles.btnRetryTxt}>Tentar novamente</Text>
+            <Text style={styles.btnRetryTxt}>{t('comum.tentarNovamente')}</Text>
           </TouchableOpacity>
         </View>
       ) : !estudo ? (
         <View style={styles.vazio}>
-          <Text style={styles.erroTxt}>Exame não encontrado.</Text>
+          <Text style={styles.erroTxt}>{t('exameDetalhe.naoEncontrado')}</Text>
         </View>
       ) : (
         <ScrollView
@@ -191,13 +194,13 @@ export default function ExameDetalheScreen() {
               />
             ) : (
               <View style={styles.radiografia}>
-                <Text style={styles.radiografiaTxt}>RADIOGRAFIA</Text>
+                <Text style={styles.radiografiaTxt}>{t('exameDetalhe.radiografia')}</Text>
               </View>
             )}
             {urlImagem && (
               <View style={styles.expandirBtn}>
                 <Maximize2 size={14} color="#FFFFFF" />
-                <Text style={styles.expandirTxt}>Toca para ampliar</Text>
+                <Text style={styles.expandirTxt}>{t('exameDetalhe.tocarAmpliar')}</Text>
               </View>
             )}
             {estadoInf && (
@@ -211,13 +214,13 @@ export default function ExameDetalheScreen() {
 
           {/* Métricas clínicas */}
           <View style={styles.seccao}>
-            <Text style={styles.seccaoTitulo}>Métricas clínicas</Text>
+            <Text style={styles.seccaoTitulo}>{t('exameDetalhe.metricasTitulo')}</Text>
 
             {resultado ? (
               <>
                 <View style={styles.cobbRow}>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.cobbLabel}>Ângulo de Cobb</Text>
+                    <Text style={styles.cobbLabel}>{t('exameDetalhe.anguloCobb')}</Text>
                     <Text style={styles.cobbValor}>
                       {anguloEfetivo != null ? `${anguloEfetivo.toFixed(1)}°` : '—'}
                     </Text>
@@ -230,7 +233,7 @@ export default function ExameDetalheScreen() {
                       const c = classifInfo(resultado.grau_curvatura);
                       return c ? (
                         <View style={{ alignItems: 'flex-end', gap: 3 }}>
-                          <Text style={styles.cobbLabel}>Classificação</Text>
+                          <Text style={styles.cobbLabel}>{t('exameDetalhe.classificacao')}</Text>
                           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                             <View style={[styles.classifBadge, { backgroundColor: c.bgCor }]}>
                               <Text style={[styles.classifTxt, { color: c.cor }]}>{c.label}</Text>
@@ -258,13 +261,13 @@ export default function ExameDetalheScreen() {
                 )}
               </>
             ) : (
-              <Text style={styles.semDados}>Sem métricas disponíveis para este exame.</Text>
+              <Text style={styles.semDados}>{t('exameDetalhe.semMetricas')}</Text>
             )}
           </View>
 
           {/* Observações do médico */}
           <View style={styles.seccao}>
-            <Text style={styles.seccaoTitulo}>Observações do médico</Text>
+            <Text style={styles.seccaoTitulo}>{t('exameDetalhe.observacoesTitulo')}</Text>
 
             {resultado?.observacoes_medico ? (
               <>
@@ -273,12 +276,11 @@ export default function ExameDetalheScreen() {
                 {estudo.medico_validador_nome && resultado.data_validacao && (
                   <View style={styles.validadoBox}>
                     <Text style={styles.validadoTxt}>
-                      Validado por{' '}
+                      {t('exameDetalhe.validadoPor')}
                       <Text style={{ fontWeight: '700' }}>
                         {estudo.medico_validador_nome}
                       </Text>
-                      {' '}a {dataFormatadaLonga(resultado.data_validacao)}.{' '}
-                      Esta informação não substitui uma consulta médica presencial.
+                      {t('exameDetalhe.validadoData', { data: dataFormatadaLonga(resultado.data_validacao) })}
                     </Text>
                   </View>
                 )}
@@ -286,8 +288,8 @@ export default function ExameDetalheScreen() {
             ) : (
               <Text style={styles.semDados}>
                 {estudo.estado === 'DIAGNOSED' || estudo.estado === 'SENT'
-                  ? 'O médico não adicionou observações escritas a este exame.'
-                  : 'As observações do médico serão apresentadas após a validação do exame.'}
+                  ? t('exameDetalhe.semObservacoesAnalisado')
+                  : t('exameDetalhe.semObservacoesPendente')}
               </Text>
             )}
           </View>
@@ -304,18 +306,18 @@ export default function ExameDetalheScreen() {
               activeOpacity={0.8}
             >
               <Download size={18} color="#FFFFFF" />
-              <Text style={styles.btnPdfTxt}>Descarregar relatório em PDF</Text>
+              <Text style={styles.btnPdfTxt}>{t('exameDetalhe.descarregarPdf')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.btnComparar}
               onPress={() =>
-                Alert.alert('Em breve', 'A comparação de exames estará disponível numa próxima versão.')
+                Alert.alert(t('exameDetalhe.compararEmBreveTitulo'), t('exameDetalhe.compararEmBreveMensagem'))
               }
               activeOpacity={0.7}
             >
               <GitCompare size={16} color="#1A6FAF" />
-              <Text style={styles.btnCompararTxt}>Comparar com outro exame</Text>
+              <Text style={styles.btnCompararTxt}>{t('exameDetalhe.compararExame')}</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -338,7 +340,7 @@ export default function ExameDetalheScreen() {
             >
               <X size={22} color="#FFFFFF" />
             </TouchableOpacity>
-            <Text style={styles.rxTitulo}>Radiografia</Text>
+            <Text style={styles.rxTitulo}>{t('exameDetalhe.rxTitulo')}</Text>
             <View style={{ width: 42 }} />
           </View>
 
@@ -360,7 +362,7 @@ export default function ExameDetalheScreen() {
           </ScrollView>
 
           <View style={styles.rxRodape}>
-            <Text style={styles.rxRodapeTxt}>Faz pinch para ampliar · Duplo toque para repor</Text>
+            <Text style={styles.rxRodapeTxt}>{t('exameDetalhe.rxRodape')}</Text>
           </View>
         </View>
       </Modal>
@@ -375,43 +377,43 @@ export default function ExameDetalheScreen() {
         <Pressable style={styles.modalOverlay} onPress={() => setShowAjuda(false)}>
           <Pressable style={styles.modalCard} onPress={() => {}}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitulo}>Classificação da Escoliose</Text>
+              <Text style={styles.modalTitulo}>{t('exameDetalhe.ajudaTitulo')}</Text>
               <TouchableOpacity onPress={() => setShowAjuda(false)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
                 <X size={20} color="#6B7280" />
               </TouchableOpacity>
             </View>
             <Text style={styles.modalSubtitulo}>
-              Baseado nas diretrizes da Scoliosis Research Society (SRS) e SOSORT
+              {t('exameDetalhe.ajudaSubtitulo')}
             </Text>
 
             {[
               {
-                label: 'Normal',
-                intervalo: '< 10°',
+                label: t('exameDetalhe.classNormal'),
+                intervalo: t('exameDetalhe.ajudaNormalIntervalo'),
                 cor: '#1D9E75',
                 bgCor: '#DCFCE7',
-                descricao: 'A curvatura está dentro dos limites normais. Não é considerada escoliose. Em crianças em crescimento pode ser recomendada vigilância periódica.',
+                descricao: t('exameDetalhe.ajudaNormalDesc'),
               },
               {
-                label: 'Leve',
-                intervalo: '10° – 24°',
+                label: t('exameDetalhe.classLeve'),
+                intervalo: t('exameDetalhe.ajudaLeveIntervalo'),
                 cor: '#D97706',
                 bgCor: '#FEF3C7',
-                descricao: 'Escoliose leve. Habitualmente tratada com exercícios terapêuticos específicos (método Schroth) e vigilância regular. Em adolescentes em crescimento pode ser ponderado colete ortopédico.',
+                descricao: t('exameDetalhe.ajudaLeveDesc'),
               },
               {
-                label: 'Moderada',
-                intervalo: '25° – 39°',
+                label: t('exameDetalhe.classModerada'),
+                intervalo: t('exameDetalhe.ajudaModeradaIntervalo'),
                 cor: '#E8843C',
                 bgCor: '#FEF0E7',
-                descricao: 'Escoliose moderada. É frequentemente indicado colete ortopédico (ex: colete de Boston) em pacientes em fase de crescimento, juntamente com fisioterapia especializada.',
+                descricao: t('exameDetalhe.ajudaModeradaDesc'),
               },
               {
-                label: 'Grave',
-                intervalo: '≥ 40°',
+                label: t('exameDetalhe.classGrave'),
+                intervalo: t('exameDetalhe.ajudaGraveIntervalo'),
                 cor: '#EF4444',
                 bgCor: '#FEE2E2',
-                descricao: 'Escoliose grave. Requer avaliação médica especializada para eventual intervenção cirúrgica (artrodese vertebral), especialmente em curvaturas progressivas acima de 45°–50°.',
+                descricao: t('exameDetalhe.ajudaGraveDesc'),
               },
             ].map((item) => (
               <View key={item.label} style={styles.modalLinha}>
@@ -424,7 +426,7 @@ export default function ExameDetalheScreen() {
             ))}
 
             <Text style={styles.modalRodape}>
-              O ângulo de Cobb é medido na radiografia entre as vértebras com maior inclinação.
+              {t('exameDetalhe.ajudaRodape')}
             </Text>
           </Pressable>
         </Pressable>

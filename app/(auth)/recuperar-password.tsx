@@ -17,10 +17,12 @@ import {
   enviarEmailRecuperacaoPassword,
   definirNovaPassword,
 } from '../../src/data/repository/auth';
+import { useTranslation } from '../../src/i18n';
 
 const REGEX_EMAIL = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
 
 export default function RecuperarPasswordScreen() {
+  const { t } = useTranslation();
   const [passo, setPasso] = useState<1 | 2>(1);
   const [email, setEmail] = useState('');
   const [codigo, setCodigo] = useState('');
@@ -36,7 +38,7 @@ export default function RecuperarPasswordScreen() {
   async function handleEnviarCodigo() {
     const emailTrimmed = email.trim().toLowerCase();
     if (!REGEX_EMAIL.test(emailTrimmed)) {
-      setErro('Introduza um endereço de email válido.');
+      setErro(t('recuperarPassword.erroEmailInvalido'));
       return;
     }
     setErro(null);
@@ -64,15 +66,15 @@ export default function RecuperarPasswordScreen() {
   }
 
   function validarPasso2(): string | null {
-    if (codigo.trim().length !== 6) return 'O código deve ter 6 dígitos.';
+    if (codigo.trim().length !== 6) return t('recuperarPassword.erroCodigo');
     if (novaPassword.length < 8)
-      return 'A palavra-passe deve ter pelo menos 8 caracteres.';
+      return t('recuperarPassword.erroPasswordCurta');
     if (!/[A-Z]/.test(novaPassword))
-      return 'A palavra-passe deve conter pelo menos uma letra maiúscula.';
+      return t('recuperarPassword.erroPasswordMaiuscula');
     if (!/[0-9]/.test(novaPassword))
-      return 'A palavra-passe deve conter pelo menos um número.';
+      return t('recuperarPassword.erroPasswordNumero');
     if (novaPassword !== confirmarPassword)
-      return 'As palavras-passe não coincidem.';
+      return t('recuperarPassword.erroPasswordsNaoCoincidem');
     return null;
   }
 
@@ -94,9 +96,9 @@ export default function RecuperarPasswordScreen() {
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message.toLowerCase() : '';
       if (msg.includes('expired') || msg.includes('invalid') || msg.includes('otp')) {
-        setErro('Código inválido ou expirado. Solicite um novo código.');
+        setErro(t('recuperarPassword.erroCodigoInvalido'));
       } else {
-        setErro('Não foi possível alterar a palavra-passe. Tente novamente.');
+        setErro(t('recuperarPassword.erroGenerico'));
       }
     } finally {
       setAProcessar(false);
@@ -108,7 +110,7 @@ export default function RecuperarPasswordScreen() {
     return (
       <SafeAreaView style={estilos.safe} edges={['top']}>
         <View style={estilos.header}>
-          <Text style={estilos.headerTitulo}>Recuperar palavra-passe</Text>
+          <Text style={estilos.headerTitulo}>{t('recuperarPassword.headerTitulo')}</Text>
         </View>
         <ScrollView
           contentContainerStyle={estilos.scrollCentrado}
@@ -117,17 +119,16 @@ export default function RecuperarPasswordScreen() {
           <View style={estilos.iconCircle}>
             <CheckCircle size={38} color="#1D9E75" />
           </View>
-          <Text style={estilos.titulo}>Palavra-passe alterada!</Text>
+          <Text style={estilos.titulo}>{t('recuperarPassword.sucessoTitulo')}</Text>
           <Text style={estilos.subtitulo}>
-            A sua palavra-passe foi redefinida com sucesso. Já pode iniciar
-            sessão com a nova palavra-passe.
+            {t('recuperarPassword.sucessoSubtitulo')}
           </Text>
           <TouchableOpacity
             style={estilos.btnPrimario}
             onPress={() => router.replace('/(auth)/login' as never)}
             activeOpacity={0.85}
           >
-            <Text style={estilos.btnPrimarioTxt}>Ir para o início de sessão</Text>
+            <Text style={estilos.btnPrimarioTxt}>{t('recuperarPassword.irParaLogin')}</Text>
           </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
@@ -146,7 +147,7 @@ export default function RecuperarPasswordScreen() {
           >
             <ArrowLeft size={20} color="#FFFFFF" />
           </TouchableOpacity>
-          <Text style={estilos.headerTitulo}>Recuperar palavra-passe</Text>
+          <Text style={estilos.headerTitulo}>{t('recuperarPassword.headerTitulo')}</Text>
         </View>
 
         <KeyboardAvoidingView
@@ -165,17 +166,16 @@ export default function RecuperarPasswordScreen() {
             </View>
 
             <Text style={estilos.instrucao}>
-              Introduza o email associado à sua conta. Enviaremos um código de
-              6 dígitos para redefinir a palavra-passe.
+              {t('recuperarPassword.instrucao')}
             </Text>
 
             <View style={estilos.campo}>
-              <Text style={estilos.label}>Email</Text>
+              <Text style={estilos.label}>{t('recuperarPassword.emailLabel')}</Text>
               <TextInput
                 style={estilos.input}
                 value={email}
                 onChangeText={(v) => { setEmail(v); setErro(null); }}
-                placeholder="exemplo@email.com"
+                placeholder={t('recuperarPassword.emailPlaceholder')}
                 placeholderTextColor="#9CA3AF"
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -201,7 +201,7 @@ export default function RecuperarPasswordScreen() {
               {aProcessar ? (
                 <ActivityIndicator color="#FFFFFF" />
               ) : (
-                <Text style={estilos.btnPrimarioTxt}>Enviar código</Text>
+                <Text style={estilos.btnPrimarioTxt}>{t('recuperarPassword.enviarCodigo')}</Text>
               )}
             </TouchableOpacity>
 
@@ -210,7 +210,7 @@ export default function RecuperarPasswordScreen() {
               onPress={() => router.back()}
               activeOpacity={0.7}
             >
-              <Text style={estilos.voltarLoginTxt}>Voltar ao início de sessão</Text>
+              <Text style={estilos.voltarLoginTxt}>{t('recuperarPassword.voltarLogin')}</Text>
             </TouchableOpacity>
           </ScrollView>
         </KeyboardAvoidingView>
@@ -229,7 +229,7 @@ export default function RecuperarPasswordScreen() {
         >
           <ArrowLeft size={20} color="#FFFFFF" />
         </TouchableOpacity>
-        <Text style={estilos.headerTitulo}>Recuperar palavra-passe</Text>
+        <Text style={estilos.headerTitulo}>{t('recuperarPassword.headerTitulo')}</Text>
       </View>
 
       <KeyboardAvoidingView
@@ -250,12 +250,12 @@ export default function RecuperarPasswordScreen() {
           <View style={estilos.emailBadge}>
             <Mail size={14} color="#1A6FAF" />
             <Text style={estilos.emailBadgeTxt} numberOfLines={1}>
-              Código enviado para {email.trim()}
+              {t('recuperarPassword.codigoEnviadoPara', { email: email.trim() })}
             </Text>
           </View>
 
           <View style={estilos.campo}>
-            <Text style={estilos.label}>Código de verificação</Text>
+            <Text style={estilos.label}>{t('recuperarPassword.codigoLabel')}</Text>
             <TextInput
               style={[estilos.input, estilos.inputCodigo]}
               value={codigo}
@@ -269,13 +269,13 @@ export default function RecuperarPasswordScreen() {
           </View>
 
           <View style={estilos.campo}>
-            <Text style={estilos.label}>Nova palavra-passe</Text>
+            <Text style={estilos.label}>{t('recuperarPassword.novaPasswordLabel')}</Text>
             <View style={estilos.inputRow}>
               <TextInput
                 style={estilos.inputFlex}
                 value={novaPassword}
                 onChangeText={(v) => { setNovaPassword(v); setErro(null); }}
-                placeholder="••••••••"
+                placeholder={t('recuperarPassword.passwordPlaceholder')}
                 placeholderTextColor="#9CA3AF"
                 secureTextEntry={!mostrarNova}
                 returnKeyType="next"
@@ -285,20 +285,20 @@ export default function RecuperarPasswordScreen() {
                 onPress={() => setMostrarNova((v) => !v)}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
-                <Text style={estilos.eyeTxt}>{mostrarNova ? 'Ocultar' : 'Ver'}</Text>
+                <Text style={estilos.eyeTxt}>{mostrarNova ? t('recuperarPassword.ocultar') : t('recuperarPassword.ver')}</Text>
               </TouchableOpacity>
             </View>
-            <Text style={estilos.dica}>Mínimo 8 caracteres, 1 maiúscula e 1 número</Text>
+            <Text style={estilos.dica}>{t('recuperarPassword.dicaPassword')}</Text>
           </View>
 
           <View style={estilos.campo}>
-            <Text style={estilos.label}>Confirmar palavra-passe</Text>
+            <Text style={estilos.label}>{t('recuperarPassword.confirmarPasswordLabel')}</Text>
             <View style={estilos.inputRow}>
               <TextInput
                 style={estilos.inputFlex}
                 value={confirmarPassword}
                 onChangeText={(v) => { setConfirmarPassword(v); setErro(null); }}
-                placeholder="••••••••"
+                placeholder={t('recuperarPassword.passwordPlaceholder')}
                 placeholderTextColor="#9CA3AF"
                 secureTextEntry={!mostrarConfirmar}
                 returnKeyType="done"
@@ -310,7 +310,7 @@ export default function RecuperarPasswordScreen() {
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
                 <Text style={estilos.eyeTxt}>
-                  {mostrarConfirmar ? 'Ocultar' : 'Ver'}
+                  {mostrarConfirmar ? t('recuperarPassword.ocultar') : t('recuperarPassword.ver')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -331,18 +331,18 @@ export default function RecuperarPasswordScreen() {
             {aProcessar ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text style={estilos.btnPrimarioTxt}>Guardar palavra-passe</Text>
+              <Text style={estilos.btnPrimarioTxt}>{t('recuperarPassword.guardarPassword')}</Text>
             )}
           </TouchableOpacity>
 
           <View style={estilos.reenviarWrap}>
-            <Text style={estilos.reenviarTxt}>Não recebeu o código? </Text>
+            <Text style={estilos.reenviarTxt}>{t('recuperarPassword.naoRecebeuPergunta')}</Text>
             <TouchableOpacity onPress={handleReenviar} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <Text style={estilos.reenviarLink}>Reenviar</Text>
+              <Text style={estilos.reenviarLink}>{t('recuperarPassword.reenviar')}</Text>
             </TouchableOpacity>
           </View>
           {reenviadoAviso && (
-            <Text style={estilos.reenviadoAviso}>Novo código enviado.</Text>
+            <Text style={estilos.reenviadoAviso}>{t('recuperarPassword.reenviado')}</Text>
           )}
         </ScrollView>
       </KeyboardAvoidingView>

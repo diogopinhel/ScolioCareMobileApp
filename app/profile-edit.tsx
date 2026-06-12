@@ -35,15 +35,11 @@ import {
   atualizarPerfilPaciente,
   atualizarFotoPerfil,
 } from '../src/data/repository/perfil';
+import { useTranslation } from '../src/i18n';
 
 // ─── Tipos e constantes ───────────────────────────────────────────────────────
 
 type Genero = 'M' | 'F' | 'O';
-const GENEROS: { key: Genero; label: string }[] = [
-  { key: 'M', label: 'Masculino' },
-  { key: 'F', label: 'Feminino' },
-  { key: 'O', label: 'Outro' },
-];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -109,6 +105,13 @@ function Separador() {
 
 export default function ProfileEditScreen() {
   const { utilizador, refreshUtilizador } = useAuth();
+  const { t } = useTranslation();
+
+  const GENEROS: { key: Genero; label: string }[] = [
+    { key: 'M', label: t('perfilEdit.generoMasculino') },
+    { key: 'F', label: t('perfilEdit.generoFeminino') },
+    { key: 'O', label: t('perfilEdit.generoOutro') },
+  ];
 
   const [nome, setNome] = useState(utilizador?.nome_completo ?? '');
   const [dataNasc, setDataNasc] = useState(isoParaDisplay(utilizador?.data_nascimento ?? null));
@@ -128,8 +131,8 @@ export default function ProfileEditScreen() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert(
-        'Permissão necessária',
-        'Precisamos de acesso à galeria para alterar a foto de perfil.',
+        t('perfilEdit.permissaoTitulo'),
+        t('perfilEdit.permissaoMensagem'),
       );
       return;
     }
@@ -148,19 +151,19 @@ export default function ProfileEditScreen() {
     if (!utilizador) return;
     setErro(null);
 
-    if (!nome.trim()) return setErro('O nome completo é obrigatório.');
-    if (nome.trim().length < 3) return setErro('O nome deve ter pelo menos 3 caracteres.');
-    if (!/^[a-zA-ZÀ-ÿ\s]+$/.test(nome.trim())) return setErro('O nome só pode conter letras e espaços.');
+    if (!nome.trim()) return setErro(t('perfilEdit.erroNomeObrigatorio'));
+    if (nome.trim().length < 3) return setErro(t('perfilEdit.erroNomeMinimo'));
+    if (!/^[a-zA-ZÀ-ÿ\s]+$/.test(nome.trim())) return setErro(t('perfilEdit.erroNomeLetras'));
     if (dataNasc && !validarDataNasc(dataNasc))
-      return setErro('Data de nascimento inválida. Use o formato DD/MM/AAAA.');
-    if (!contacto.trim()) return setErro('O número de telemóvel é obrigatório.');
+      return setErro(t('perfilEdit.erroDataInvalida'));
+    if (!contacto.trim()) return setErro(t('perfilEdit.erroTelemovelObrigatorio'));
     const digitosContacto = contacto.replace(/\D/g, '');
     if (digitosContacto.length < 7 || digitosContacto.length > 15)
-      return setErro('Introduza um número de telefone válido (mínimo 7 dígitos).');
+      return setErro(t('perfilEdit.erroTelefoneInvalido'));
     if (!/^\+?[\d\s\-().]+$/.test(contacto.trim()))
-      return setErro('O número de telefone contém caracteres inválidos.');
-    if (!morada.trim()) return setErro('A morada é obrigatória.');
-    if (morada.trim().length < 10) return setErro('A morada deve ter pelo menos 10 caracteres.');
+      return setErro(t('perfilEdit.erroTelefoneCaracteres'));
+    if (!morada.trim()) return setErro(t('perfilEdit.erroMoradaObrigatoria'));
+    if (morada.trim().length < 10) return setErro(t('perfilEdit.erroMoradaMinima'));
 
     setACarregar(true);
     try {
@@ -177,7 +180,7 @@ export default function ProfileEditScreen() {
       await refreshUtilizador();
       router.back();
     } catch (e: unknown) {
-      setErro(e instanceof Error ? e.message : 'Erro ao guardar as alterações. Tente novamente.');
+      setErro(e instanceof Error ? e.message : t('perfilEdit.erroGuardar'));
     } finally {
       setACarregar(false);
     }
@@ -206,7 +209,7 @@ export default function ProfileEditScreen() {
               >
                 <ChevronLeft size={24} color="#FFFFFF" />
               </TouchableOpacity>
-              <Text style={s.headerTitulo}>Editar perfil</Text>
+              <Text style={s.headerTitulo}>{t('perfilEdit.titulo')}</Text>
               <View style={{ width: 40 }} />
             </View>
 
@@ -225,7 +228,7 @@ export default function ProfileEditScreen() {
                   <Camera size={14} color="#1A6FAF" />
                 </View>
               </View>
-              <Text style={s.fotoHint}>Toca para alterar a foto</Text>
+              <Text style={s.fotoHint}>{t('perfilEdit.tocarAlterarFoto')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -233,12 +236,12 @@ export default function ProfileEditScreen() {
           <View style={s.conteudo}>
 
             {/* ── DADOS PESSOAIS ──────────────────────── */}
-            <Text style={s.seccaoLabel}>DADOS PESSOAIS</Text>
+            <Text style={s.seccaoLabel}>{t('perfilEdit.seccaoDadosPessoais')}</Text>
             <View style={s.card}>
               {/* Nome completo */}
               <View style={s.campo}>
                 <Text style={s.campoLabel}>
-                  Nome completo <Text style={s.obrig}>*</Text>
+                  {t('perfilEdit.nomeCompleto')} <Text style={s.obrig}>*</Text>
                 </Text>
                 <View style={s.inputWrap}>
                   <User size={16} color="#9CA3AF" />
@@ -246,7 +249,7 @@ export default function ProfileEditScreen() {
                     style={s.input}
                     value={nome}
                     onChangeText={(v) => { setNome(v); setErro(null); }}
-                    placeholder="Nome completo"
+                    placeholder={t('perfilEdit.nomePlaceholder')}
                     placeholderTextColor="#9CA3AF"
                     autoCapitalize="words"
                     maxLength={100}
@@ -258,14 +261,14 @@ export default function ProfileEditScreen() {
 
               {/* Data de nascimento */}
               <View style={s.campo}>
-                <Text style={s.campoLabel}>Data de nascimento</Text>
+                <Text style={s.campoLabel}>{t('perfilEdit.dataNascimento')}</Text>
                 <View style={s.inputWrap}>
                   <CalendarDays size={16} color="#9CA3AF" />
                   <TextInput
                     style={s.input}
                     value={dataNasc}
                     onChangeText={(v) => { setDataNasc(formatarDataNasc(v)); setErro(null); }}
-                    placeholder="DD/MM/AAAA"
+                    placeholder={t('perfilEdit.dataNascPlaceholder')}
                     placeholderTextColor="#9CA3AF"
                     keyboardType="number-pad"
                     maxLength={10}
@@ -278,7 +281,7 @@ export default function ProfileEditScreen() {
 
               {/* Sexo */}
               <View style={s.campo}>
-                <Text style={s.campoLabel}>Sexo</Text>
+                <Text style={s.campoLabel}>{t('perfilEdit.sexo')}</Text>
                 <View style={s.generoRow}>
                   {GENEROS.map((g) => (
                     <TouchableOpacity
@@ -297,13 +300,13 @@ export default function ProfileEditScreen() {
             </View>
 
             {/* ── IDENTIFICAÇÃO ───────────────────────── */}
-            <Text style={s.seccaoLabel}>IDENTIFICAÇÃO</Text>
+            <Text style={s.seccaoLabel}>{t('perfilEdit.seccaoIdentificacao')}</Text>
             <View style={s.card}>
               {/* Cartão de Cidadão */}
               <View style={s.campo}>
                 <View style={s.campoLabelRow}>
-                  <Text style={s.campoLabel}>Nº Cartão de Cidadão</Text>
-                  <Text style={s.soLeituraBadge}>só leitura</Text>
+                  <Text style={s.campoLabel}>{t('perfilEdit.cartaoCidadao')}</Text>
+                  <Text style={s.soLeituraBadge}>{t('perfilEdit.soLeitura')}</Text>
                 </View>
                 <View style={s.inputWrapReadOnly}>
                   <CreditCard size={16} color="#9CA3AF" />
@@ -319,8 +322,8 @@ export default function ProfileEditScreen() {
               {/* Nº Utente */}
               <View style={s.campo}>
                 <View style={s.campoLabelRow}>
-                  <Text style={s.campoLabel}>Nº Utente SNS</Text>
-                  <Text style={s.soLeituraBadge}>só leitura</Text>
+                  <Text style={s.campoLabel}>{t('perfilEdit.numeroUtente')}</Text>
+                  <Text style={s.soLeituraBadge}>{t('perfilEdit.soLeitura')}</Text>
                 </View>
                 <View style={s.inputWrapReadOnly}>
                   <FileText size={16} color="#9CA3AF" />
@@ -333,12 +336,12 @@ export default function ProfileEditScreen() {
             </View>
 
             {/* ── CONTACTO ────────────────────────────── */}
-            <Text style={s.seccaoLabel}>CONTACTO</Text>
+            <Text style={s.seccaoLabel}>{t('perfilEdit.seccaoContacto')}</Text>
             <View style={s.card}>
               {/* Telemóvel */}
               <View style={s.campo}>
                 <Text style={s.campoLabel}>
-                  Telemóvel <Text style={s.obrig}>*</Text>
+                  {t('perfilEdit.telemovel')} <Text style={s.obrig}>*</Text>
                 </Text>
                 <View style={s.inputWrap}>
                   <Phone size={16} color="#9CA3AF" />
@@ -346,7 +349,7 @@ export default function ProfileEditScreen() {
                     style={s.input}
                     value={contacto}
                     onChangeText={(v) => { setContacto(v); setErro(null); }}
-                    placeholder="+351 912 345 678"
+                    placeholder={t('perfilEdit.telemovelPlaceholder')}
                     placeholderTextColor="#9CA3AF"
                     keyboardType="phone-pad"
                     maxLength={20}
@@ -359,7 +362,7 @@ export default function ProfileEditScreen() {
               {/* Morada */}
               <View style={s.campo}>
                 <Text style={s.campoLabel}>
-                  Morada <Text style={s.obrig}>*</Text>
+                  {t('perfilEdit.morada')} <Text style={s.obrig}>*</Text>
                 </Text>
                 <View style={s.inputWrap}>
                   <MapPin size={16} color="#9CA3AF" />
@@ -367,7 +370,7 @@ export default function ProfileEditScreen() {
                     style={s.input}
                     value={morada}
                     onChangeText={(v) => { setMorada(v); setErro(null); }}
-                    placeholder="Rua Exemplo, nº 1, 5000-000 Vila Real"
+                    placeholder={t('perfilEdit.moradaPlaceholder')}
                     placeholderTextColor="#9CA3AF"
                     autoCapitalize="words"
                     maxLength={200}
@@ -377,12 +380,12 @@ export default function ProfileEditScreen() {
             </View>
 
             {/* ── ACESSO ──────────────────────────────── */}
-            <Text style={s.seccaoLabel}>ACESSO</Text>
+            <Text style={s.seccaoLabel}>{t('perfilEdit.seccaoAcesso')}</Text>
             <View style={s.card}>
               <View style={s.campo}>
                 <View style={s.campoLabelRow}>
-                  <Text style={s.campoLabel}>Email <Text style={s.obrig}>*</Text></Text>
-                  <Text style={s.soLeituraBadge}>só leitura</Text>
+                  <Text style={s.campoLabel}>{t('perfilEdit.email')} <Text style={s.obrig}>*</Text></Text>
+                  <Text style={s.soLeituraBadge}>{t('perfilEdit.soLeitura')}</Text>
                 </View>
                 <View style={s.inputWrapReadOnly}>
                   <Mail size={16} color="#9CA3AF" />
@@ -411,7 +414,7 @@ export default function ProfileEditScreen() {
               {aCarregar ? (
                 <ActivityIndicator color="#FFFFFF" />
               ) : (
-                <Text style={s.btnGuardarTxt}>Guardar alterações</Text>
+                <Text style={s.btnGuardarTxt}>{t('perfilEdit.guardarAlteracoes')}</Text>
               )}
             </TouchableOpacity>
 

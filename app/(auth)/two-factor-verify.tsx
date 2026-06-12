@@ -15,12 +15,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, Mail } from 'lucide-react-native';
 import { useAuth } from '../../src/context/AuthContext';
+import { useTranslation } from '../../src/i18n';
+import type { TFunction } from 'i18next';
 
 type Modo = 'login' | 'ativar';
 
 export default function TwoFactorVerifyScreen() {
   const { email, modo } = useLocalSearchParams<{ email: string; modo: Modo }>();
   const { verificar2FA, verificarEAtivar2FA, enviarOtp2FA } = useAuth();
+  const { t } = useTranslation();
 
   const [digitos, setDigitos] = useState(['', '', '', '', '', '']);
   const [aVerificar, setAVerificar] = useState(false);
@@ -37,8 +40,8 @@ export default function TwoFactorVerifyScreen() {
 
   useEffect(() => {
     if (cooldown <= 0) return;
-    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
   }, [cooldown]);
 
   function handleChange(i: number, value: string) {
@@ -72,7 +75,7 @@ export default function TwoFactorVerifyScreen() {
   async function handleVerificar() {
     const codigo = digitos.join('');
     if (codigo.length < 6) {
-      setErro('Introduza os 6 dígitos do código.');
+      setErro(t('auth.twoFactor.erroCodigoIncompleto'));
       return;
     }
     setErro(null);
@@ -81,16 +84,16 @@ export default function TwoFactorVerifyScreen() {
       if (modo === 'ativar') {
         await verificarEAtivar2FA(email, codigo);
         Alert.alert(
-          'Autenticação ativada',
-          'A autenticação de dois fatores foi ativada com sucesso.',
-          [{ text: 'OK', onPress: () => router.back() }],
+          t('auth.twoFactor.ativadaTitulo'),
+          t('auth.twoFactor.ativadaMensagem'),
+          [{ text: t('comum.ok'), onPress: () => router.back() }],
         );
       } else {
         await verificar2FA(email, codigo);
         // NavigationGuard handles redirect to /(tabs)/home once estaAutenticado = true
       }
     } catch (e: any) {
-      setErro(traduzirErro(e?.message ?? ''));
+      setErro(traduzirErro(e?.message ?? '', t));
       setDigitos(['', '', '', '', '', '']);
       refs[0].current?.focus();
     } finally {
@@ -109,9 +112,9 @@ export default function TwoFactorVerifyScreen() {
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : '';
       const descricao = msg.toLowerCase().includes('rate limit')
-        ? 'Limite de emails atingido. Aguarde alguns minutos e tente novamente.'
-        : 'Não foi possível reenviar o código. Tente novamente.';
-      Alert.alert('Erro', descricao);
+        ? t('auth.twoFactor.erroReenvioRateLimit')
+        : t('auth.twoFactor.erroReenvio');
+      Alert.alert(t('comum.erro'), descricao);
     }
   }
 
@@ -150,9 +153,9 @@ export default function TwoFactorVerifyScreen() {
             <View style={styles.iconCircle}>
               <Mail size={32} color="#1A6FAF" />
             </View>
-            <Text style={styles.titulo}>Verificação em dois passos</Text>
+            <Text style={styles.titulo}>{t('auth.twoFactor.titulo')}</Text>
             <Text style={styles.subtitulo}>
-              Enviámos um código de 6 dígitos para{'\n'}
+              {t('auth.twoFactor.subtitulo')}{'\n'}
               <Text style={styles.emailTxt}>{email}</Text>
             </Text>
           </View>
@@ -196,20 +199,20 @@ export default function TwoFactorVerifyScreen() {
             {aVerificar ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text style={styles.btnVerificarTxt}>Verificar código</Text>
+              <Text style={styles.btnVerificarTxt}>{t('auth.twoFactor.verificarCodigo')}</Text>
             )}
           </TouchableOpacity>
 
           {/* Reenviar */}
           <View style={styles.reenviarWrap}>
-            <Text style={styles.reenviarTxt}>Não recebeu o código? </Text>
+            <Text style={styles.reenviarTxt}>{t('auth.twoFactor.naoRecebeuPergunta')}</Text>
             <TouchableOpacity
               onPress={handleReenviar}
               disabled={cooldown > 0}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
               <Text style={[styles.reenviarLink, cooldown > 0 && styles.reenviarDisabled]}>
-                {cooldown > 0 ? `Reenviar (${cooldown}s)` : 'Reenviar'}
+                {cooldown > 0 ? t('auth.twoFactor.reenviarCooldown', { segundos: cooldown }) : t('auth.twoFactor.reenviar')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -217,7 +220,7 @@ export default function TwoFactorVerifyScreen() {
           {/* Nota */}
           <View style={styles.notaWrap}>
             <Text style={styles.notaTxt}>
-              O código expira em 10 minutos. Se não encontrar o email, verifique a pasta de spam.
+              {t('auth.twoFactor.nota')}
             </Text>
           </View>
         </ScrollView>
@@ -226,17 +229,17 @@ export default function TwoFactorVerifyScreen() {
   );
 }
 
-function traduzirErro(msg: string): string {
+function traduzirErro(msg: string, t: TFunction): string {
   if (msg.includes('expired') || msg.includes('Token has expired')) {
-    return 'O código expirou. Reenvie um novo código.';
+    return t('auth.twoFactor.erroExpirado');
   }
   if (msg.includes('Invalid') || msg.includes('invalid') || msg.includes('not found')) {
-    return 'Código inválido. Verifique e tente novamente.';
+    return t('auth.twoFactor.erroInvalido');
   }
   if (msg.includes('Too many') || msg.includes('rate limit')) {
-    return 'Demasiadas tentativas. Aguarde e tente novamente.';
+    return t('auth.twoFactor.erroDemasiadas');
   }
-  return 'Ocorreu um erro. Tente novamente.';
+  return t('auth.twoFactor.erroGenerico');
 }
 
 const styles = StyleSheet.create({

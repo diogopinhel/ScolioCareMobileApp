@@ -87,6 +87,17 @@ export async function atualizarPerfilPaciente(
   if (error) throw error;
 }
 
+export async function atualizarIdioma(
+  pacienteId: string,
+  idioma: 'pt-PT' | 'en',
+): Promise<void> {
+  const { error } = await supabase
+    .from('utilizadores')
+    .update({ idioma })
+    .eq('id', pacienteId);
+  if (error) throw error;
+}
+
 export async function atualizarFotoPerfil(
   pacienteId: string,
   imageUri: string,

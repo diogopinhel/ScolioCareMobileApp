@@ -38,14 +38,16 @@ import {
   getConsentimentoTreino,
   darConsentimentoTreino,
   revogarConsentimentoTreino,
+  atualizarIdioma,
   ConsentimentoTreino,
 } from '../../src/data/repository/perfil';
 import { MedicoResponsavel } from '../../src/data/types';
+import { i18n, useTranslation } from '../../src/i18n';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function dataFormatada(iso: string | null): string {
-  if (!iso) return 'Não definido';
+  if (!iso) return i18n.t('perfil.naoDefinido');
   return new Date(iso).toLocaleDateString('pt-PT', {
     day: 'numeric',
     month: 'short',
@@ -54,20 +56,20 @@ function dataFormatada(iso: string | null): string {
 }
 
 function generoLabel(genero: string | null): string {
-  if (!genero) return 'Não definido';
+  if (!genero) return i18n.t('perfil.naoDefinido');
   const map: Record<string, string> = {
-    M: 'Masculino',
-    F: 'Feminino',
-    masculino: 'Masculino',
-    feminino: 'Feminino',
-    Masculino: 'Masculino',
-    Feminino: 'Feminino',
+    M: i18n.t('perfil.generoMasculino'),
+    F: i18n.t('perfil.generoFeminino'),
+    masculino: i18n.t('perfil.generoMasculino'),
+    feminino: i18n.t('perfil.generoFeminino'),
+    Masculino: i18n.t('perfil.generoMasculino'),
+    Feminino: i18n.t('perfil.generoFeminino'),
   };
   return map[genero] ?? genero;
 }
 
 function idiomaLabel(idioma: string): string {
-  const map: Record<string, string> = { pt: 'Português', en: 'English' };
+  const map: Record<string, string> = { 'pt-PT': 'Português', pt: 'Português', en: 'English' };
   return map[idioma] ?? idioma;
 }
 
@@ -190,7 +192,8 @@ function LinhaToggle({
 // ─── Ecrã principal ──────────────────────────────────────────────────────────
 
 export default function ProfileScreen() {
-  const { utilizador, logout, enviarOtp2FA, desativar2FA } = useAuth();
+  const { utilizador, logout, enviarOtp2FA, desativar2FA, refreshUtilizador } = useAuth();
+  const { t } = useTranslation();
 
   const [email, setEmail] = useState<string | null>(null);
   const [medico, setMedico] = useState<MedicoResponsavel | null>(null);
@@ -236,9 +239,34 @@ export default function ProfileScreen() {
         setConsentimento({ ...consentimento, data_revogacao: new Date().toISOString() });
       }
     } catch {
-      setErro('Não foi possível actualizar o consentimento. Tente novamente.');
+      setErro(t('perfil.erroConsentimento'));
     } finally {
       setAGuardar(false);
+    }
+  }
+
+  async function escolherIdioma() {
+    if (!utilizador) return;
+    Alert.alert(
+      t('perfil.idiomaTitulo'),
+      t('perfil.idiomaMensagem'),
+      [
+        { text: 'Português', onPress: () => guardarIdioma('pt-PT') },
+        { text: 'English', onPress: () => guardarIdioma('en') },
+        { text: t('perfil.cancelar'), style: 'cancel' },
+      ],
+    );
+  }
+
+  async function guardarIdioma(idioma: 'pt-PT' | 'en') {
+    if (!utilizador) return;
+    setErro(null);
+    try {
+      await atualizarIdioma(utilizador.id, idioma);
+      await i18n.changeLanguage(idioma);
+      await refreshUtilizador();
+    } catch {
+      setErro(t('perfil.erroGuardarIdioma'));
     }
   }
 
@@ -257,27 +285,27 @@ export default function ProfileScreen() {
         console.log('[Profile] erro ao enviar OTP 2FA:', e);
         const msg = e instanceof Error ? e.message : '';
         const descricao = msg.toLowerCase().includes('rate limit')
-          ? 'Limite de emails atingido. Aguarde alguns minutos e tente novamente.'
-          : 'Não foi possível enviar o código de verificação. Tente novamente.';
+          ? t('comum.limiteEmails')
+          : t('perfil.erroEnviarCodigo');
         setErro(descricao);
       } finally {
         setAGuardar(false);
       }
     } else {
       Alert.alert(
-        'Desativar autenticação de dois fatores',
-        'Tem a certeza que pretende desativar a verificação em dois passos?',
+        t('perfil.desativar2FATitulo'),
+        t('perfil.desativar2FAMensagem'),
         [
-          { text: 'Cancelar', style: 'cancel' },
+          { text: t('perfil.cancelar'), style: 'cancel' },
           {
-            text: 'Desativar',
+            text: t('perfil.desativar'),
             style: 'destructive',
             onPress: async () => {
               setAGuardar(true);
               try {
                 await desativar2FA();
               } catch {
-                setErro('Não foi possível desativar a autenticação. Tente novamente.');
+                setErro(t('perfil.erroDesativar2FA'));
               } finally {
                 setAGuardar(false);
               }
@@ -290,18 +318,18 @@ export default function ProfileScreen() {
 
   async function terminarSessao() {
     Alert.alert(
-      'Terminar sessão',
-      'Tem a certeza que pretende terminar a sessão?',
+      t('perfil.terminarSessaoTitulo'),
+      t('perfil.terminarSessaoMensagem'),
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: t('perfil.cancelar'), style: 'cancel' },
         {
-          text: 'Terminar sessão',
+          text: t('perfil.terminarSessao'),
           style: 'destructive',
           onPress: async () => {
             try {
               await logout();
             } catch {
-              setErro('Não foi possível terminar a sessão. Tente novamente.');
+              setErro(t('perfil.erroLogout'));
             }
           },
         },
@@ -362,37 +390,37 @@ export default function ProfileScreen() {
         )}
 
         {/* ── OS MEUS DADOS ─────────────────────────────── */}
-        <Text style={styles.seccaoTitulo}>OS MEUS DADOS</Text>
+        <Text style={styles.seccaoTitulo}>{t('perfil.seccaoMeusDados')}</Text>
         <View style={styles.card}>
           <LinhaInfo
             icone={<User size={18} color="#1A6FAF" />}
-            label="Nome completo"
+            label={t('perfil.nomeCompleto')}
             valor={utilizador?.nome_completo ?? '—'}
           />
           <View style={styles.separador} />
           <LinhaInfo
             icone={<CalendarDays size={18} color="#1A6FAF" />}
-            label="Data de nascimento"
+            label={t('perfil.dataNascimento')}
             valor={dataFormatada(utilizador?.data_nascimento ?? null)}
           />
           <View style={styles.separador} />
           <LinhaInfo
             icone={<Users size={18} color="#1A6FAF" />}
-            label="Género"
+            label={t('perfil.genero')}
             valor={generoLabel(utilizador?.genero ?? null)}
           />
         </View>
 
         {/* ── DADOS CLÍNICOS ───────────────────────────── */}
-        <Text style={styles.seccaoTitulo}>DADOS CLÍNICOS</Text>
+        <Text style={styles.seccaoTitulo}>{t('perfil.seccaoDadosClinicos')}</Text>
         <View style={styles.card}>
           <View style={styles.cardSubHeader}>
             <View style={styles.cardSubHeaderEsquerda}>
               <Stethoscope size={18} color="#1A6FAF" />
-              <Text style={styles.cardSubHeaderTxt}>Resumo clínico</Text>
+              <Text style={styles.cardSubHeaderTxt}>{t('perfil.resumoClinico')}</Text>
             </View>
             <View style={styles.badgeSoLeitura}>
-              <Text style={styles.badgeSoLeituraTxt}>Só leitura</Text>
+              <Text style={styles.badgeSoLeituraTxt}>{t('perfil.soLeitura')}</Text>
             </View>
           </View>
           <View style={styles.separador} />
@@ -401,14 +429,14 @@ export default function ProfileScreen() {
               <Text style={styles.gridValor}>
                 {utilizador?.peso != null ? String(utilizador.peso) : '—'}
               </Text>
-              <Text style={styles.gridLabel}>Peso (kg)</Text>
+              <Text style={styles.gridLabel}>{t('perfil.peso')}</Text>
             </View>
             <View style={styles.gridDivisor} />
             <View style={styles.gridColuna}>
               <Text style={styles.gridValor}>
                 {utilizador?.altura != null ? String(utilizador.altura) : '—'}
               </Text>
-              <Text style={styles.gridLabel}>Altura (cm)</Text>
+              <Text style={styles.gridLabel}>{t('perfil.altura')}</Text>
             </View>
           </View>
           <View style={styles.separador} />
@@ -420,9 +448,9 @@ export default function ProfileScreen() {
               <Text style={styles.medicoAvatarTxt}>{iniciaisMedico}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.linhaMiniLabel}>Médico responsável</Text>
+              <Text style={styles.linhaMiniLabel}>{t('perfil.medicoResponsavel')}</Text>
               <Text style={styles.linhaValorInfo}>
-                {medico ? medico.nome_completo : 'Não atribuído'}
+                {medico ? medico.nome_completo : t('perfil.naoAtribuido')}
               </Text>
             </View>
             <Stethoscope size={18} color="#9CA3AF" />
@@ -430,56 +458,57 @@ export default function ProfileScreen() {
         </View>
 
         {/* ── SEGURANÇA ────────────────────────────────── */}
-        <Text style={styles.seccaoTitulo}>SEGURANÇA</Text>
+        <Text style={styles.seccaoTitulo}>{t('perfil.seccaoSeguranca')}</Text>
         <View style={styles.card}>
           <LinhaAcao
             icone={<Lock size={18} color="#1A6FAF" />}
-            label="Alterar palavra-passe"
+            label={t('perfil.alterarPassword')}
             onPress={() => router.push('/change-password' as never)}
           />
           <View style={styles.separador} />
           <LinhaToggle
             icone={<ShieldCheck size={18} color="#1D9E75" />}
             fundoIcone="#D1FAE5"
-            label="Autenticação dois fatores"
-            descricao="Código por email em cada acesso"
+            label={t('perfil.doisFatores')}
+            descricao={t('perfil.doisFatoresDesc')}
             valor={utilizador?.two_factor_ativo ?? false}
             onChange={toggle2FA}
-            badge={hasDismissed2FA && !utilizador?.two_factor_ativo ? 'Recomendado' : undefined}
+            badge={hasDismissed2FA && !utilizador?.two_factor_ativo ? t('perfil.recomendado') : undefined}
             carregando={aGuardar}
           />
         </View>
 
         {/* ── PREFERÊNCIAS ─────────────────────────────── */}
-        <Text style={styles.seccaoTitulo}>PREFERÊNCIAS</Text>
+        <Text style={styles.seccaoTitulo}>{t('perfil.seccaoPreferencias')}</Text>
         <View style={styles.card}>
-          <LinhaInfo
+          <LinhaAcao
             icone={<Languages size={18} color="#1A6FAF" />}
-            label="Idioma"
-            valor={`${idiomaLabel(utilizador?.idioma ?? 'pt')} · Mais idiomas em breve`}
+            label={t('perfil.idioma')}
+            valor={idiomaLabel(utilizador?.idioma ?? 'pt-PT')}
+            onPress={escolherIdioma}
           />
           <View style={styles.separador} />
           <LinhaAcao
             icone={<Bell size={18} color="#F59E0B" />}
             fundoIcone="#FEF3C7"
-            label="Notificações push"
-            descricao="Brevemente disponível"
+            label={t('perfil.notificacoesPush')}
+            descricao={t('perfil.notificacoesPushDesc')}
             onPress={() =>
               Alert.alert(
-                'Notificações push',
-                'As notificações push estarão disponíveis numa próxima versão.',
+                t('perfil.notificacoesPush'),
+                t('perfil.notificacoesPushEmBreve'),
               )
             }
           />
         </View>
 
         {/* ── PRIVACIDADE E CONSENTIMENTOS ─────────────── */}
-        <Text style={styles.seccaoTitulo}>PRIVACIDADE E CONSENTIMENTOS</Text>
+        <Text style={styles.seccaoTitulo}>{t('perfil.seccaoPrivacidade')}</Text>
         <View style={styles.card}>
           <LinhaToggle
             icone={<Brain size={18} color="#1A6FAF" />}
-            label="Treino de IA"
-            descricao="Dados clínicos anonimizados para melhorar a IA"
+            label={t('perfil.treinoIa')}
+            descricao={t('perfil.treinoIaDesc')}
             valor={treino_ia_ativo}
             onChange={toggleTreinoIa}
             carregando={aGuardar}
@@ -487,27 +516,27 @@ export default function ProfileScreen() {
         </View>
 
         {/* ── ACERCA ───────────────────────────────────── */}
-        <Text style={styles.seccaoTitulo}>ACERCA</Text>
+        <Text style={styles.seccaoTitulo}>{t('perfil.seccaoAcerca')}</Text>
         <View style={styles.card}>
           <View style={styles.linha}>
             <CaixaIcone icone={<Info size={18} color="#1A6FAF" />} fundo="#EFF6FF" />
-            <Text style={[styles.linhaLabel, { flex: 1 }]}>Versão da app</Text>
+            <Text style={[styles.linhaLabel, { flex: 1 }]}>{t('perfil.versaoApp')}</Text>
             <Text style={styles.linhaValorDir}>{versao}</Text>
           </View>
           <View style={styles.separador} />
           <LinhaAcao
             icone={<FileText size={18} color="#1A6FAF" />}
-            label="Política de privacidade"
+            label={t('perfil.politicaPrivacidade')}
             onPress={() =>
-              Alert.alert('Política de privacidade', 'Brevemente disponível nesta secção.')
+              Alert.alert(t('perfil.politicaPrivacidade'), t('perfil.politicaEmBreve'))
             }
           />
           <View style={styles.separador} />
           <LinhaAcao
             icone={<ScrollText size={18} color="#1A6FAF" />}
-            label="Termos e condições"
+            label={t('perfil.termosCondicoes')}
             onPress={() =>
-              Alert.alert('Termos e condições', 'Brevemente disponível nesta secção.')
+              Alert.alert(t('perfil.termosCondicoes'), t('perfil.termosEmBreve'))
             }
           />
         </View>
@@ -515,7 +544,7 @@ export default function ProfileScreen() {
         {/* ── Terminar sessão ──────────────────────────── */}
         <TouchableOpacity style={styles.btnLogout} onPress={terminarSessao} activeOpacity={0.8}>
           <LogOut size={18} color="#EF4444" />
-          <Text style={styles.btnLogoutTxt}>Terminar sessão</Text>
+          <Text style={styles.btnLogoutTxt}>{t('perfil.terminarSessao')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

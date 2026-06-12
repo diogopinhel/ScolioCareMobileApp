@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Check, Shield, ShieldCheck } from 'lucide-react-native';
+import { useTranslation } from '../i18n';
 
 export interface BottomSheet2FAProps {
   visivel: boolean;
@@ -20,8 +21,15 @@ export interface BottomSheet2FAProps {
 
 export default function BottomSheet2FA({ visivel, onAtivar, onMaisLarde }: BottomSheet2FAProps) {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const transY = useRef(new Animated.Value(500)).current;
   const [aAtivar, setAAtivar] = useState(false);
+
+  const beneficios = [
+    t('doisFatoresSheet.beneficio1'),
+    t('doisFatoresSheet.beneficio2'),
+    t('doisFatoresSheet.beneficio3'),
+  ];
 
   useEffect(() => {
     if (visivel) {
@@ -66,22 +74,18 @@ export default function BottomSheet2FA({ visivel, onAtivar, onMaisLarde }: Botto
                 <Shield size={22} color="#1A6FAF" />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={estilos.titulo}>Protege a tua conta agora</Text>
-                <Text style={estilos.subtitulo}>Autenticação de dois fatores</Text>
+                <Text style={estilos.titulo}>{t('doisFatoresSheet.titulo')}</Text>
+                <Text style={estilos.subtitulo}>{t('doisFatoresSheet.subtitulo')}</Text>
               </View>
             </View>
             <Text style={estilos.descricao}>
-              Um código por email em cada acesso — configura em segundos.
+              {t('doisFatoresSheet.descricao')}
             </Text>
           </View>
 
           <View style={estilos.corpo}>
             <View style={estilos.beneficios}>
-              {[
-                'Impede acessos não autorizados',
-                'Alerta se alguém tentar entrar',
-                'Podes desativar em qualquer altura',
-              ].map((item) => (
+              {beneficios.map((item) => (
                 <View key={item} style={estilos.beneficioRow}>
                   <View style={estilos.checkCircle}>
                     <Check size={11} color="#FFFFFF" />
@@ -102,13 +106,13 @@ export default function BottomSheet2FA({ visivel, onAtivar, onMaisLarde }: Botto
               ) : (
                 <>
                   <ShieldCheck size={18} color="#FFFFFF" />
-                  <Text style={estilos.btnAtivoTxt}>Ativar agora</Text>
+                  <Text style={estilos.btnAtivoTxt}>{t('doisFatoresSheet.ativarAgora')}</Text>
                 </>
               )}
             </TouchableOpacity>
 
             <TouchableOpacity style={estilos.btnGhost} onPress={onMaisLarde} activeOpacity={0.7}>
-              <Text style={estilos.btnGhostTxt}>Mais tarde</Text>
+              <Text style={estilos.btnGhostTxt}>{t('doisFatoresSheet.maisTarde')}</Text>
             </TouchableOpacity>
           </View>
         </Animated.View>

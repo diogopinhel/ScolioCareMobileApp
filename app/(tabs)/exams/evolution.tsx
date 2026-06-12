@@ -25,6 +25,7 @@ import Svg, { Path, Polyline, Circle, Line, Text as SvgText, G } from 'react-nat
 import { useAuth } from '../../../src/context/AuthContext';
 import { getEstudosDoPaciente } from '../../../src/data/repository/estudos';
 import { EstudoComResultado } from '../../../src/data/types';
+import { i18n, useTranslation } from '../../../src/i18n';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -43,13 +44,13 @@ function xLabel(iso: string): string {
 
 type TendInfo = { label: string; cor: string; icone: React.ReactNode };
 
-function tendenciaInfo(t: string | null): TendInfo {
-  if (t === 'MELHORIA')
-    return { label: 'Melhoria', cor: '#1D9E75', icone: <TrendingDown size={12} color="#1D9E75" /> };
-  if (t === 'AGRAVAMENTO')
-    return { label: 'Agravamento', cor: '#EF4444', icone: <TrendingUp size={12} color="#EF4444" /> };
-  if (t === 'ESTAVEL')
-    return { label: 'Estável', cor: '#F59E0B', icone: <Minus size={12} color="#F59E0B" /> };
+function tendenciaInfo(tendencia: string | null): TendInfo {
+  if (tendencia === 'MELHORIA')
+    return { label: i18n.t('evolucao.tendMelhoria'), cor: '#1D9E75', icone: <TrendingDown size={12} color="#1D9E75" /> };
+  if (tendencia === 'AGRAVAMENTO')
+    return { label: i18n.t('evolucao.tendAgravamento'), cor: '#EF4444', icone: <TrendingUp size={12} color="#EF4444" /> };
+  if (tendencia === 'ESTAVEL')
+    return { label: i18n.t('evolucao.tendEstavel'), cor: '#F59E0B', icone: <Minus size={12} color="#F59E0B" /> };
   return { label: '—', cor: '#6B7280', icone: <Minus size={12} color="#6B7280" /> };
 }
 
@@ -74,7 +75,7 @@ function GraficoEvolucao({ dados, selecionado, onPress, chartWidth }: GraficoPro
     return (
       <View style={{ height: 120, alignItems: 'center', justifyContent: 'center' }}>
         <Text style={{ color: '#6B7280', fontSize: 14, textAlign: 'center', paddingHorizontal: 20 }}>
-          Sem dados para o período selecionado.
+          {i18n.t('evolucao.semDadosPeriodo')}
         </Text>
       </View>
     );
@@ -208,14 +209,14 @@ function GraficoEvolucao({ dados, selecionado, onPress, chartWidth }: GraficoPro
 
 // ─── Ecrã principal ───────────────────────────────────────────────────────────
 
-const PERIODOS = [
-  { val: '6m' as const, label: '6 Meses' },
-  { val: '1a' as const, label: '1 Ano' },
-  { val: 'tudo' as const, label: 'Tudo' },
-];
-
 export default function EvolutionScreen() {
   const { utilizador } = useAuth();
+  const { t } = useTranslation();
+  const PERIODOS = [
+    { val: '6m' as const, label: t('evolucao.periodo6m') },
+    { val: '1a' as const, label: t('evolucao.periodo1a') },
+    { val: 'tudo' as const, label: t('evolucao.periodoTudo') },
+  ];
   const { width: windowWidth } = useWindowDimensions();
   const chartWidth = windowWidth - 32;
 
@@ -302,7 +303,7 @@ export default function EvolutionScreen() {
         >
           <ChevronLeft size={24} color="#1A1A2E" />
         </TouchableOpacity>
-        <Text style={styles.titulo}>Análise de evolução</Text>
+        <Text style={styles.titulo}>{t('evolucao.titulo')}</Text>
         <TouchableOpacity
           style={styles.btnFiltroIcon}
           onPress={() => setModalVisivel(true)}
@@ -358,7 +359,7 @@ export default function EvolutionScreen() {
           {/* Hint */}
           {dadosFiltrados.length > 1 && (
             <Text style={styles.hint}>
-              Toque nos pontos do gráfico para ver as notas clínicas e os detalhes de cada medição.
+              {t('evolucao.hint')}
             </Text>
           )}
 
@@ -375,7 +376,7 @@ export default function EvolutionScreen() {
                 </View>
               </View>
 
-              <Text style={styles.cobbLabel}>Ângulo de Cobb</Text>
+              <Text style={styles.cobbLabel}>{t('evolucao.anguloCobb')}</Text>
               <Text style={styles.cobbValor}>
                 {exameSelecionado.resultado.angulo_cobb.toFixed(1)}°
               </Text>
@@ -395,16 +396,16 @@ export default function EvolutionScreen() {
                 }
                 activeOpacity={0.8}
               >
-                <Text style={styles.btnVerExameTxt}>Ver exame completo</Text>
+                <Text style={styles.btnVerExameTxt}>{t('evolucao.verExameCompleto')}</Text>
               </TouchableOpacity>
             </View>
           )}
 
           {dadosFiltrados.length === 0 && (
             <View style={styles.vazio}>
-              <Text style={styles.vazioTitulo}>Sem dados neste período</Text>
+              <Text style={styles.vazioTitulo}>{t('evolucao.vazioTitulo')}</Text>
               <Text style={styles.vazioDesc}>
-                Tente selecionar um período maior ou remova o filtro personalizado.
+                {t('evolucao.vazioDesc')}
               </Text>
             </View>
           )}
@@ -421,7 +422,7 @@ export default function EvolutionScreen() {
         <Pressable style={styles.modalOverlay} onPress={() => setModalVisivel(false)}>
           <Pressable style={styles.modalBox}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitulo}>Filtro personalizado</Text>
+              <Text style={styles.modalTitulo}>{t('evolucao.filtroTitulo')}</Text>
               <TouchableOpacity
                 onPress={() => setModalVisivel(false)}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -430,22 +431,22 @@ export default function EvolutionScreen() {
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.inputLabel}>Data de início</Text>
+            <Text style={styles.inputLabel}>{t('evolucao.dataInicio')}</Text>
             <TextInput
               style={styles.modalInput}
               value={filtroInicio}
               onChangeText={setFiltroInicio}
-              placeholder="AAAA-MM-DD"
+              placeholder={t('evolucao.dataPlaceholder')}
               placeholderTextColor="#9CA3AF"
               keyboardType="numbers-and-punctuation"
             />
 
-            <Text style={styles.inputLabel}>Data de fim</Text>
+            <Text style={styles.inputLabel}>{t('evolucao.dataFim')}</Text>
             <TextInput
               style={styles.modalInput}
               value={filtroFim}
               onChangeText={setFiltroFim}
-              placeholder="AAAA-MM-DD"
+              placeholder={t('evolucao.dataPlaceholder')}
               placeholderTextColor="#9CA3AF"
               keyboardType="numbers-and-punctuation"
             />
@@ -458,12 +459,12 @@ export default function EvolutionScreen() {
               onPress={aplicarFiltro}
               disabled={!filtroInicio || !filtroFim}
             >
-              <Text style={styles.btnAplicarTxt}>Aplicar filtro</Text>
+              <Text style={styles.btnAplicarTxt}>{t('evolucao.aplicarFiltro')}</Text>
             </TouchableOpacity>
 
             {filtroPeriodoCustom && (
               <TouchableOpacity style={styles.btnLimpar} onPress={limparFiltro}>
-                <Text style={styles.btnLimparTxt}>Remover filtro</Text>
+                <Text style={styles.btnLimparTxt}>{t('evolucao.removerFiltro')}</Text>
               </TouchableOpacity>
             )}
           </Pressable>

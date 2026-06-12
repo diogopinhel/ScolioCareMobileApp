@@ -14,6 +14,7 @@ import { ChevronLeft, Smile, Meh, Frown, AlertCircle, Info, Clock } from 'lucide
 import { useAuth } from '../../src/context/AuthContext';
 import { addWellnessEntry, getWellnessLogDoPaciente } from '../../src/data/repository/wellness';
 import { WellnessLogEntry } from '../../src/data/types';
+import { i18n, useTranslation } from '../../src/i18n';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -54,10 +55,10 @@ function corDor(nivel: number): string {
 
 function labelDesconforto(valor: string | null): string {
   const map: Record<string, string> = {
-    none: 'Nenhum',
-    mild: 'Ligeiro',
-    moderate: 'Moderado',
-    intense: 'Intenso',
+    none: i18n.t('wellness.desconfortoNenhum'),
+    mild: i18n.t('wellness.desconfortoLigeiro'),
+    moderate: i18n.t('wellness.desconfortoModerado'),
+    intense: i18n.t('wellness.desconfortoIntenso'),
   };
   return valor ? (map[valor] ?? valor) : '—';
 }
@@ -78,13 +79,6 @@ function dataFormatadaCurta(iso: string): string {
 
 type OpcaoDesconforto = 'none' | 'mild' | 'moderate' | 'intense';
 
-const DESCONFORTO_OPCOES: { valor: OpcaoDesconforto; label: string }[] = [
-  { valor: 'none', label: 'Nenhum' },
-  { valor: 'mild', label: 'Ligeiro' },
-  { valor: 'moderate', label: 'Moderado' },
-  { valor: 'intense', label: 'Intenso' },
-];
-
 function iconeDesconforto(valor: OpcaoDesconforto, sel: boolean) {
   const cor = sel
     ? valor === 'none'
@@ -103,6 +97,14 @@ function iconeDesconforto(valor: OpcaoDesconforto, sel: boolean) {
 
 export default function WellnessLogScreen() {
   const { utilizador } = useAuth();
+  const { t } = useTranslation();
+
+  const DESCONFORTO_OPCOES: { valor: OpcaoDesconforto; label: string }[] = [
+    { valor: 'none', label: t('wellness.desconfortoNenhum') },
+    { valor: 'mild', label: t('wellness.desconfortoLigeiro') },
+    { valor: 'moderate', label: t('wellness.desconfortoModerado') },
+    { valor: 'intense', label: t('wellness.desconfortoIntenso') },
+  ];
 
   const [nivelDor, setNivelDor] = useState(5);
   const [desconforto, setDesconforto] = useState<OpcaoDesconforto>('none');
@@ -195,7 +197,7 @@ export default function WellnessLogScreen() {
         criado_em: new Date().toISOString(),
       });
     } catch {
-      setErro('Não foi possível guardar o registo. Tente novamente.');
+      setErro(t('wellness.erroGuardar'));
     } finally {
       setAGuardar(false);
     }
@@ -209,10 +211,10 @@ export default function WellnessLogScreen() {
     return (
       <>
         <View style={styles.histCabecalho}>
-          <Text style={styles.histTitulo}>Histórico</Text>
+          <Text style={styles.histTitulo}>{t('wellness.historicoTitulo')}</Text>
           {historicoEntradas.length > 0 && (
             <Text style={styles.histContagem}>
-              ({historicoEntradas.length} {historicoEntradas.length === 1 ? 'registo' : 'registos'})
+              {t('wellness.historicoContagem', { contagem: historicoEntradas.length, rotulo: historicoEntradas.length === 1 ? t('wellness.registoSingular') : t('wellness.registoPlural') })}
             </Text>
           )}
         </View>
@@ -220,7 +222,7 @@ export default function WellnessLogScreen() {
         {historicoEntradas.length === 0 ? (
           <View style={styles.histVazio}>
             <Clock size={28} color="#9CA3AF" />
-            <Text style={styles.histVazioTxt}>Ainda não há registos anteriores</Text>
+            <Text style={styles.histVazioTxt}>{t('wellness.semRegistosAnteriores')}</Text>
           </View>
         ) : (
           historicoEntradas.map((entrada) => {
@@ -277,7 +279,7 @@ export default function WellnessLogScreen() {
                       activeOpacity={0.7}
                     >
                       <Text style={styles.histPillTxt}>
-                        {expandido ? 'Ocultar ↑' : 'Ver notas ↓'}
+                        {expandido ? t('wellness.ocultarNotas') : t('wellness.verNotas')}
                       </Text>
                     </TouchableOpacity>
                   </>
@@ -299,17 +301,16 @@ export default function WellnessLogScreen() {
           <TouchableOpacity style={styles.btnVoltar} onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <ChevronLeft size={24} color="#1A1A2E" />
           </TouchableOpacity>
-          <Text style={styles.titulo}>Registar bem-estar</Text>
+          <Text style={styles.titulo}>{t('wellness.titulo')}</Text>
           <View style={{ width: 40 }} />
         </View>
         <View style={styles.pendente}>
           <View style={styles.pendenteIconWrap}>
             <Clock size={36} color="#1A6FAF" />
           </View>
-          <Text style={styles.pendenteTitulo}>Conta pendente de verificação</Text>
+          <Text style={styles.pendenteTitulo}>{t('wellness.contaPendenteTitulo')}</Text>
           <Text style={styles.pendenteDesc}>
-            O registo de bem-estar ficará disponível assim que a sua conta for ativada e um
-            médico responsável for atribuído.
+            {t('wellness.contaPendenteDesc')}
           </Text>
         </View>
       </SafeAreaView>
@@ -325,7 +326,7 @@ export default function WellnessLogScreen() {
           <TouchableOpacity style={styles.btnVoltar} onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <ChevronLeft size={24} color="#1A1A2E" />
           </TouchableOpacity>
-          <Text style={styles.titulo}>Registar bem-estar</Text>
+          <Text style={styles.titulo}>{t('wellness.titulo')}</Text>
           <View style={{ width: 40 }} />
         </View>
         <ActivityIndicator size="large" color="#1A6FAF" style={{ marginTop: 60 }} />
@@ -345,7 +346,7 @@ export default function WellnessLogScreen() {
           <TouchableOpacity style={styles.btnVoltar} onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <ChevronLeft size={24} color="#1A1A2E" />
           </TouchableOpacity>
-          <Text style={styles.titulo}>Registar bem-estar</Text>
+          <Text style={styles.titulo}>{t('wellness.titulo')}</Text>
           <View style={{ width: 40 }} />
         </View>
 
@@ -354,9 +355,9 @@ export default function WellnessLogScreen() {
 
           <View style={styles.seccao}>
             <View style={styles.registadoHeader}>
-              <Text style={styles.seccaoTitulo}>Registo de hoje</Text>
+              <Text style={styles.seccaoTitulo}>{t('wellness.registoDeHoje')}</Text>
               <View style={styles.badgeRegistado}>
-                <Text style={styles.badgeRegistadoTxt}>Registado ✓</Text>
+                <Text style={styles.badgeRegistadoTxt}>{t('wellness.registado')}</Text>
               </View>
             </View>
 
@@ -372,13 +373,13 @@ export default function WellnessLogScreen() {
               ))}
             </View>
             <View style={styles.barraLabels}>
-              <Text style={styles.barraLabelTxt}>Sem dor</Text>
-              <Text style={styles.barraLabelTxt}>Dor intensa</Text>
+              <Text style={styles.barraLabelTxt}>{t('wellness.semDor')}</Text>
+              <Text style={styles.barraLabelTxt}>{t('wellness.dorIntensa')}</Text>
             </View>
 
             <View style={styles.separador} />
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Desconforto</Text>
+              <Text style={styles.infoLabel}>{t('wellness.desconforto')}</Text>
               <Text style={styles.infoValor}>{labelDesconforto(entradaHoje.desconforto)}</Text>
             </View>
 
@@ -386,7 +387,7 @@ export default function WellnessLogScreen() {
               <>
                 <View style={styles.separador} />
                 <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Notas</Text>
+                  <Text style={styles.infoLabel}>{t('wellness.notas')}</Text>
                   <Text style={[styles.infoValor, styles.notasLeitura]}>{entradaHoje.notas}</Text>
                 </View>
               </>
@@ -396,13 +397,13 @@ export default function WellnessLogScreen() {
           <View style={styles.contagemBanner}>
             <Clock size={18} color="#1A6FAF" />
             <View style={{ flex: 1 }}>
-              <Text style={styles.contagemLabel}>Próximo registo disponível em</Text>
+              <Text style={styles.contagemLabel}>{t('wellness.proximoRegisto')}</Text>
               <Text style={styles.contagemValor}>{contagem}</Text>
             </View>
           </View>
 
           <TouchableOpacity style={[styles.btnGuardar, styles.btnBloqueado]} disabled>
-            <Text style={styles.btnGuardarTxt}>Já registaste hoje</Text>
+            <Text style={styles.btnGuardarTxt}>{t('wellness.jaRegistasteHoje')}</Text>
           </TouchableOpacity>
 
           {renderHistorico()}
@@ -428,8 +429,8 @@ export default function WellnessLogScreen() {
 
         {/* Nível de dor */}
         <View style={styles.seccao}>
-          <Text style={styles.seccaoTitulo}>Nível de dor</Text>
-          <Text style={styles.seccaoSub}>Selecione o seu nível de dor hoje</Text>
+          <Text style={styles.seccaoTitulo}>{t('wellness.nivelDorTitulo')}</Text>
+          <Text style={styles.seccaoSub}>{t('wellness.nivelDorSub')}</Text>
 
           <View style={styles.dorRow}>
             <TouchableOpacity style={styles.dorBtn} onPress={() => setNivelDor((v) => Math.max(1, v - 1))}>
@@ -454,15 +455,15 @@ export default function WellnessLogScreen() {
             ))}
           </View>
           <View style={styles.barraLabels}>
-            <Text style={styles.barraLabelTxt}>Sem dor</Text>
-            <Text style={styles.barraLabelTxt}>Dor intensa</Text>
+            <Text style={styles.barraLabelTxt}>{t('wellness.semDor')}</Text>
+            <Text style={styles.barraLabelTxt}>{t('wellness.dorIntensa')}</Text>
           </View>
         </View>
 
         {/* Desconforto */}
         <View style={styles.seccao}>
-          <Text style={styles.seccaoTitulo}>Desconforto</Text>
-          <Text style={styles.seccaoSub}>Como descreve o seu desconforto geral?</Text>
+          <Text style={styles.seccaoTitulo}>{t('wellness.desconfortoTitulo')}</Text>
+          <Text style={styles.seccaoSub}>{t('wellness.desconfortoSub')}</Text>
           <View style={styles.grid}>
             {DESCONFORTO_OPCOES.map((opcao) => {
               const sel = desconforto === opcao.valor;
@@ -483,13 +484,13 @@ export default function WellnessLogScreen() {
 
         {/* Notas */}
         <View style={styles.seccao}>
-          <Text style={styles.seccaoTitulo}>Notas adicionais</Text>
-          <Text style={styles.seccaoSub}>Opcional — partilhe mais detalhes sobre como se sente</Text>
+          <Text style={styles.seccaoTitulo}>{t('wellness.notasTitulo')}</Text>
+          <Text style={styles.seccaoSub}>{t('wellness.notasSub')}</Text>
           <TextInput
             style={styles.notasInput}
             value={notas}
             onChangeText={setNotas}
-            placeholder="Escreva aqui as suas notas..."
+            placeholder={t('wellness.notasPlaceholder')}
             placeholderTextColor="#9CA3AF"
             multiline
             numberOfLines={4}
@@ -504,7 +505,7 @@ export default function WellnessLogScreen() {
         <View style={styles.aviso}>
           <Info size={16} color="#1A6FAF" />
           <Text style={styles.avisoTxt}>
-            Os seus dados de bem-estar são privados e só podem ser partilhados com o seu médico responsável com o seu consentimento expresso.
+            {t('wellness.aviso')}
           </Text>
         </View>
 
@@ -523,7 +524,7 @@ export default function WellnessLogScreen() {
           {aGuardar ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
-            <Text style={styles.btnGuardarTxt}>Guardar registo</Text>
+            <Text style={styles.btnGuardarTxt}>{t('wellness.guardarRegisto')}</Text>
           )}
         </TouchableOpacity>
 

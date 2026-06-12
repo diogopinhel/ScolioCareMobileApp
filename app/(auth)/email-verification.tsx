@@ -16,6 +16,7 @@ import {
   reenviarEmailVerificacao,
   verificarTokenEmail,
 } from '../../src/data/repository/auth';
+import { useTranslation } from '../../src/i18n';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -44,6 +45,7 @@ function formatarContagem(segundos: number): string {
 export default function EmailVerificationScreen() {
   const { email: emailParam } = useLocalSearchParams<{ email: string }>();
   const email = emailParam ?? '';
+  const { t } = useTranslation();
 
   const [aReenviar, setAReenviar] = useState(false);
   const [aVerificar, setAVerificar] = useState(false);
@@ -119,7 +121,7 @@ export default function EmailVerificationScreen() {
       setReenviadoSucesso(true);
       setCooldown(60);
     } catch {
-      setErroReenvio('Não foi possível reenviar o email. Tente novamente.');
+      setErroReenvio(t('auth.emailVerification.erroReenvio'));
     } finally {
       setAReenviar(false);
     }
@@ -130,7 +132,7 @@ export default function EmailVerificationScreen() {
       <SafeAreaView style={estilos.safe}>
         <View style={estilos.loadingWrap}>
           <ActivityIndicator size="large" color="#1A6FAF" />
-          <Text style={estilos.loadingTxt}>A verificar o email…</Text>
+          <Text style={estilos.loadingTxt}>{t('auth.emailVerification.aVerificar')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -140,7 +142,7 @@ export default function EmailVerificationScreen() {
     <SafeAreaView style={estilos.safe} edges={['top']}>
       {/* Cabeçalho */}
       <View style={estilos.header}>
-        <Text style={estilos.headerTitulo}>Confirmar email</Text>
+        <Text style={estilos.headerTitulo}>{t('auth.emailVerification.headerTitulo')}</Text>
       </View>
 
       <ScrollView
@@ -160,11 +162,10 @@ export default function EmailVerificationScreen() {
           <Mail size={38} color="#1A6FAF" />
         </View>
 
-        <Text style={estilos.titulo}>Verifica o teu email</Text>
+        <Text style={estilos.titulo}>{t('auth.emailVerification.titulo')}</Text>
 
         <Text style={estilos.subtitulo}>
-          Enviámos um link de confirmação para o endereço abaixo. Clica no link para ativar a tua
-          conta.
+          {t('auth.emailVerification.subtitulo')}
         </Text>
 
         {/* Chip com email mascarado */}
@@ -173,7 +174,7 @@ export default function EmailVerificationScreen() {
         </View>
 
         {reenviadoSucesso && (
-          <Text style={estilos.feedbackOk}>Email reenviado com sucesso!</Text>
+          <Text style={estilos.feedbackOk}>{t('auth.emailVerification.reenviadoSucesso')}</Text>
         )}
         {erroReenvio && (
           <Text style={estilos.feedbackErro}>{erroReenvio}</Text>
@@ -192,7 +193,7 @@ export default function EmailVerificationScreen() {
             <>
               <RefreshCw size={16} color="#FFFFFF" />
               <Text style={estilos.btnPrimarioTxt}>
-                {cooldown > 0 ? `Reenviar email (${cooldown}s)` : 'Reenviar email'}
+                {cooldown > 0 ? t('auth.emailVerification.reenviarEmailCooldown', { segundos: cooldown }) : t('auth.emailVerification.reenviarEmail')}
               </Text>
             </>
           )}
@@ -205,7 +206,7 @@ export default function EmailVerificationScreen() {
           activeOpacity={0.7}
         >
           <CheckCircle size={14} color="#1D9E75" style={{ flexShrink: 0 }} />
-          <Text style={estilos.jaConfirmeiTxt}>Já confirmaste o email? <Text style={estilos.jaConfirmeiLink}>Clica aqui</Text></Text>
+          <Text style={estilos.jaConfirmeiTxt}>{t('auth.emailVerification.jaConfirmastePergunta')}<Text style={estilos.jaConfirmeiLink}>{t('auth.emailVerification.jaConfirmasteLink')}</Text></Text>
         </TouchableOpacity>
 
         {/* Dica sobre spam */}
@@ -214,13 +215,13 @@ export default function EmailVerificationScreen() {
             <Lightbulb size={12} color="#F59E0B" />
           </View>
           <Text style={estilos.hintTxt}>
-            Não encontras o email? Verifica a pasta de spam ou lixo eletrónico.
+            {t('auth.emailVerification.dicaSpam')}
           </Text>
         </View>
 
         {/* Contagem regressiva de expiração */}
         <Text style={estilos.expiraTxt}>
-          O link expira em{' '}
+          {t('auth.emailVerification.expiraEm')}
           <Text style={{ color: '#1A6FAF' }}>{formatarContagem(segundosRestantes)}</Text>
         </Text>
       </ScrollView>

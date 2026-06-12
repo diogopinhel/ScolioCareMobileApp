@@ -12,37 +12,35 @@ import {
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as SecureStore from 'expo-secure-store';
+import { useTranslation } from '../src/i18n';
 
 const { width } = Dimensions.get('window');
 
-const slides = [
-  {
-    id: '1',
-    image: require('../assets/onboarding/img1.jpg'),
-    title: 'Acompanhe a sua escoliose',
-    subtitle:
-      'Monitorize o seu progresso com gráficos e métricas detalhados de evolução ao longo do tempo',
-    subtitleColor: '#F59E0B',
-  },
-  {
-    id: '2',
-    image: require('../assets/onboarding/img2.jpg'),
-    title: 'Aceda aos seus exames',
-    subtitle:
-      'Consulte todos os seus exames e relatórios num único local, acessível a qualquer momento',
-    subtitleColor: '#1A6FAF',
-  },
-  {
-    id: '3',
-    image: require('../assets/onboarding/img3.jpg'),
-    title: 'Comunique com o seu médico',
-    subtitle:
-      'Partilhe os seus dados de bem-estar e receba orientação personalizada com o assistente de IA',
-    subtitleColor: '#6B7280',
-  },
-];
-
 export default function Onboarding() {
+  const { t } = useTranslation();
+  const slides = [
+    {
+      id: '1',
+      image: require('../assets/onboarding/img1.jpg'),
+      title: t('onboarding.slide1Titulo'),
+      subtitle: t('onboarding.slide1Sub'),
+      subtitleColor: '#F59E0B',
+    },
+    {
+      id: '2',
+      image: require('../assets/onboarding/img2.jpg'),
+      title: t('onboarding.slide2Titulo'),
+      subtitle: t('onboarding.slide2Sub'),
+      subtitleColor: '#1A6FAF',
+    },
+    {
+      id: '3',
+      image: require('../assets/onboarding/img3.jpg'),
+      title: t('onboarding.slide3Titulo'),
+      subtitle: t('onboarding.slide3Sub'),
+      subtitleColor: '#6B7280',
+    },
+  ];
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
 
@@ -75,7 +73,7 @@ export default function Onboarding() {
   return (
     <SafeAreaView style={styles.container}>
       <TouchableOpacity style={styles.skipButton} onPress={completeOnboarding}>
-        <Text style={styles.skipText}>Saltar</Text>
+        <Text style={styles.skipText}>{t('onboarding.saltar')}</Text>
       </TouchableOpacity>
 
       <FlatList
@@ -109,7 +107,7 @@ export default function Onboarding() {
         </View>
         <TouchableOpacity style={styles.button} onPress={handleNext} activeOpacity={0.85}>
           <Text style={styles.buttonText}>
-            {currentIndex === slides.length - 1 ? 'Começar' : 'Seguinte'}
+            {currentIndex === slides.length - 1 ? t('onboarding.comecar') : t('onboarding.seguinte')}
           </Text>
         </TouchableOpacity>
       </View>

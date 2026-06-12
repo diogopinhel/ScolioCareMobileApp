@@ -14,6 +14,7 @@ import { FileText, TrendingDown, TrendingUp, Clock } from 'lucide-react-native';
 import { useAuth } from '../../../src/context/AuthContext';
 import { getEstudosDoPaciente, getUrlImagemEstudo } from '../../../src/data/repository/estudos';
 import { EstudoComResultado, EstadoEstudo } from '../../../src/data/types';
+import { i18n, useTranslation } from '../../../src/i18n';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -33,15 +34,15 @@ function estadoInfo(estado: EstadoEstudo): EstadoInfo {
   switch (estado) {
     case 'DIAGNOSED':
     case 'SENT':
-      return { label: 'ANALISADO', cor: '#1D9E75', bgCor: '#DCFCE7' };
+      return { label: i18n.t('exames.estadoAnalisado'), cor: '#1D9E75', bgCor: '#DCFCE7' };
     case 'PENDING_VALIDATION':
     case 'VALIDATED':
-      return { label: 'PENDENTE', cor: '#D97706', bgCor: '#FEF3C7' };
+      return { label: i18n.t('exames.estadoPendente'), cor: '#D97706', bgCor: '#FEF3C7' };
     case 'UPLOADED':
     case 'PROCESSING':
-      return { label: 'EM ANÁLISE', cor: '#1A6FAF', bgCor: '#EFF6FF' };
+      return { label: i18n.t('exames.estadoEmAnalise'), cor: '#1A6FAF', bgCor: '#EFF6FF' };
     case 'ARCHIVED':
-      return { label: 'ARQUIVADO', cor: '#6B7280', bgCor: '#F3F4F6' };
+      return { label: i18n.t('exames.estadoArquivado'), cor: '#6B7280', bgCor: '#F3F4F6' };
   }
 }
 
@@ -72,6 +73,7 @@ interface CardProps {
 }
 
 function ExameCard({ estudo, deltaAngulo, urlImagem, onPress }: CardProps) {
+  const { t } = useTranslation();
   const info = estadoInfo(estudo.estado);
   const angulo = estudo.resultado?.angulo_cobb;
 
@@ -82,7 +84,7 @@ function ExameCard({ estudo, deltaAngulo, urlImagem, onPress }: CardProps) {
         {urlImagem ? (
           <Image source={{ uri: urlImagem }} style={StyleSheet.absoluteFill} resizeMode="cover" />
         ) : (
-          <Text style={styles.thumbnailTxt}>XRAY</Text>
+          <Text style={styles.thumbnailTxt}>{t('exames.xray')}</Text>
         )}
       </View>
 
@@ -95,7 +97,7 @@ function ExameCard({ estudo, deltaAngulo, urlImagem, onPress }: CardProps) {
           </View>
         </View>
 
-        <Text style={styles.cobbLabel}>Ângulo de Cobb</Text>
+        <Text style={styles.cobbLabel}>{t('exames.anguloCobb')}</Text>
         <View style={styles.cardBottomRow}>
           <Text style={styles.cobbValor}>
             {angulo != null ? `${angulo.toFixed(1)}°` : '—'}
@@ -127,6 +129,7 @@ function ExameCard({ estudo, deltaAngulo, urlImagem, onPress }: CardProps) {
 
 export default function ExamsScreen() {
   const { utilizador } = useAuth();
+  const { t } = useTranslation();
   const [estudos, setEstudos] = useState<EstudoComResultado[]>([]);
   const [urlsImagens, setUrlsImagens] = useState<Record<string, string>>({});
   const [aCarregar, setACarregar] = useState(true);
@@ -160,17 +163,16 @@ export default function ExamsScreen() {
     return (
       <SafeAreaView style={styles.safe} edges={['top']}>
         <View style={styles.header}>
-          <Text style={styles.titulo}>Os meus exames</Text>
-          <Text style={styles.subtitulo}>Histórico e evolução</Text>
+          <Text style={styles.titulo}>{t('exames.titulo')}</Text>
+          <Text style={styles.subtitulo}>{t('exames.subtitulo')}</Text>
         </View>
         <View style={styles.pendente}>
           <View style={styles.pendenteIconWrap}>
             <Clock size={36} color="#1A6FAF" />
           </View>
-          <Text style={styles.pendenteTitulo}>Conta pendente de verificação</Text>
+          <Text style={styles.pendenteTitulo}>{t('exames.contaPendenteTitulo')}</Text>
           <Text style={styles.pendenteDesc}>
-            A sua conta ainda não foi ativada. Os seus exames ficarão disponíveis assim que
-            um médico responsável for atribuído pelo técnico clínico.
+            {t('exames.contaPendenteDesc')}
           </Text>
         </View>
       </SafeAreaView>
@@ -180,9 +182,9 @@ export default function ExamsScreen() {
   const visiveis = filtrar(estudos, filtro);
 
   const filtros: { key: Filtro; label: string }[] = [
-    { key: 'todos', label: 'Todos' },
-    { key: 'analisados', label: 'Analisados' },
-    { key: 'pendentes', label: 'Pendentes' },
+    { key: 'todos', label: t('exames.filtroTodos') },
+    { key: 'analisados', label: t('exames.filtroAnalisados') },
+    { key: 'pendentes', label: t('exames.filtroPendentes') },
   ];
 
   return (
@@ -190,8 +192,8 @@ export default function ExamsScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.titulo}>Os meus exames</Text>
-          <Text style={styles.subtitulo}>Histórico e evolução</Text>
+          <Text style={styles.titulo}>{t('exames.titulo')}</Text>
+          <Text style={styles.subtitulo}>{t('exames.subtitulo')}</Text>
         </View>
       </View>
 
@@ -217,11 +219,11 @@ export default function ExamsScreen() {
       ) : visiveis.length === 0 ? (
         <View style={styles.vazio}>
           <FileText size={48} color="#6B7280" />
-          <Text style={styles.vazioTitulo}>Sem exames</Text>
+          <Text style={styles.vazioTitulo}>{t('exames.vazioTitulo')}</Text>
           <Text style={styles.vazioDesc}>
             {filtro === 'todos'
-              ? 'Ainda não tem exames registados.'
-              : `Não tem exames na categoria "${filtros.find((f) => f.key === filtro)?.label}".`}
+              ? t('exames.vazioTodos')
+              : t('exames.vazioCategoria', { categoria: filtros.find((f) => f.key === filtro)?.label })}
           </Text>
         </View>
       ) : (

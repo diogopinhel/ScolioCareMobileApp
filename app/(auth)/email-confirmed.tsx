@@ -11,9 +11,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Check, ChevronRight } from 'lucide-react-native';
 import { useAuth } from '../../src/context/AuthContext';
+import { useTranslation } from '../../src/i18n';
 
 export default function EmailConfirmedScreen() {
   const { completarVerificacaoEmail } = useAuth();
+  const { t } = useTranslation();
   const [aNavegar, setANavegar] = useState(false);
 
   async function irParaApp() {
@@ -30,7 +32,7 @@ export default function EmailConfirmedScreen() {
   return (
     <SafeAreaView style={estilos.safe} edges={['top']}>
       <View style={estilos.header}>
-        <Text style={estilos.headerTitulo}>Conta criada</Text>
+        <Text style={estilos.headerTitulo}>{t('auth.emailConfirmed.headerTitulo')}</Text>
       </View>
 
       <ScrollView
@@ -48,10 +50,10 @@ export default function EmailConfirmedScreen() {
           <Check size={38} color="#1D9E75" />
         </View>
 
-        <Text style={estilos.titulo}>Email confirmado!</Text>
+        <Text style={estilos.titulo}>{t('auth.emailConfirmed.titulo')}</Text>
 
         <Text style={estilos.subtitulo}>
-          A tua conta está ativa. Já podes aceder a todos os teus exames e ao assistente médico.
+          {t('auth.emailConfirmed.subtitulo')}
         </Text>
 
         <TouchableOpacity
@@ -64,7 +66,7 @@ export default function EmailConfirmedScreen() {
             <ActivityIndicator color="#FFFFFF" size="small" />
           ) : (
             <>
-              <Text style={estilos.btnPrimarioTxt}>Entrar na conta</Text>
+              <Text style={estilos.btnPrimarioTxt}>{t('auth.emailConfirmed.entrarNaConta')}</Text>
               <ChevronRight size={18} color="#FFFFFF" />
             </>
           )}

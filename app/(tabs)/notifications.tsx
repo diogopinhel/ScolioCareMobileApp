@@ -17,6 +17,7 @@ import {
   marcarComoLida,
   Notificacao,
 } from '../../src/data/repository/notificacoes';
+import { i18n, useTranslation } from '../../src/i18n';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -25,10 +26,10 @@ function tempoAtras(iso: string): string {
   const min = Math.floor(diff / 60000);
   const h = Math.floor(min / 60);
   const d = Math.floor(h / 24);
-  if (d > 0) return `há ${d} dia${d > 1 ? 's' : ''}`;
-  if (h > 0) return `há ${h} hora${h > 1 ? 's' : ''}`;
-  if (min > 0) return `há ${min} minuto${min !== 1 ? 's' : ''}`;
-  return 'agora mesmo';
+  if (d > 0) return i18n.t('notificacoes.haDias', { count: d, contagem: d });
+  if (h > 0) return i18n.t('notificacoes.haHoras', { count: h, contagem: h });
+  if (min > 0) return i18n.t('notificacoes.haMinutos', { count: min, contagem: min });
+  return i18n.t('notificacoes.agoraMesmo');
 }
 
 type IconeInfo = { icone: React.ReactNode; cor: string; bgCor: string };
@@ -108,6 +109,7 @@ function NotificacaoCard({ notificacao, onPress }: CardProps) {
 
 export default function NotificationsScreen() {
   const { utilizador } = useAuth();
+  const { t } = useTranslation();
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [aCarregar, setACarregar] = useState(true);
   const [notifDetalhe, setNotifDetalhe] = useState<Notificacao | null>(null);
@@ -167,16 +169,16 @@ export default function NotificationsScreen() {
           <ChevronLeft size={24} color="#1A1A2E" />
         </TouchableOpacity>
         <View style={styles.headerCentro}>
-          <Text style={styles.titulo}>Notificações</Text>
+          <Text style={styles.titulo}>{t('notificacoes.titulo')}</Text>
           {naoLidas > 0 && (
             <Text style={styles.subtitulo}>
-              {naoLidas} não lida{naoLidas !== 1 ? 's' : ''}
+              {naoLidas === 1 ? t('notificacoes.naoLidaSingular', { contagem: naoLidas }) : t('notificacoes.naoLidaPlural', { contagem: naoLidas })}
             </Text>
           )}
         </View>
         {naoLidas > 0 ? (
           <TouchableOpacity onPress={marcarTodasComoLidas} activeOpacity={0.7} style={styles.btnMarcar}>
-            <Text style={styles.marcarTodas}>Marcar todas</Text>
+            <Text style={styles.marcarTodas}>{t('notificacoes.marcarTodas')}</Text>
           </TouchableOpacity>
         ) : (
           <View style={styles.btnMarcar} />
@@ -188,9 +190,9 @@ export default function NotificationsScreen() {
       ) : notificacoes.length === 0 ? (
         <View style={styles.vazio}>
           <Bell size={48} color="#6B7280" />
-          <Text style={styles.vazioTitulo}>Sem notificações</Text>
+          <Text style={styles.vazioTitulo}>{t('notificacoes.vazioTitulo')}</Text>
           <Text style={styles.vazioDesc}>
-            As suas notificações aparecerão aqui quando houver novidades sobre os seus exames.
+            {t('notificacoes.vazioDesc')}
           </Text>
         </View>
       ) : (
@@ -233,7 +235,7 @@ export default function NotificationsScreen() {
                 onPress={() => setNotifDetalhe(null)}
                 activeOpacity={0.8}
               >
-                <Text style={styles.modalBtnFecharTxt}>Fechar</Text>
+                <Text style={styles.modalBtnFecharTxt}>{t('notificacoes.fechar')}</Text>
               </TouchableOpacity>
             </View>
           </TouchableOpacity>

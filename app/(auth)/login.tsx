@@ -13,9 +13,12 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
+import { useTranslation } from '../../src/i18n';
+import type { TFunction } from 'i18next';
 
 export default function Login() {
   const { login } = useAuth();
+  const { t } = useTranslation();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,7 +28,7 @@ export default function Login() {
 
   async function handleLogin() {
     if (!email.trim() || !password.trim()) {
-      setErro('Por favor preencha o email e a password.');
+      setErro(t('auth.login.erroCamposVazios'));
       return;
     }
 
@@ -41,7 +44,7 @@ export default function Login() {
         });
       }
     } catch (e: any) {
-      const mensagem = traduzirErro(e?.message ?? '');
+      const mensagem = traduzirErro(e?.message ?? '', t);
       setErro(mensagem);
     } finally {
       setACarregar(false);
@@ -65,21 +68,21 @@ export default function Login() {
               <Text style={styles.logoText}>SC</Text>
             </View>
             <Text style={styles.appName}>ScolioScan</Text>
-            <Text style={styles.tagline}>Portal do Paciente</Text>
+            <Text style={styles.tagline}>{t('auth.login.tagline')}</Text>
           </View>
 
           {/* Formulário */}
           <View style={styles.form}>
-            <Text style={styles.title}>Bem-vindo de volta</Text>
-            <Text style={styles.subtitle}>Inicie sessão para aceder aos seus dados</Text>
+            <Text style={styles.title}>{t('auth.login.titulo')}</Text>
+            <Text style={styles.subtitle}>{t('auth.login.subtitulo')}</Text>
 
             <View style={styles.field}>
-              <Text style={styles.label}>Email</Text>
+              <Text style={styles.label}>{t('auth.login.emailLabel')}</Text>
               <TextInput
                 style={styles.input}
                 value={email}
                 onChangeText={(v) => { setEmail(v); setErro(null); }}
-                placeholder="exemplo@email.com"
+                placeholder={t('auth.login.emailPlaceholder')}
                 placeholderTextColor="#9CA3AF"
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -89,13 +92,13 @@ export default function Login() {
             </View>
 
             <View style={styles.field}>
-              <Text style={styles.label}>Password</Text>
+              <Text style={styles.label}>{t('auth.login.passwordLabel')}</Text>
               <View style={styles.inputRow}>
                 <TextInput
                   style={styles.inputFlex}
                   value={password}
                   onChangeText={(v) => { setPassword(v); setErro(null); }}
-                  placeholder="••••••••"
+                  placeholder={t('auth.login.passwordPlaceholder')}
                   placeholderTextColor="#9CA3AF"
                   secureTextEntry={!passwordVisivel}
                   autoComplete="password"
@@ -107,7 +110,7 @@ export default function Login() {
                   onPress={() => setPasswordVisivel((v) => !v)}
                   hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 >
-                  <Text style={styles.eyeText}>{passwordVisivel ? 'Ocultar' : 'Ver'}</Text>
+                  <Text style={styles.eyeText}>{passwordVisivel ? t('auth.login.ocultar') : t('auth.login.ver')}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -127,7 +130,7 @@ export default function Login() {
               {aCarregar ? (
                 <ActivityIndicator color="#FFFFFF" />
               ) : (
-                <Text style={styles.buttonText}>Entrar</Text>
+                <Text style={styles.buttonText}>{t('auth.login.entrar')}</Text>
               )}
             </TouchableOpacity>
 
@@ -136,7 +139,7 @@ export default function Login() {
               onPress={() => router.push('/(auth)/recuperar-password' as never)}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <Text style={styles.esqueciLinkTxt}>Esqueceu a palavra-passe?</Text>
+              <Text style={styles.esqueciLinkTxt}>{t('auth.login.esqueceuPassword')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -148,7 +151,7 @@ export default function Login() {
               }}
               activeOpacity={0.7}
             >
-              <Text style={styles.demoLabel}>Credenciais de teste</Text>
+              <Text style={styles.demoLabel}>{t('auth.login.credenciaisTeste')}</Text>
               <Text style={styles.demoCredencial}>maria.silva@scolio.pt</Text>
               <Text style={styles.demoCredencial}>paciente123</Text>
             </TouchableOpacity>
@@ -156,16 +159,16 @@ export default function Login() {
 
           {/* Criar conta */}
           <View style={styles.criarContaWrap}>
-            <Text style={styles.criarContaTxt}>Ainda não tem conta? </Text>
+            <Text style={styles.criarContaTxt}>{t('auth.login.semContaPergunta')}</Text>
             <TouchableOpacity onPress={() => router.push('/(auth)/register' as never)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <Text style={styles.criarContaLink}>Criar conta</Text>
+              <Text style={styles.criarContaLink}>{t('auth.login.criarConta')}</Text>
             </TouchableOpacity>
           </View>
 
           {/* Rodapé */}
           <View style={styles.footer}>
             <Text style={styles.footerText}>
-              Problemas ao entrar? Contacte o seu médico ou técnico responsável.
+              {t('auth.login.rodape')}
             </Text>
           </View>
         </ScrollView>
@@ -174,19 +177,19 @@ export default function Login() {
   );
 }
 
-function traduzirErro(mensagem: string): string {
+function traduzirErro(mensagem: string, t: TFunction): string {
   if (mensagem.includes('Invalid login credentials') || mensagem.includes('invalid_credentials')) {
-    return 'Email ou password incorretos.';
+    return t('auth.login.erroCredenciais');
   }
   if (mensagem.includes('Email not confirmed')) {
-    return 'A sua conta ainda não foi ativada. Verifique o seu email.';
+    return t('auth.login.erroNaoConfirmado');
   }
   if (mensagem.includes('Too many requests')) {
-    return 'Demasiadas tentativas. Aguarde alguns minutos e tente novamente.';
+    return t('auth.login.erroDemasiadasTentativas');
   }
   if (mensagem.includes('bloqueada')) return mensagem;
   if (mensagem.includes('pacientes')) return mensagem;
-  return 'Ocorreu um erro inesperado. Tente novamente.';
+  return t('auth.login.erroInesperado');
 }
 
 const styles = StyleSheet.create({

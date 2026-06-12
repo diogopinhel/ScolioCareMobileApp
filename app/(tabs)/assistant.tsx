@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MessageCircle, AlertTriangle, Info, Send } from 'lucide-react-native';
 import { encontrarResposta } from '../../src/utils/faqMatcher';
+import { useTranslation } from '../../src/i18n';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -29,15 +30,6 @@ type Mensagem = {
 };
 
 // ─── Constants ───────────────────────────────────────────────────────────────
-
-const CHIPS_FAQ = [
-  'O que é a escoliose?',
-  'O que é o ângulo de Cobb?',
-  'Graus de severidade',
-  'Quando é necessária cirurgia?',
-  'Posso fazer exercício?',
-  'A escoliose piora com o tempo?',
-];
 
 const ATRASO_RESPOSTA_MS = 700;
 
@@ -63,6 +55,15 @@ function IndicadorEscrita({ dots }: { dots: Animated.Value[] }) {
 // ─── Ecrã principal ──────────────────────────────────────────────────────────
 
 export default function AssistantScreen() {
+  const { t } = useTranslation();
+  const CHIPS_FAQ = [
+    t('assistente.chipEscoliose'),
+    t('assistente.chipCobb'),
+    t('assistente.chipSeveridade'),
+    t('assistente.chipCirurgia'),
+    t('assistente.chipExercicio'),
+    t('assistente.chipPiora'),
+  ];
   const [conversa, setConversa] = useState<Mensagem[]>([]);
   const [textoPendente, setTextoPendente] = useState('');
   const [aProcessar, setAProcessar] = useState(false);
@@ -140,8 +141,8 @@ export default function AssistantScreen() {
     const msgAjuda: Mensagem = {
       id: gerarId(),
       tipo: 'ajuda',
-      texto: 'Claro! Aqui ficam alguns temas sobre os quais posso ajudar:',
-      fonte: 'Assistente ScolioCare',
+      texto: t('assistente.ajudaIntro'),
+      fonte: t('assistente.fonteAssistente'),
       timestamp: Date.now(),
     };
     setConversa((prev) => [msgAjuda, ...prev]);
@@ -184,11 +185,11 @@ export default function AssistantScreen() {
               ))}
             </View>
           </View>
-          <Text style={styles.msgSource}>Toque numa sugestão para a enviar</Text>
+          <Text style={styles.msgSource}>{t('assistente.toqueSugestao')}</Text>
           <View style={styles.msgDisclaimerRow}>
             <Info size={11} color="#6B7280" />
             <Text style={styles.msgDisclaimerTxt}>
-              Informação educativa. Consulte o seu médico.
+              {t('assistente.infoEducativa')}
             </Text>
           </View>
         </View>
@@ -203,20 +204,20 @@ export default function AssistantScreen() {
             {item.texto}
             {item.temCta && (
               <Text>
-                {' '}Caso queira ver os temas disponíveis,{' '}
+                {t('assistente.ctaParte1')}
                 <Text style={styles.ctaLink} onPress={abrirAjuda}>
-                  clique aqui
+                  {t('assistente.ctaLink')}
                 </Text>
-                .
+                {t('assistente.ctaParte2')}
               </Text>
             )}
           </Text>
         </View>
-        <Text style={styles.msgSource}>Fonte: {item.fonte}</Text>
+        <Text style={styles.msgSource}>{t('assistente.fonte', { fonte: item.fonte })}</Text>
         <View style={styles.msgDisclaimerRow}>
           <Info size={11} color="#6B7280" />
           <Text style={styles.msgDisclaimerTxt}>
-            Informação educativa. Consulte o seu médico.
+            {t('assistente.infoEducativa')}
           </Text>
         </View>
       </View>
@@ -235,7 +236,7 @@ export default function AssistantScreen() {
         {/* ── Header ── */}
         <View style={styles.header}>
           <MessageCircle size={22} color="#1A6FAF" strokeWidth={1.75} />
-          <Text style={styles.headerTitle}>Assistente</Text>
+          <Text style={styles.headerTitle}>{t('assistente.header')}</Text>
           <TouchableOpacity
             style={styles.helpBtn}
             onPress={abrirAjuda}
@@ -249,7 +250,7 @@ export default function AssistantScreen() {
         <View style={styles.disclaimer}>
           <AlertTriangle size={16} color="#B45309" strokeWidth={2} style={styles.disclaimerIcon} />
           <Text style={styles.disclaimerTxt}>
-            Este assistente fornece informação educativa sobre escoliose. Não substitui aconselhamento médico.
+            {t('assistente.disclaimer')}
           </Text>
         </View>
 
@@ -259,9 +260,9 @@ export default function AssistantScreen() {
             <View style={styles.emptyIconWrap}>
               <MessageCircle size={36} color="#1A6FAF" strokeWidth={1.5} />
             </View>
-            <Text style={styles.emptyTitle}>Como posso ajudar?</Text>
+            <Text style={styles.emptyTitle}>{t('assistente.estadoVazioTitulo')}</Text>
             <Text style={styles.emptySubtitle}>
-              Faça uma pergunta ou escolha um tema abaixo.
+              {t('assistente.estadoVazioSub')}
             </Text>
             <View style={styles.chipsGrid}>
               {CHIPS_FAQ.map((chip) => (
@@ -296,7 +297,7 @@ export default function AssistantScreen() {
         <View style={styles.inputBar}>
           <TextInput
             style={styles.input}
-            placeholder="Escreva a sua pergunta..."
+            placeholder={t('assistente.inputPlaceholder')}
             placeholderTextColor="#6B7280"
             value={textoPendente}
             onChangeText={setTextoPendente}

@@ -22,6 +22,7 @@ import { getWellnessLogDoPaciente } from '../../src/data/repository/wellness';
 import BottomSheet2FA from '../../src/components/BottomSheet2FA';
 import { getNotificacoesDoPaciente, marcarComoLida, Notificacao } from '../../src/data/repository/notificacoes';
 import { EstudoComResultado, WellnessLogEntry } from '../../src/data/types';
+import { i18n, useTranslation } from '../../src/i18n';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -73,27 +74,27 @@ function tempoAtras(iso: string): string {
   const min = Math.floor(diff / 60000);
   const h = Math.floor(min / 60);
   const d = Math.floor(h / 24);
-  if (d > 0) return `há ${d} dia${d > 1 ? 's' : ''}`;
-  if (h > 0) return `há ${h} hora${h > 1 ? 's' : ''}`;
-  return `há ${min} minuto${min !== 1 ? 's' : ''}`;
+  if (d > 0) return i18n.t('home.haDias', { count: d, contagem: d });
+  if (h > 0) return i18n.t('home.haHoras', { count: h, contagem: h });
+  return i18n.t('home.haMinutos', { count: min, contagem: min });
 }
 
 function bandaSeveridade(angulo: number): string {
-  if (angulo < 10) return 'Normal (< 10°)';
-  if (angulo <= 25) return `Grau leve (10°–25°)`;
-  if (angulo <= 40) return `Grau moderado (25°–40°)`;
-  return `Grau grave (> 40°)`;
+  if (angulo < 10) return i18n.t('home.severidadeNormal');
+  if (angulo <= 25) return i18n.t('home.severidadeLeve');
+  if (angulo <= 40) return i18n.t('home.severidadeModerada');
+  return i18n.t('home.severidadeGrave');
 }
 
 function estadoLabel(estado: string): string {
   const map: Record<string, string> = {
-    UPLOADED: 'Submetido',
-    PROCESSING: 'A processar',
-    PENDING_VALIDATION: 'Validação pendente',
-    VALIDATED: 'Validado',
-    DIAGNOSED: 'Analisado',
-    SENT: 'Enviado',
-    ARCHIVED: 'Arquivado',
+    UPLOADED: i18n.t('home.estadoUploaded'),
+    PROCESSING: i18n.t('home.estadoProcessing'),
+    PENDING_VALIDATION: i18n.t('home.estadoPendingValidation'),
+    VALIDATED: i18n.t('home.estadoValidated'),
+    DIAGNOSED: i18n.t('home.estadoDiagnosed'),
+    SENT: i18n.t('home.estadoSent'),
+    ARCHIVED: i18n.t('home.estadoArchived'),
   };
   return map[estado] ?? estado;
 }
@@ -127,7 +128,7 @@ function MiniGrafico({ estudos, largura }: GraficoProps) {
   if (dados.length < 2) {
     return (
       <View style={styles.graficoVazio}>
-        <Text style={styles.graficoVazioTxt}>Dados insuficientes para o gráfico</Text>
+        <Text style={styles.graficoVazioTxt}>{i18n.t('home.graficoDadosInsuficientes')}</Text>
       </View>
     );
   }
@@ -218,6 +219,7 @@ function MiniGrafico({ estudos, largura }: GraficoProps) {
 
 export default function HomeScreen() {
   const { utilizador, enviarOtp2FA } = useAuth();
+  const { t } = useTranslation();
   const [estudos, setEstudos] = useState<EstudoComResultado[]>([]);
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [wellnessEntradas, setWellnessEntradas] = useState<WellnessLogEntry[]>([]);
@@ -263,9 +265,9 @@ export default function HomeScreen() {
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : '';
       const descricao = msg.toLowerCase().includes('rate limit')
-        ? 'Limite de emails atingido. Aguarde alguns minutos e tente novamente.'
-        : 'Não foi possível enviar o código de verificação. Tente novamente.';
-      Alert.alert('Erro', descricao);
+        ? t('comum.limiteEmails')
+        : t('home.erroEnviarCodigo');
+      Alert.alert(t('comum.erro'), descricao);
     }
   }
 
@@ -300,7 +302,7 @@ export default function HomeScreen() {
     if (!ultimoExame?.resultado || !exameAnterior?.resultado) return null;
     const diff = ultimoExame.resultado.angulo_cobb - exameAnterior.resultado.angulo_cobb;
     const sinal = diff < 0 ? '↘' : diff > 0 ? '↗' : '→';
-    return `${sinal} ${Math.abs(diff).toFixed(1)}° vs. exame anterior`;
+    return t('home.deltaVsAnterior', { sinal, valor: Math.abs(diff).toFixed(1) });
   }
 
   function deltaCor(): string {
@@ -369,7 +371,7 @@ export default function HomeScreen() {
           {/* Saudação */}
           <View style={styles.saudacaoWrap}>
             <Text style={styles.saudacao}>
-              Olá, {utilizador ? primeiroNome(utilizador.nome_completo) : ''}
+              {t('home.saudacao', { nome: utilizador ? primeiroNome(utilizador.nome_completo) : '' })}
             </Text>
             <Text style={styles.dataHoje}>{dataHoje()}</Text>
           </View>
@@ -402,23 +404,23 @@ export default function HomeScreen() {
               <View style={styles.bannerPendente}>
                 <Clock size={18} color="#92400E" />
                 <View style={styles.bannerTextos}>
-                  <Text style={styles.bannerTitulo}>Conta pendente de verificação</Text>
+                  <Text style={styles.bannerTitulo}>{t('home.contaPendenteTitulo')}</Text>
                   <Text style={styles.bannerDesc}>
-                    Aguarda a atribuição de médico responsável pelo técnico clínico para aceder a todos os serviços.
+                    {t('home.contaPendenteDesc')}
                   </Text>
                 </View>
               </View>
             )}
 
             {/* ── Último exame ─────────────────────────────────────── */}
-            <Text style={styles.seccaoTitulo}>O seu último exame</Text>
+            <Text style={styles.seccaoTitulo}>{t('home.ultimoExameTitulo')}</Text>
 
             {ultimoExame ? (
               <View style={[styles.card, styles.cardExame]}>
-                <Text style={styles.exameLabel}>Data do exame</Text>
+                <Text style={styles.exameLabel}>{t('home.dataDoExame')}</Text>
                 <Text style={styles.exameData}>{dataExame(ultimoExame.data_estudo)}</Text>
 
-                <Text style={[styles.exameLabel, { marginTop: 12 }]}>Ângulo de Cobb</Text>
+                <Text style={[styles.exameLabel, { marginTop: 12 }]}>{t('home.anguloCobb')}</Text>
                 <View style={styles.cobbRow}>
                   <Text style={styles.cobbValor}>
                     {ultimoExame.resultado?.angulo_cobb.toFixed(1) ?? '—'}°
@@ -440,7 +442,7 @@ export default function HomeScreen() {
                     </Text>
                   </View>
                   {ultimoExame.ficheiro_pdf && (
-                    <Text style={styles.pdfLabel}>Relatório disponível</Text>
+                    <Text style={styles.pdfLabel}>{t('home.relatorioDisponivel')}</Text>
                   )}
                 </View>
 
@@ -448,22 +450,22 @@ export default function HomeScreen() {
                   style={styles.verExameBtn}
                   onPress={() => router.push(`/(tabs)/exams/${ultimoExame.id}?from=home` as never)}
                 >
-                  <Text style={styles.verExameTxt}>Ver exame</Text>
+                  <Text style={styles.verExameTxt}>{t('home.verExame')}</Text>
                 </TouchableOpacity>
               </View>
             ) : (
               <View style={[styles.card, styles.vazioCard]}>
                 <FileText size={36} color="#6B7280" />
-                <Text style={styles.vazioTitulo}>Sem exames disponíveis</Text>
-                <Text style={styles.vazioDesc}>Os seus exames aparecerão aqui assim que forem submetidos.</Text>
+                <Text style={styles.vazioTitulo}>{t('home.semExamesTitulo')}</Text>
+                <Text style={styles.vazioDesc}>{t('home.semExamesDesc')}</Text>
               </View>
             )}
 
             {/* ── Evolução recente ──────────────────────────────────── */}
             <View style={styles.seccaoRow}>
-              <Text style={styles.seccaoTitulo}>Evolução recente</Text>
+              <Text style={styles.seccaoTitulo}>{t('home.evolucaoTitulo')}</Text>
               <TouchableOpacity onPress={() => router.push('/(tabs)/exams/evolution' as never)}>
-                <Text style={styles.linkTxt}>Ver histórico completo</Text>
+                <Text style={styles.linkTxt}>{t('home.verHistoricoCompleto')}</Text>
               </TouchableOpacity>
             </View>
 
@@ -473,13 +475,13 @@ export default function HomeScreen() {
               onPress={() => router.push('/(tabs)/exams/evolution' as never)}
               onLayout={(e) => setLarguraGrafico(e.nativeEvent.layout.width - 32)}
             >
-              <Text style={styles.graficoSub}>Ângulo de Cobb – Últimos 5 exames</Text>
+              <Text style={styles.graficoSub}>{t('home.graficoSub')}</Text>
               {estudos.length >= 2 ? (
                 <MiniGrafico estudos={estudos} largura={larguraGrafico} />
               ) : (
                 <View style={styles.graficoVazio}>
                   <Text style={styles.graficoVazioTxt}>
-                    São necessários pelo menos 2 exames para mostrar a evolução.
+                    {t('home.graficoMinimoExames')}
                   </Text>
                 </View>
               )}
@@ -487,11 +489,11 @@ export default function HomeScreen() {
 
             {/* ── Notificações ─────────────────────────────────────── */}
             <View style={styles.seccaoRow}>
-              <Text style={styles.seccaoTitulo}>Notificações</Text>
+              <Text style={styles.seccaoTitulo}>{t('home.notificacoesTitulo')}</Text>
               {notificacoes.length > 0 && (
                 <TouchableOpacity onPress={() => router.push('/(tabs)/notifications' as never)}>
                   <Text style={styles.linkTxt}>
-                    Ver todas ({notificacoes.length})
+                    {t('home.verTodas', { total: notificacoes.length })}
                   </Text>
                 </TouchableOpacity>
               )}
@@ -500,7 +502,7 @@ export default function HomeScreen() {
             {notificacoes.length === 0 ? (
               <View style={[styles.card, styles.vazioCard]}>
                 <Bell size={28} color="#6B7280" />
-                <Text style={styles.vazioTitulo}>Sem notificações</Text>
+                <Text style={styles.vazioTitulo}>{t('home.semNotificacoes')}</Text>
               </View>
             ) : (
               notificacoes.slice(0, 2).map((n) => (
@@ -519,9 +521,9 @@ export default function HomeScreen() {
 
             {/* ── Bem-estar ─────────────────────────────────────────── */}
             <View style={[styles.seccaoRow, { marginTop: 8 }]}>
-              <Text style={styles.seccaoTitulo}>O meu bem-estar</Text>
+              <Text style={styles.seccaoTitulo}>{t('home.bemEstarTitulo')}</Text>
               <TouchableOpacity onPress={() => router.push('/(tabs)/wellness-log' as never)}>
-                <Text style={styles.linkTxt}>Ver histórico</Text>
+                <Text style={styles.linkTxt}>{t('home.verHistorico')}</Text>
               </TouchableOpacity>
             </View>
 
@@ -532,7 +534,7 @@ export default function HomeScreen() {
                 </View>
                 {ultimaEntradaDor && (
                   <View style={styles.wellnessDorRow}>
-                    <Text style={styles.wellnessDorLabel}>Último registo de dor</Text>
+                    <Text style={styles.wellnessDorLabel}>{t('home.ultimoRegistoDor')}</Text>
                     <View style={styles.wellnessDorValorRow}>
                       <Text style={styles.wellnessDorValor}>
                         {ultimaEntradaDor.nivel_dor + 1}/10
@@ -545,9 +547,9 @@ export default function HomeScreen() {
                 )}
               </View>
               <View style={styles.wellnessTextos}>
-                <Text style={styles.wellnessTitulo}>Como se sente hoje?</Text>
+                <Text style={styles.wellnessTitulo}>{t('home.comoSeSenteHoje')}</Text>
                 <Text style={styles.wellnessDesc}>
-                  Registe o seu nível de dor, mobilidade e bem-estar geral
+                  {t('home.bemEstarDesc')}
                 </Text>
               </View>
               {registadoHoje ? (
@@ -556,7 +558,7 @@ export default function HomeScreen() {
                   onPress={() => router.push('/(tabs)/wellness-log' as never)}
                   activeOpacity={0.8}
                 >
-                  <Text style={styles.wellnessBtnRegistadoTxt}>Registado hoje ✓</Text>
+                  <Text style={styles.wellnessBtnRegistadoTxt}>{t('home.registadoHoje')}</Text>
                   <Text style={styles.wellnessBtnContagem}>{contagemWellness}</Text>
                 </TouchableOpacity>
               ) : (
@@ -564,7 +566,7 @@ export default function HomeScreen() {
                   style={styles.wellnessBtn}
                   onPress={() => router.push('/(tabs)/wellness-log' as never)}
                 >
-                  <Text style={styles.wellnessBtnTxt}>Registar bem-estar</Text>
+                  <Text style={styles.wellnessBtnTxt}>{t('home.registarBemEstar')}</Text>
                 </TouchableOpacity>
               )}
             </View>

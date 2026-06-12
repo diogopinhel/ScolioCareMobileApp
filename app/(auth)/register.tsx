@@ -15,6 +15,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ChevronLeft, Check, X } from 'lucide-react-native';
 import { registar } from '../../src/data/repository/auth';
+import { useTranslation } from '../../src/i18n';
+import type { TFunction } from 'i18next';
 
 // ─── Password strength ────────────────────────────────────────────────────────
 
@@ -25,20 +27,20 @@ interface ForcaInfo {
   criterios: { label: string; ok: boolean }[];
 }
 
-function avaliarForca(pw: string): ForcaInfo {
+function avaliarForca(pw: string, t: TFunction): ForcaInfo {
   const criterios = [
-    { label: 'Pelo menos 8 caracteres', ok: pw.length >= 8 },
-    { label: 'Uma letra maiúscula', ok: /[A-Z]/.test(pw) },
-    { label: 'Um número', ok: /[0-9]/.test(pw) },
-    { label: 'Um símbolo (!@#$...)', ok: /[^A-Za-z0-9]/.test(pw) },
+    { label: t('auth.register.criterio8Caracteres'), ok: pw.length >= 8 },
+    { label: t('auth.register.criterioMaiuscula'), ok: /[A-Z]/.test(pw) },
+    { label: t('auth.register.criterioNumero'), ok: /[0-9]/.test(pw) },
+    { label: t('auth.register.criterioSimbolo'), ok: /[^A-Za-z0-9]/.test(pw) },
   ];
   const pontos = criterios.filter((c) => c.ok).length;
   const map: Record<number, { label: string; cor: string }> = {
     0: { label: '', cor: '#E5E7EB' },
-    1: { label: 'Fraca', cor: '#EF4444' },
-    2: { label: 'Média', cor: '#F59E0B' },
-    3: { label: 'Boa', cor: '#1A6FAF' },
-    4: { label: 'Forte', cor: '#1D9E75' },
+    1: { label: t('auth.register.forcaFraca'), cor: '#EF4444' },
+    2: { label: t('auth.register.forcaMedia'), cor: '#F59E0B' },
+    3: { label: t('auth.register.forcaBoa'), cor: '#1A6FAF' },
+    4: { label: t('auth.register.forcaForte'), cor: '#1D9E75' },
   };
   return { pontos, criterios, ...map[pontos] };
 }
@@ -46,11 +48,6 @@ function avaliarForca(pw: string): ForcaInfo {
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
 type Genero = 'M' | 'F' | 'O';
-const GENEROS: { key: Genero; label: string }[] = [
-  { key: 'M', label: 'Masculino' },
-  { key: 'F', label: 'Feminino' },
-  { key: 'O', label: 'Outro' },
-];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -79,16 +76,16 @@ function dataParaIso(data: string): string {
   return `${y}-${m}-${d}`;
 }
 
-function traduzirErro(msg: string): string {
+function traduzirErro(msg: string, t: TFunction): string {
   if (msg.includes('already registered') || msg.includes('User already registered'))
-    return 'Este email já tem uma conta registada.';
+    return t('auth.register.erroEmailRegistado');
   if (msg.includes('invalid email') || msg.includes('Invalid email'))
-    return 'Introduza um email válido.';
+    return t('auth.register.erroEmailInvalidoSupabase');
   if (msg.includes('Password should') || msg.includes('weak_password'))
-    return 'A password é demasiado fraca.';
+    return t('auth.register.erroPasswordFracaSupabase');
   if (msg.includes('rate limit') || msg.includes('Too many'))
-    return 'Limite de emails atingido. Aguarda alguns minutos e tenta novamente.';
-  return 'Ocorreu um erro ao criar a conta. Tente novamente.';
+    return t('auth.register.erroRateLimit');
+  return t('auth.register.erroCriarConta');
 }
 
 // ─── Componente de campo ──────────────────────────────────────────────────────
@@ -116,6 +113,13 @@ function Campo({
 // ─── Ecrã principal ───────────────────────────────────────────────────────────
 
 export default function RegisterScreen() {
+  const { t } = useTranslation();
+  const GENEROS: { key: Genero; label: string }[] = [
+    { key: 'M', label: t('auth.register.generoMasculino') },
+    { key: 'F', label: t('auth.register.generoFeminino') },
+    { key: 'O', label: t('auth.register.generoOutro') },
+  ];
+
   const [etapa, setEtapa] = useState<1 | 2 | 3>(1);
 
   // Dados pessoais
@@ -152,35 +156,35 @@ export default function RegisterScreen() {
     }).start();
   }, [etapa, larguraAtiva]);
 
-  const forca = avaliarForca(password);
+  const forca = avaliarForca(password, t);
 
   // ─── Validações por etapa ──────────────────────────────────────────────────
 
   function validarEtapa1(): string | null {
-    if (!nome.trim()) return 'O nome completo é obrigatório.';
-    if (nome.trim().length < 3) return 'O nome deve ter pelo menos 3 caracteres.';
-    if (!/^[a-zA-ZÀ-ÿ\s]+$/.test(nome.trim())) return 'O nome só pode conter letras e espaços.';
+    if (!nome.trim()) return t('auth.register.erroNomeObrigatorio');
+    if (nome.trim().length < 3) return t('auth.register.erroNomeMinimo');
+    if (!/^[a-zA-ZÀ-ÿ\s]+$/.test(nome.trim())) return t('auth.register.erroNomeLetras');
     if (!validarDataNasc(dataNasc))
-      return 'Data de nascimento inválida. Use o formato DD/MM/AAAA.';
-    if (!genero) return 'Selecione o sexo.';
-    if (!cartaoCidadao.trim()) return 'O Cartão de Cidadão é obrigatório.';
+      return t('auth.register.erroDataInvalida');
+    if (!genero) return t('auth.register.erroSexo');
+    if (!cartaoCidadao.trim()) return t('auth.register.erroCcObrigatorio');
     if (!/^\d{9}$/.test(cartaoCidadao.trim()))
-      return 'O número do Cartão de Cidadão deve ter exactamente 9 dígitos.';
-    if (!numeroUtente.trim()) return 'O número de utente é obrigatório.';
+      return t('auth.register.erroCcDigitos');
+    if (!numeroUtente.trim()) return t('auth.register.erroUtenteObrigatorio');
     if (!/^\d{9}$/.test(numeroUtente.trim()))
-      return 'O número de utente deve ter exactamente 9 dígitos.';
+      return t('auth.register.erroUtenteDigitos');
     return null;
   }
 
   function validarEtapa2(): string | null {
-    if (!contacto.trim()) return 'O número de telemóvel é obrigatório.';
+    if (!contacto.trim()) return t('auth.register.erroTelemovelObrigatorio');
     const digitos = contacto.replace(/\D/g, '');
     if (digitos.length < 7 || digitos.length > 15)
-      return 'Introduza um número de telefone válido (mínimo 7 dígitos).';
+      return t('auth.register.erroTelefoneInvalido');
     if (!/^\+?[\d\s\-().]+$/.test(contacto.trim()))
-      return 'O número de telefone contém caracteres inválidos.';
-    if (!morada.trim()) return 'A morada é obrigatória.';
-    if (morada.trim().length < 10) return 'A morada deve ter pelo menos 10 caracteres.';
+      return t('auth.register.erroTelefoneCaracteres');
+    if (!morada.trim()) return t('auth.register.erroMoradaObrigatoria');
+    if (morada.trim().length < 10) return t('auth.register.erroMoradaMinima');
     return null;
   }
 
@@ -202,11 +206,11 @@ export default function RegisterScreen() {
   async function handleRegistar() {
     setErro(null);
     if (!email.trim() || !/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(email.trim()))
-      return setErro('Introduza um email válido.');
+      return setErro(t('auth.register.erroEmailInvalido'));
     const coreOk = password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password);
     if (!coreOk)
-      return setErro('A password deve ter pelo menos 8 caracteres, uma maiúscula e um número.');
-    if (password !== confirmarPw) return setErro('As passwords não coincidem.');
+      return setErro(t('auth.register.erroPasswordFraca'));
+    if (password !== confirmarPw) return setErro(t('auth.register.erroPasswordsNaoCoincidem'));
 
     setACarregar(true);
     let needsConfirmation = false;
@@ -226,7 +230,7 @@ export default function RegisterScreen() {
     } catch (e: unknown) {
       console.log('[Register] erro ao criar conta:', e);
       const msg = e instanceof Error ? e.message : '';
-      setErro(traduzirErro(msg));
+      setErro(traduzirErro(msg, t));
       setACarregar(false);
       return;
     }
@@ -244,9 +248,9 @@ export default function RegisterScreen() {
   // ─── Metadados de cada etapa ───────────────────────────────────────────────
 
   const metaEtapa = [
-    { titulo: 'Dados pessoais', descricao: 'Introduz os teus dados de identificação.' },
-    { titulo: 'Contacto', descricao: 'Como podemos contactar-te?' },
-    { titulo: 'Acesso', descricao: 'Define as credenciais de acesso à conta.' },
+    { titulo: t('auth.register.etapa1Titulo'), descricao: t('auth.register.etapa1Desc') },
+    { titulo: t('auth.register.etapa2Titulo'), descricao: t('auth.register.etapa2Desc') },
+    { titulo: t('auth.register.etapa3Titulo'), descricao: t('auth.register.etapa3Desc') },
   ];
 
   // ─── Render ────────────────────────────────────────────────────────────────
@@ -295,12 +299,12 @@ export default function RegisterScreen() {
           {/* ── Etapa 1: Dados pessoais ─────────────────────── */}
           {etapa === 1 && (
             <>
-              <Campo label="Nome completo" obrigatorio>
+              <Campo label={t('auth.register.nomeLabel')} obrigatorio>
                 <TextInput
                   style={styles.input}
                   value={nome}
                   onChangeText={(v) => { setNome(v); setErro(null); }}
-                  placeholder="Maria da Silva"
+                  placeholder={t('auth.register.nomePlaceholder')}
                   placeholderTextColor="#9CA3AF"
                   autoCapitalize="words"
                   maxLength={100}
@@ -308,19 +312,19 @@ export default function RegisterScreen() {
                 />
               </Campo>
 
-              <Campo label="Data de nascimento" obrigatorio>
+              <Campo label={t('auth.register.dataNascLabel')} obrigatorio>
                 <TextInput
                   style={styles.input}
                   value={dataNasc}
                   onChangeText={(v) => { setDataNasc(formatarDataNasc(v)); setErro(null); }}
-                  placeholder="DD/MM/AAAA"
+                  placeholder={t('auth.register.dataNascPlaceholder')}
                   placeholderTextColor="#9CA3AF"
                   keyboardType="number-pad"
                   maxLength={10}
                 />
               </Campo>
 
-              <Campo label="Sexo" obrigatorio>
+              <Campo label={t('auth.register.sexoLabel')} obrigatorio>
                 <View style={styles.generoRow}>
                   {GENEROS.map((g) => (
                     <TouchableOpacity
@@ -342,24 +346,24 @@ export default function RegisterScreen() {
                 </View>
               </Campo>
 
-              <Campo label="Nº Cartão de Cidadão" obrigatorio>
+              <Campo label={t('auth.register.ccLabel')} obrigatorio>
                 <TextInput
                   style={styles.input}
                   value={cartaoCidadao}
                   onChangeText={(v) => { setCartaoCidadao(v.replace(/\D/g, '')); setErro(null); }}
-                  placeholder="000000000"
+                  placeholder={t('auth.register.ccPlaceholder')}
                   placeholderTextColor="#9CA3AF"
                   keyboardType="number-pad"
                   maxLength={9}
                 />
               </Campo>
 
-              <Campo label="Nº de Utente SNS" obrigatorio>
+              <Campo label={t('auth.register.utenteLabel')} obrigatorio>
                 <TextInput
                   style={styles.input}
                   value={numeroUtente}
                   onChangeText={(v) => { setNumeroUtente(v.replace(/\D/g, '')); setErro(null); }}
-                  placeholder="123456789"
+                  placeholder={t('auth.register.utentePlaceholder')}
                   placeholderTextColor="#9CA3AF"
                   keyboardType="number-pad"
                   maxLength={9}
@@ -371,24 +375,24 @@ export default function RegisterScreen() {
           {/* ── Etapa 2: Contacto ───────────────────────────── */}
           {etapa === 2 && (
             <>
-              <Campo label="Telemóvel" obrigatorio>
+              <Campo label={t('auth.register.telemovelLabel')} obrigatorio>
                 <TextInput
                   style={styles.input}
                   value={contacto}
                   onChangeText={(v) => { setContacto(v); setErro(null); }}
-                  placeholder="+351 912 345 678"
+                  placeholder={t('auth.register.telemovelPlaceholder')}
                   placeholderTextColor="#9CA3AF"
                   keyboardType="phone-pad"
                   maxLength={20}
                 />
               </Campo>
 
-              <Campo label="Morada" obrigatorio>
+              <Campo label={t('auth.register.moradaLabel')} obrigatorio>
                 <TextInput
                   style={styles.input}
                   value={morada}
                   onChangeText={(v) => { setMorada(v); setErro(null); }}
-                  placeholder="Rua Exemplo, nº 1, 5000-000 Vila Real"
+                  placeholder={t('auth.register.moradaPlaceholder')}
                   placeholderTextColor="#9CA3AF"
                   autoCapitalize="words"
                   maxLength={200}
@@ -400,12 +404,12 @@ export default function RegisterScreen() {
           {/* ── Etapa 3: Acesso ─────────────────────────────── */}
           {etapa === 3 && (
             <>
-              <Campo label="Email" obrigatorio>
+              <Campo label={t('auth.register.emailLabel')} obrigatorio>
                 <TextInput
                   style={styles.input}
                   value={email}
                   onChangeText={(v) => { setEmail(v); setErro(null); }}
-                  placeholder="exemplo@email.com"
+                  placeholder={t('auth.register.emailPlaceholder')}
                   placeholderTextColor="#9CA3AF"
                   keyboardType="email-address"
                   autoCapitalize="none"
@@ -413,13 +417,13 @@ export default function RegisterScreen() {
                 />
               </Campo>
 
-              <Campo label="Password" obrigatorio>
+              <Campo label={t('auth.register.passwordLabel')} obrigatorio>
                 <View style={styles.inputRow}>
                   <TextInput
                     style={styles.inputFlex}
                     value={password}
                     onChangeText={(v) => { setPassword(v); setErro(null); }}
-                    placeholder="••••••••"
+                    placeholder={t('auth.register.passwordPlaceholder')}
                     placeholderTextColor="#9CA3AF"
                     secureTextEntry={!pwVisivel}
                   />
@@ -427,7 +431,7 @@ export default function RegisterScreen() {
                     onPress={() => setPwVisivel((v) => !v)}
                     hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                   >
-                    <Text style={styles.eyeTxt}>{pwVisivel ? 'Ocultar' : 'Ver'}</Text>
+                    <Text style={styles.eyeTxt}>{pwVisivel ? t('auth.register.ocultar') : t('auth.register.ver')}</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -466,13 +470,13 @@ export default function RegisterScreen() {
                 )}
               </Campo>
 
-              <Campo label="Confirmar password" obrigatorio>
+              <Campo label={t('auth.register.confirmarPasswordLabel')} obrigatorio>
                 <View style={styles.inputRow}>
                   <TextInput
                     style={styles.inputFlex}
                     value={confirmarPw}
                     onChangeText={(v) => { setConfirmarPw(v); setErro(null); }}
-                    placeholder="••••••••"
+                    placeholder={t('auth.register.passwordPlaceholder')}
                     placeholderTextColor="#9CA3AF"
                     secureTextEntry={!confirmarPwVisivel}
                   />
@@ -480,11 +484,11 @@ export default function RegisterScreen() {
                     onPress={() => setConfirmarPwVisivel((v) => !v)}
                     hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                   >
-                    <Text style={styles.eyeTxt}>{confirmarPwVisivel ? 'Ocultar' : 'Ver'}</Text>
+                    <Text style={styles.eyeTxt}>{confirmarPwVisivel ? t('auth.register.ocultar') : t('auth.register.ver')}</Text>
                   </TouchableOpacity>
                 </View>
                 {confirmarPw.length > 0 && password !== confirmarPw && (
-                  <Text style={styles.pwErroTxt}>As passwords não coincidem.</Text>
+                  <Text style={styles.pwErroTxt}>{t('auth.register.erroPasswordsNaoCoincidem')}</Text>
                 )}
               </Campo>
             </>
@@ -508,7 +512,7 @@ export default function RegisterScreen() {
               <ActivityIndicator color="#FFFFFF" />
             ) : (
               <Text style={styles.btnPrimarioTxt}>
-                {etapa < 3 ? 'Continuar' : 'Criar conta'}
+                {etapa < 3 ? t('auth.register.continuar') : t('auth.register.criarConta')}
               </Text>
             )}
           </TouchableOpacity>

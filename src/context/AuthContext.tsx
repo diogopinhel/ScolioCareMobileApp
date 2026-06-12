@@ -1,6 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Paciente } from '../data/types';
 import * as authRepo from '../data/repository/auth';
+import { i18n } from '../i18n';
+
+function aplicarIdioma(paciente: { idioma?: string | null } | null): void {
+  const idioma = paciente?.idioma === 'en' ? 'en' : 'pt-PT';
+  if (i18n.language !== idioma) {
+    void i18n.changeLanguage(idioma);
+  }
+}
 
 interface AuthContextValue {
   utilizador: Paciente | null;
@@ -27,6 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const { data: subscription } = authRepo.subscribeToMudancasAuth((paciente) => {
       setUtilizador(paciente);
+      aplicarIdioma(paciente);
       setACarregar(false);
     });
     return () => subscription.subscription.unsubscribe();
@@ -42,6 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { needsTwoFactor: true };
     }
     setUtilizador(resultado.paciente);
+    aplicarIdioma(resultado.paciente);
     return { needsTwoFactor: false };
   }
 
@@ -49,6 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const paciente = await authRepo.verificarOtpEmail(email, token);
     setPendente2FA(null);
     setUtilizador(paciente);
+    aplicarIdioma(paciente);
   }
 
   async function verificarEAtivar2FA(email: string, token: string): Promise<void> {
@@ -72,16 +83,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await authRepo.logout();
     setUtilizador(null);
     setPendente2FA(null);
+    void i18n.changeLanguage('pt-PT');
   }
 
   async function completarVerificacaoEmail(): Promise<void> {
     const paciente = await authRepo.obterPacienteAtual();
-    if (paciente) setUtilizador(paciente);
+    if (paciente) {
+      setUtilizador(paciente);
+      aplicarIdioma(paciente);
+    }
   }
 
   async function refreshUtilizador(): Promise<void> {
     const paciente = await authRepo.obterPacienteAtual();
-    if (paciente) setUtilizador(paciente);
+    if (paciente) {
+      setUtilizador(paciente);
+      aplicarIdioma(paciente);
+    }
   }
 
   return (
