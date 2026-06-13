@@ -15,6 +15,7 @@ import { useAuth } from '../../src/context/AuthContext';
 import {
   getNotificacoesDoPaciente,
   marcarComoLida,
+  resolverTextoNotificacao,
   Notificacao,
 } from '../../src/data/repository/notificacoes';
 import { i18n, useTranslation } from '../../src/i18n';
@@ -92,10 +93,10 @@ function NotificacaoCard({ notificacao, onPress }: CardProps) {
       {/* Texto */}
       <View style={styles.textos}>
         <Text style={[styles.cardTitulo, !lida && styles.cardTituloNaoLido]} numberOfLines={2}>
-          {notificacao.titulo}
+          {resolverTextoNotificacao(notificacao).titulo}
         </Text>
         <Text style={styles.mensagem} numberOfLines={2}>
-          {notificacao.mensagem}
+          {resolverTextoNotificacao(notificacao).mensagem}
         </Text>
         <Text style={styles.tempo}>{tempoAtras(notificacao.data_envio)}</Text>
       </View>
@@ -227,8 +228,8 @@ export default function NotificationsScreen() {
               <View style={[styles.modalIconWrap, { backgroundColor: iconeParaTipo(notifDetalhe.tipo).bgCor }]}>
                 {iconeParaTipo(notifDetalhe.tipo).icone}
               </View>
-              <Text style={styles.modalTitulo}>{notifDetalhe.titulo}</Text>
-              <Text style={styles.modalMensagem}>{notifDetalhe.mensagem}</Text>
+              <Text style={styles.modalTitulo}>{resolverTextoNotificacao(notifDetalhe).titulo}</Text>
+              <Text style={styles.modalMensagem}>{resolverTextoNotificacao(notifDetalhe).mensagem}</Text>
               <Text style={styles.modalTempo}>{tempoAtras(notifDetalhe.data_envio)}</Text>
               <TouchableOpacity
                 style={styles.modalBtnFechar}
