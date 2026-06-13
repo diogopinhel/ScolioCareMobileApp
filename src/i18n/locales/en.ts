@@ -206,6 +206,8 @@ const en = {
     haMinutos_one: '{{contagem}} minute ago',
     haMinutos_other: '{{contagem}} minutes ago',
     erroEnviarCodigo: 'Could not send the verification code. Please try again.',
+    examesEmAnalise_one: 'You have {{contagem}} exam under review by the medical team',
+    examesEmAnalise_other: 'You have {{contagem}} exams under review by the medical team',
   },
 
   exames: {
@@ -239,6 +241,10 @@ const en = {
     anguloCobb: 'Cobb angle',
     classificacao: 'Classification',
     semMetricas: 'No metrics available for this exam.',
+    metricasPendente: 'Clinical data will be available after the doctor sends the result.',
+    radiografiaPendente: 'UNDER REVIEW',
+    pendenteTitulo: 'Under medical team review',
+    pendenteDesc: 'This exam is being reviewed by the medical team. You will be notified as soon as the result is available.',
     severidadeNormal: 'A {{angulo}}° angle is within the normal range.',
     severidadeLeve: 'A {{angulo}}° angle indicates a mild spinal curvature.',
     severidadeModerada: 'A {{angulo}}° angle indicates a moderate spinal curvature.',
@@ -379,6 +385,7 @@ const en = {
     naoDefinido: 'Not set',
     generoMasculino: 'Male',
     generoFeminino: 'Female',
+    generoOutro: 'Other',
     idiomaPortugues: 'Português',
     idiomaIngles: 'English',
     seccaoMeusDados: 'MY DATA',

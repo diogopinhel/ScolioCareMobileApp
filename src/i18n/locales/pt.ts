@@ -209,6 +209,8 @@ const pt = {
     haMinutos_other: 'há {{contagem}} minutos',
     // 2FA bottom sheet errors
     erroEnviarCodigo: 'Não foi possível enviar o código de verificação. Tente novamente.',
+    examesEmAnalise_one: 'Tem {{contagem}} exame em análise pela equipa médica',
+    examesEmAnalise_other: 'Tem {{contagem}} exames em análise pela equipa médica',
   },
 
   exames: {
@@ -243,6 +245,10 @@ const pt = {
     anguloCobb: 'Ângulo de Cobb',
     classificacao: 'Classificação',
     semMetricas: 'Sem métricas disponíveis para este exame.',
+    metricasPendente: 'Os dados clínicos ficam disponíveis após o médico enviar o resultado.',
+    radiografiaPendente: 'EM ANÁLISE',
+    pendenteTitulo: 'Em análise pela equipa médica',
+    pendenteDesc: 'Este exame está a ser verificado pela equipa médica. Será notificado assim que o resultado estiver disponível.',
     severidadeNormal: 'Um ângulo de {{angulo}}° está dentro do intervalo normal.',
     severidadeLeve: 'Um ângulo de {{angulo}}° indica uma curvatura espinhal leve.',
     severidadeModerada: 'Um ângulo de {{angulo}}° indica uma curvatura espinhal moderada.',
@@ -392,6 +398,7 @@ const pt = {
     naoDefinido: 'Não definido',
     generoMasculino: 'Masculino',
     generoFeminino: 'Feminino',
+    generoOutro: 'Outro',
     idiomaPortugues: 'Português',
     idiomaIngles: 'English',
     // secções

@@ -55,13 +55,13 @@ function dataFormatada(iso: string | null): string {
 
 function generoLabel(genero: string | null): string {
   if (!genero) return i18n.t('perfil.naoDefinido');
+  const masc = i18n.t('perfil.generoMasculino');
+  const fem  = i18n.t('perfil.generoFeminino');
+  const outro = i18n.t('perfil.generoOutro');
   const map: Record<string, string> = {
-    M: i18n.t('perfil.generoMasculino'),
-    F: i18n.t('perfil.generoFeminino'),
-    masculino: i18n.t('perfil.generoMasculino'),
-    feminino: i18n.t('perfil.generoFeminino'),
-    Masculino: i18n.t('perfil.generoMasculino'),
-    Feminino: i18n.t('perfil.generoFeminino'),
+    M: masc, masculino: masc, Masculino: masc, male: masc, Male: masc,
+    F: fem,  feminino: fem,  Feminino: fem,  female: fem, Female: fem,
+    O: outro, outro: outro,  Outro: outro,   other: outro, Other: outro,
   };
   return map[genero] ?? genero;
 }
