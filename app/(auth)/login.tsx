@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   View,
   Text,
+  Image,
   TextInput,
   TouchableOpacity,
   StyleSheet,
@@ -64,9 +65,11 @@ export default function Login() {
         >
           {/* Cabeçalho */}
           <View style={styles.header}>
-            <View style={styles.logoCircle}>
-              <Text style={styles.logoText}>SC</Text>
-            </View>
+            <Image
+              source={require('../../assets/logo_scoliocare.png')}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
             <Text style={styles.appName}>ScolioCare</Text>
             <Text style={styles.tagline}>{t('auth.login.tagline')}</Text>
           </View>
@@ -198,21 +201,11 @@ const styles = StyleSheet.create({
   scroll: { flexGrow: 1, justifyContent: 'space-between', paddingHorizontal: 24 },
 
   header: { alignItems: 'center', paddingTop: 48, paddingBottom: 32 },
-  logoCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 20,
-    backgroundColor: '#1A6FAF',
-    alignItems: 'center',
-    justifyContent: 'center',
+  logoImage: {
+    width: 80,
+    height: 80,
     marginBottom: 12,
-    shadowColor: '#1A6FAF',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
   },
-  logoText: { color: '#FFFFFF', fontSize: 26, fontWeight: '800', letterSpacing: 1 },
   appName: { fontSize: 22, fontWeight: '700', color: '#1A1A2E', marginBottom: 4 },
   tagline: { fontSize: 14, color: '#6B7280' },
 

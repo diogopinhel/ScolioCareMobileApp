@@ -613,7 +613,7 @@ const en = {
       'This policy describes how ScolioCare processes your account data and your clinical data (X-rays, Cobb angle and severity classification), under the General Data Protection Regulation (GDPR).',
     s1Titulo: 'Data controller',
     s1Corpo:
-      'The controller of your personal data is the University of Trás-os-Montes and Alto Douro (UTAD), with registered offices at Quinta de Prados, 5000-801 Vila Real, Portugal. For privacy-related matters you may contact us at privacidade@scolioscan.pt. Our Data Protection Officer (DPO) is available at dpo@scolioscan.pt.',
+      'The controller of your personal data is the University of Trás-os-Montes and Alto Douro (UTAD), with registered offices at Quinta de Prados, 5000-801 Vila Real, Portugal. For privacy-related matters you may contact us at privacidade@scoliocare.pt. Our Data Protection Officer (DPO) is available at dpo@scoliocare.pt.',
     s2Titulo: 'What data we collect',
     s2Corpo:
       'When using the ScolioCare application (patient portal) we may process the following categories of data:',
@@ -644,14 +644,14 @@ const en = {
     s9Bullets:
       'Access your data.\nRequest its rectification.\nRequest its erasure ("right to be forgotten").\nRequest the restriction of, or object to, processing.\nData portability.\nWithdraw consent at any time, without affecting the lawfulness of processing carried out beforehand.',
     s9CorpoFim:
-      'To exercise these rights, contact privacidade@scolioscan.pt. You also have the right to lodge a complaint with the supervisory authority (in Portugal, the CNPD).',
+      'To exercise these rights, contact privacidade@scoliocare.pt. You also have the right to lodge a complaint with the supervisory authority (in Portugal, the CNPD).',
     s10Titulo: 'Retention',
     s10Corpo:
       'We retain your data for as long as necessary for the purposes described and while your account remains active. Clinical data may be subject to retention periods legally required for health records. After that period, data is deleted or irreversibly anonymised.',
     s11Titulo: 'Contacts',
     s11Corpo:
-      'For any questions about this policy or about the processing of your data, please contact privacidade@scolioscan.pt or the DPO at dpo@scolioscan.pt.',
-    rodape: 'Informational document. For questions, contact privacidade@scolioscan.pt.',
+      'For any questions about this policy or about the processing of your data, please contact privacidade@scoliocare.pt or the DPO at dpo@scoliocare.pt.',
+    rodape: 'Informational document. For questions, contact privacidade@scoliocare.pt.',
   },
 
   termosCondicoes: {
@@ -693,8 +693,8 @@ const en = {
     s10Corpo:
       'These terms are governed by the law of the Portuguese Republic, with the courts of the district of Vila Real having jurisdiction, without prejudice to consumer rights provided for by law.',
     s11Titulo: 'Contacts',
-    s11Corpo: 'For any questions about these terms, please contact privacidade@scolioscan.pt.',
-    rodape: 'For questions about these terms, contact privacidade@scolioscan.pt.',
+    s11Corpo: 'For any questions about these terms, please contact privacidade@scoliocare.pt.',
+    rodape: 'For questions about these terms, contact privacidade@scoliocare.pt.',
   },
 };
 

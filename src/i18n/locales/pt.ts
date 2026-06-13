@@ -634,7 +634,7 @@ const pt = {
       'Esta política descreve como a ScolioCare trata os dados da sua conta e os seus dados clínicos (radiografias, ângulo de Cobb e classificação de severidade), no âmbito do Regulamento Geral sobre a Proteção de Dados (RGPD).',
     s1Titulo: 'Responsável pelo tratamento',
     s1Corpo:
-      'O responsável pelo tratamento dos seus dados pessoais é a Universidade de Trás-os-Montes e Alto Douro (UTAD), com sede na Quinta de Prados, 5000-801 Vila Real, Portugal. Para questões relacionadas com privacidade pode contactar-nos através de privacidade@scolioscan.pt. O Encarregado de Proteção de Dados (DPO) está disponível em dpo@scolioscan.pt.',
+      'O responsável pelo tratamento dos seus dados pessoais é a Universidade de Trás-os-Montes e Alto Douro (UTAD), com sede na Quinta de Prados, 5000-801 Vila Real, Portugal. Para questões relacionadas com privacidade pode contactar-nos através de privacidade@scoliocare.pt. O Encarregado de Proteção de Dados (DPO) está disponível em dpo@scoliocare.pt.',
     s2Titulo: 'Que dados recolhemos',
     s2Corpo:
       'No âmbito da utilização da aplicação ScolioCare (portal do paciente) podemos tratar as seguintes categorias de dados:',
@@ -665,14 +665,14 @@ const pt = {
     s9Bullets:
       'Aceder aos seus dados.\nSolicitar a sua retificação.\nSolicitar a eliminação ("direito a ser esquecido").\nSolicitar a limitação ou opor-se ao tratamento.\nPortabilidade dos dados.\nRetirar o consentimento a qualquer momento, sem afetar a licitude do tratamento anterior.',
     s9CorpoFim:
-      'Para exercer estes direitos, contacte privacidade@scolioscan.pt. Tem ainda o direito de apresentar reclamação à autoridade de controlo (em Portugal, a CNPD).',
+      'Para exercer estes direitos, contacte privacidade@scoliocare.pt. Tem ainda o direito de apresentar reclamação à autoridade de controlo (em Portugal, a CNPD).',
     s10Titulo: 'Retenção',
     s10Corpo:
       'Conservamos os seus dados durante o período necessário às finalidades descritas e enquanto a sua conta estiver ativa. Os dados clínicos podem estar sujeitos a períodos de conservação legalmente exigidos para registos de saúde. Após esse período, os dados são eliminados ou anonimizados de forma irreversível.',
     s11Titulo: 'Contactos',
     s11Corpo:
-      'Para qualquer questão sobre esta política ou sobre o tratamento dos seus dados, contacte privacidade@scolioscan.pt ou o DPO em dpo@scolioscan.pt.',
-    rodape: 'Documento informativo. Para questões, contacte privacidade@scolioscan.pt.',
+      'Para qualquer questão sobre esta política ou sobre o tratamento dos seus dados, contacte privacidade@scoliocare.pt ou o DPO em dpo@scoliocare.pt.',
+    rodape: 'Documento informativo. Para questões, contacte privacidade@scoliocare.pt.',
   },
 
   termosCondicoes: {
@@ -714,8 +714,8 @@ const pt = {
     s10Corpo:
       'Os presentes termos regem-se pela lei da República Portuguesa, sendo competente o foro da comarca de Vila Real, sem prejuízo dos direitos do consumidor previstos na lei.',
     s11Titulo: 'Contactos',
-    s11Corpo: 'Para qualquer questão sobre estes termos, contacte privacidade@scolioscan.pt.',
-    rodape: 'Para questões sobre estes termos, contacte privacidade@scolioscan.pt.',
+    s11Corpo: 'Para qualquer questão sobre estes termos, contacte privacidade@scoliocare.pt.',
+    rodape: 'Para questões sobre estes termos, contacte privacidade@scoliocare.pt.',
   },
 };
 
