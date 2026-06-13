@@ -34,6 +34,7 @@ export interface Paciente extends Utilizador {
   genero: string | null;
   numero_utente: string | null;
   morada: string | null;
+  codigo_postal: string | null;
   cartao_cidadao: string | null;
   peso: number | null;
   altura: number | null;

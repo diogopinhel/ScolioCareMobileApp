@@ -113,6 +113,7 @@ export default function ProfileEditScreen() {
   const [dataNasc, setDataNasc] = useState(isoParaDisplay(utilizador?.data_nascimento ?? null));
   const [genero, setGenero] = useState<Genero | null>(normalizeGenero(utilizador?.genero));
   const [contacto, setContacto] = useState(utilizador?.contacto ?? '');
+  const [codigoPostal, setCodigoPostal] = useState(utilizador?.codigo_postal ?? '');
   const [morada, setMorada] = useState(utilizador?.morada ?? '');
   const [email, setEmail] = useState<string | null>(null);
   const [aCarregar, setACarregar] = useState(false);
@@ -137,6 +138,8 @@ export default function ProfileEditScreen() {
       return setErro(t('perfilEdit.erroTelefoneInvalido'));
     if (!/^\+?[\d\s\-().]+$/.test(contacto.trim()))
       return setErro(t('perfilEdit.erroTelefoneCaracteres'));
+    if (codigoPostal.trim() && !/^\d{4}-\d{3}$/.test(codigoPostal.trim()))
+      return setErro(t('perfilEdit.erroCodigoPostalInvalido'));
     if (!morada.trim()) return setErro(t('perfilEdit.erroMoradaObrigatoria'));
     if (morada.trim().length < 10) return setErro(t('perfilEdit.erroMoradaMinima'));
 
@@ -147,6 +150,7 @@ export default function ProfileEditScreen() {
         data_nascimento: dataNasc ? dataParaIso(dataNasc) : null,
         genero,
         contacto: contacto.trim(),
+        codigo_postal: codigoPostal.trim() || null,
         morada: morada.trim(),
       });
       await refreshUtilizador();
@@ -313,6 +317,30 @@ export default function ProfileEditScreen() {
                     placeholderTextColor="#9CA3AF"
                     keyboardType="phone-pad"
                     maxLength={20}
+                  />
+                </View>
+              </View>
+
+              <Separador />
+
+              {/* Código Postal */}
+              <View style={s.campo}>
+                <Text style={s.campoLabel}>{t('perfilEdit.codigoPostal')}</Text>
+                <View style={s.inputWrap}>
+                  <MapPin size={16} color="#9CA3AF" />
+                  <TextInput
+                    style={s.input}
+                    value={codigoPostal}
+                    onChangeText={(v) => {
+                      const nums = v.replace(/\D/g, '').slice(0, 7);
+                      const fmt = nums.length <= 4 ? nums : `${nums.slice(0, 4)}-${nums.slice(4)}`;
+                      setCodigoPostal(fmt);
+                      setErro(null);
+                    }}
+                    placeholder={t('perfilEdit.codigoPostalPlaceholder')}
+                    placeholderTextColor="#9CA3AF"
+                    keyboardType="number-pad"
+                    maxLength={8}
                   />
                 </View>
               </View>

@@ -26,6 +26,7 @@ export async function atualizarPerfilPaciente(
     data_nascimento: string | null;
     genero: string | null;
     contacto: string | null;
+    codigo_postal: string | null;
     morada: string | null;
   },
 ): Promise<void> {

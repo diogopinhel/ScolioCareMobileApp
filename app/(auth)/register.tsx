@@ -51,6 +51,16 @@ type Genero = 'M' | 'F' | 'O';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+function formatarCodigoPostal(texto: string): string {
+  const nums = texto.replace(/\D/g, '').slice(0, 7);
+  if (nums.length <= 4) return nums;
+  return `${nums.slice(0, 4)}-${nums.slice(4)}`;
+}
+
+function validarCodigoPostal(cp: string): boolean {
+  return /^\d{4}-\d{3}$/.test(cp);
+}
+
 function formatarDataNasc(texto: string): string {
   const nums = texto.replace(/\D/g, '').slice(0, 8);
   if (nums.length <= 2) return nums;
@@ -131,6 +141,7 @@ export default function RegisterScreen() {
 
   // Contacto
   const [contacto, setContacto] = useState('');
+  const [codigoPostal, setCodigoPostal] = useState('');
   const [morada, setMorada] = useState('');
 
   // Acesso
@@ -183,6 +194,8 @@ export default function RegisterScreen() {
       return t('auth.register.erroTelefoneInvalido');
     if (!/^\+?[\d\s\-().]+$/.test(contacto.trim()))
       return t('auth.register.erroTelefoneCaracteres');
+    if (codigoPostal.trim() && !validarCodigoPostal(codigoPostal.trim()))
+      return t('auth.register.erroCodigoPostalInvalido');
     if (!morada.trim()) return t('auth.register.erroMoradaObrigatoria');
     if (morada.trim().length < 10) return t('auth.register.erroMoradaMinima');
     return null;
@@ -224,6 +237,7 @@ export default function RegisterScreen() {
         cartaoCidadao: cartaoCidadao.trim(),
         numeroUtente: numeroUtente.trim() || null,
         contacto: contacto.trim(),
+        codigoPostal: codigoPostal.trim() || null,
         morada: morada.trim(),
       });
       needsConfirmation = resultado.needsEmailConfirmation;
@@ -384,6 +398,18 @@ export default function RegisterScreen() {
                   placeholderTextColor="#9CA3AF"
                   keyboardType="phone-pad"
                   maxLength={20}
+                />
+              </Campo>
+
+              <Campo label={t('auth.register.codigoPostalLabel')}>
+                <TextInput
+                  style={styles.input}
+                  value={codigoPostal}
+                  onChangeText={(v) => { setCodigoPostal(formatarCodigoPostal(v)); setErro(null); }}
+                  placeholder={t('auth.register.codigoPostalPlaceholder')}
+                  placeholderTextColor="#9CA3AF"
+                  keyboardType="number-pad"
+                  maxLength={8}
                 />
               </Campo>
 

@@ -14,6 +14,7 @@ export interface DadosRegisto {
   cartaoCidadao: string;
   numeroUtente: string | null;
   contacto: string;
+  codigoPostal: string | null;
   morada: string;
 }
 
@@ -139,6 +140,7 @@ export async function registar(dados: DadosRegisto): Promise<{ needsEmailConfirm
     two_factor_ativo: false,
     idioma: 'pt-PT',
     contacto: dados.contacto,
+    codigo_postal: dados.codigoPostal ?? null,
     data_nascimento: dados.dataNascimento,
     genero: dados.genero,
     numero_utente: dados.numeroUtente ?? null,

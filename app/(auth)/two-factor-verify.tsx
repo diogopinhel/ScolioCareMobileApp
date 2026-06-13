@@ -25,7 +25,7 @@ export default function TwoFactorVerifyScreen() {
   const { verificar2FA, verificarEAtivar2FA, enviarOtp2FA } = useAuth();
   const { t } = useTranslation();
 
-  const [digitos, setDigitos] = useState(['', '', '', '', '', '']);
+  const [digitos, setDigitos] = useState(['', '', '', '', '', '', '', '']);
   const [aVerificar, setAVerificar] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [cooldown, setCooldown] = useState(0);
@@ -36,7 +36,9 @@ export default function TwoFactorVerifyScreen() {
   const ref3 = useRef<TextInput>(null);
   const ref4 = useRef<TextInput>(null);
   const ref5 = useRef<TextInput>(null);
-  const refs = [ref0, ref1, ref2, ref3, ref4, ref5];
+  const ref6 = useRef<TextInput>(null);
+  const ref7 = useRef<TextInput>(null);
+  const refs = [ref0, ref1, ref2, ref3, ref4, ref5, ref6, ref7];
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -48,11 +50,11 @@ export default function TwoFactorVerifyScreen() {
     const clean = value.replace(/\D/g, '');
     // Handle paste of full code
     if (clean.length > 1) {
-      const chars = clean.slice(0, 6).split('');
-      const novos = ['', '', '', '', '', ''];
+      const chars = clean.slice(0, 8).split('');
+      const novos = ['', '', '', '', '', '', '', ''];
       chars.forEach((c, idx) => { novos[idx] = c; });
       setDigitos(novos);
-      refs[Math.min(chars.length, 5)].current?.focus();
+      refs[Math.min(chars.length, 7)].current?.focus();
       return;
     }
     const char = clean.slice(-1);
@@ -60,7 +62,7 @@ export default function TwoFactorVerifyScreen() {
     novos[i] = char;
     setDigitos(novos);
     setErro(null);
-    if (char && i < 5) refs[i + 1].current?.focus();
+    if (char && i < 7) refs[i + 1].current?.focus();
   }
 
   function handleKeyPress(i: number, key: string) {
@@ -74,7 +76,7 @@ export default function TwoFactorVerifyScreen() {
 
   async function handleVerificar() {
     const codigo = digitos.join('');
-    if (codigo.length < 6) {
+    if (codigo.length < 8) {
       setErro(t('auth.twoFactor.erroCodigoIncompleto'));
       return;
     }
@@ -94,7 +96,7 @@ export default function TwoFactorVerifyScreen() {
       }
     } catch (e: any) {
       setErro(traduzirErro(e?.message ?? '', t));
-      setDigitos(['', '', '', '', '', '']);
+      setDigitos(['', '', '', '', '', '', '', '']);
       refs[0].current?.focus();
     } finally {
       setAVerificar(false);
@@ -106,7 +108,7 @@ export default function TwoFactorVerifyScreen() {
     try {
       await enviarOtp2FA(email);
       setCooldown(60);
-      setDigitos(['', '', '', '', '', '']);
+      setDigitos(['', '', '', '', '', '', '', '']);
       setErro(null);
       refs[0].current?.focus();
     } catch (e: unknown) {
