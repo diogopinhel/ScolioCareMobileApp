@@ -20,7 +20,7 @@ import { getEmailDoPaciente } from '../../src/data/repository/perfil';
 import { getEstudosDoPaciente } from '../../src/data/repository/estudos';
 import { getWellnessLogDoPaciente } from '../../src/data/repository/wellness';
 import BottomSheet2FA from '../../src/components/BottomSheet2FA';
-import { getNotificacoesDoPaciente, marcarComoLida, Notificacao } from '../../src/data/repository/notificacoes';
+import { getNotificacoesDoPaciente, marcarComoLida, resolverTextoNotificacao, Notificacao } from '../../src/data/repository/notificacoes';
 import { EstudoComResultado, WellnessLogEntry } from '../../src/data/types';
 import { i18n, useTranslation } from '../../src/i18n';
 import { localeDeData } from '../../src/i18n/dateLocale';
@@ -122,7 +122,7 @@ interface GraficoProps {
 
 function MiniGrafico({ estudos, largura }: GraficoProps) {
   const dados = estudos
-    .filter((e) => e.resultado?.angulo_cobb != null)
+    .filter((e) => e.estado === 'SENT' && e.resultado?.angulo_cobb != null)
     .slice(0, 5)
     .reverse();
 
@@ -220,7 +220,7 @@ function MiniGrafico({ estudos, largura }: GraficoProps) {
 
 export default function HomeScreen() {
   const { utilizador, enviarOtp2FA } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [estudos, setEstudos] = useState<EstudoComResultado[]>([]);
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [wellnessEntradas, setWellnessEntradas] = useState<WellnessLogEntry[]>([]);
@@ -295,8 +295,10 @@ export default function HomeScreen() {
 
   useFocusEffect(useCallback(() => { carregar(); }, [carregar]));
 
-  const ultimoExame = estudos[0] ?? null;
-  const exameAnterior = estudos[1] ?? null;
+  const examosEnviados = estudos.filter((e) => e.estado === 'SENT');
+  const ultimoExame = examosEnviados[0] ?? null;
+  const exameAnterior = examosEnviados[1] ?? null;
+  const examesPendentes = estudos.filter((e) => e.estado !== 'SENT');
   const notifNaoLidas = notificacoes.filter((n) => !n.data_leitura);
 
   function deltaCobb(): string | null {
@@ -454,11 +456,20 @@ export default function HomeScreen() {
                   <Text style={styles.verExameTxt}>{t('home.verExame')}</Text>
                 </TouchableOpacity>
               </View>
-            ) : (
+            ) : examesPendentes.length === 0 ? (
               <View style={[styles.card, styles.vazioCard]}>
                 <FileText size={36} color="#6B7280" />
                 <Text style={styles.vazioTitulo}>{t('home.semExamesTitulo')}</Text>
                 <Text style={styles.vazioDesc}>{t('home.semExamesDesc')}</Text>
+              </View>
+            ) : null}
+
+            {examesPendentes.length > 0 && (
+              <View style={styles.bannerAnalise}>
+                <Clock size={16} color="#1A6FAF" />
+                <Text style={styles.bannerAnaliseTxt}>
+                  {t('home.examesEmAnalise', { count: examesPendentes.length, contagem: examesPendentes.length })}
+                </Text>
               </View>
             )}
 
@@ -512,7 +523,7 @@ export default function HomeScreen() {
                     <Activity size={16} color="#1A6FAF" />
                   </View>
                   <View style={styles.notifTextos}>
-                    <Text style={styles.notifTitulo} numberOfLines={1}>{n.titulo}</Text>
+                    <Text style={styles.notifTitulo} numberOfLines={1}>{resolverTextoNotificacao(n, i18n.language).titulo}</Text>
                     <Text style={styles.notifTempo}>{tempoAtras(n.data_envio)}</Text>
                   </View>
                   <Text style={styles.notifChevron}>›</Text>
@@ -662,6 +673,19 @@ const styles = StyleSheet.create({
   },
   estadoTxt: { fontSize: 12, fontWeight: '600' },
   pdfLabel: { fontSize: 12, color: '#6B7280' },
+  bannerAnalise: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#EFF6FF',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+  },
+  bannerAnaliseTxt: { flex: 1, fontSize: 13, color: '#1A6FAF', fontWeight: '500' },
   verExameBtn: { alignItems: 'center', paddingVertical: 8 },
   verExameTxt: { color: '#1A6FAF', fontSize: 15, fontWeight: '600' },
 

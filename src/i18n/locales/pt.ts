@@ -138,6 +138,7 @@ const pt = {
       subtitulo:
         'A tua conta está ativa. Já podes aceder a todos os teus exames e ao assistente médico.',
       entrarNaConta: 'Entrar na conta',
+      erroVerificacao: 'Erro ao verificar a conta. Tente novamente.',
     },
 
     twoFactor: {

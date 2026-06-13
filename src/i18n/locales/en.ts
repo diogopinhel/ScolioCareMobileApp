@@ -138,6 +138,7 @@ const en = {
       subtitulo:
         'Your account is active. You can now access all your exams and the medical assistant.',
       entrarNaConta: 'Enter account',
+      erroVerificacao: 'Error verifying the account. Please try again.',
     },
 
     twoFactor: {

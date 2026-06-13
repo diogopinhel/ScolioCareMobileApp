@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
   ChevronLeft,
+  Clock,
   Download,
   GitCompare,
   Info,
@@ -141,6 +142,7 @@ export default function ExameDetalheScreen() {
   const resultado = estudo?.resultado;
   const anguloEfetivo = resultado?.angulo_cobb_corrigido ?? resultado?.angulo_cobb;
   const estadoInf = estudo ? estadoInfo(estudo.estado) : null;
+  const enviado = estudo?.estado === 'SENT';
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -184,10 +186,10 @@ export default function ExameDetalheScreen() {
           {/* Área da radiografia */}
           <TouchableOpacity
             style={styles.radiografiaWrap}
-            onPress={() => urlImagem && setShowRaioX(true)}
-            activeOpacity={urlImagem ? 0.85 : 1}
+            onPress={() => enviado && urlImagem && setShowRaioX(true)}
+            activeOpacity={enviado && urlImagem ? 0.85 : 1}
           >
-            {urlImagem ? (
+            {urlImagem && enviado ? (
               <Image
                 source={{ uri: urlImagem }}
                 style={styles.radiografia}
@@ -195,10 +197,12 @@ export default function ExameDetalheScreen() {
               />
             ) : (
               <View style={styles.radiografia}>
-                <Text style={styles.radiografiaTxt}>{t('exameDetalhe.radiografia')}</Text>
+                <Text style={styles.radiografiaTxt}>
+                  {t(enviado ? 'exameDetalhe.radiografia' : 'exameDetalhe.radiografiaPendente')}
+                </Text>
               </View>
             )}
-            {urlImagem && (
+            {enviado && urlImagem && (
               <View style={styles.expandirBtn}>
                 <Maximize2 size={14} color="#FFFFFF" />
                 <Text style={styles.expandirTxt}>{t('exameDetalhe.tocarAmpliar')}</Text>
@@ -213,114 +217,123 @@ export default function ExameDetalheScreen() {
             )}
           </TouchableOpacity>
 
-          {/* Métricas clínicas */}
-          <View style={styles.seccao}>
-            <Text style={styles.seccaoTitulo}>{t('exameDetalhe.metricasTitulo')}</Text>
+          {enviado ? (
+            <>
+              {/* Métricas clínicas */}
+              <View style={styles.seccao}>
+                <Text style={styles.seccaoTitulo}>{t('exameDetalhe.metricasTitulo')}</Text>
 
-            {resultado ? (
-              <>
-                <View style={styles.cobbRow}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.cobbLabel}>{t('exameDetalhe.anguloCobb')}</Text>
-                    <Text style={styles.cobbValor}>
-                      {anguloEfetivo != null ? `${anguloEfetivo.toFixed(1)}°` : '—'}
-                    </Text>
-                    {resultado.localizacao_curva && (
-                      <Text style={styles.cobbSub}>{resultado.localizacao_curva}</Text>
-                    )}
-                  </View>
-                  <View style={{ alignItems: 'flex-end', gap: 6 }}>
-                    {(() => {
-                      const c = classifInfo(resultado.grau_curvatura);
-                      return c ? (
-                        <View style={{ alignItems: 'flex-end', gap: 3 }}>
-                          <Text style={styles.cobbLabel}>{t('exameDetalhe.classificacao')}</Text>
-                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                            <View style={[styles.classifBadge, { backgroundColor: c.bgCor }]}>
-                              <Text style={[styles.classifTxt, { color: c.cor }]}>{c.label}</Text>
+                {resultado ? (
+                  <>
+                    <View style={styles.cobbRow}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.cobbLabel}>{t('exameDetalhe.anguloCobb')}</Text>
+                        <Text style={styles.cobbValor}>
+                          {anguloEfetivo != null ? `${anguloEfetivo.toFixed(1)}°` : '—'}
+                        </Text>
+                        {resultado.localizacao_curva && (
+                          <Text style={styles.cobbSub}>{resultado.localizacao_curva}</Text>
+                        )}
+                      </View>
+                      <View style={{ alignItems: 'flex-end', gap: 6 }}>
+                        {(() => {
+                          const c = classifInfo(resultado.grau_curvatura);
+                          return c ? (
+                            <View style={{ alignItems: 'flex-end', gap: 3 }}>
+                              <Text style={styles.cobbLabel}>{t('exameDetalhe.classificacao')}</Text>
+                              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                <View style={[styles.classifBadge, { backgroundColor: c.bgCor }]}>
+                                  <Text style={[styles.classifTxt, { color: c.cor }]}>{c.label}</Text>
+                                </View>
+                                <TouchableOpacity
+                                  onPress={() => setShowAjuda(true)}
+                                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                                >
+                                  <HelpCircle size={18} color="#9CA3AF" />
+                                </TouchableOpacity>
+                              </View>
                             </View>
-                            <TouchableOpacity
-                              onPress={() => setShowAjuda(true)}
-                              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                            >
-                              <HelpCircle size={18} color="#9CA3AF" />
-                            </TouchableOpacity>
-                          </View>
-                        </View>
-                      ) : null;
-                    })()}
-                  </View>
-                </View>
+                          ) : null;
+                        })()}
+                      </View>
+                    </View>
 
-                {anguloEfetivo != null && (
-                  <View style={styles.infoBox}>
-                    <Info size={14} color="#1A6FAF" />
-                    <Text style={styles.infoTxt}>
-                      {bandaSeveridade(anguloEfetivo, resultado.grau_curvatura)}
-                    </Text>
-                  </View>
+                    {anguloEfetivo != null && (
+                      <View style={styles.infoBox}>
+                        <Info size={14} color="#1A6FAF" />
+                        <Text style={styles.infoTxt}>
+                          {bandaSeveridade(anguloEfetivo, resultado.grau_curvatura)}
+                        </Text>
+                      </View>
+                    )}
+                  </>
+                ) : (
+                  <Text style={styles.semDados}>{t('exameDetalhe.semMetricas')}</Text>
                 )}
-              </>
-            ) : (
-              <Text style={styles.semDados}>{t('exameDetalhe.semMetricas')}</Text>
-            )}
-          </View>
+              </View>
 
-          {/* Observações do médico */}
-          <View style={styles.seccao}>
-            <Text style={styles.seccaoTitulo}>{t('exameDetalhe.observacoesTitulo')}</Text>
+              {/* Observações do médico */}
+              <View style={styles.seccao}>
+                <Text style={styles.seccaoTitulo}>{t('exameDetalhe.observacoesTitulo')}</Text>
 
-            {resultado?.observacoes_medico ? (
-              <>
-                <Text style={styles.notasTxt}>{resultado.observacoes_medico}</Text>
+                {resultado?.observacoes_medico ? (
+                  <>
+                    <Text style={styles.notasTxt}>{resultado.observacoes_medico}</Text>
 
-                {estudo.medico_validador_nome && resultado.data_validacao && (
-                  <View style={styles.validadoBox}>
-                    <Text style={styles.validadoTxt}>
-                      {t('exameDetalhe.validadoPor')}
-                      <Text style={{ fontWeight: '700' }}>
-                        {estudo.medico_validador_nome}
-                      </Text>
-                      {t('exameDetalhe.validadoData', { data: dataFormatadaLonga(resultado.data_validacao) })}
-                    </Text>
-                  </View>
+                    {estudo.medico_validador_nome && resultado.data_validacao && (
+                      <View style={styles.validadoBox}>
+                        <Text style={styles.validadoTxt}>
+                          {t('exameDetalhe.validadoPor')}
+                          <Text style={{ fontWeight: '700' }}>
+                            {estudo.medico_validador_nome}
+                          </Text>
+                          {t('exameDetalhe.validadoData', { data: dataFormatadaLonga(resultado.data_validacao) })}
+                        </Text>
+                      </View>
+                    )}
+                  </>
+                ) : (
+                  <Text style={styles.semDados}>{t('exameDetalhe.semObservacoesAnalisado')}</Text>
                 )}
-              </>
-            ) : (
-              <Text style={styles.semDados}>
-                {estudo.estado === 'DIAGNOSED' || estudo.estado === 'SENT'
-                  ? t('exameDetalhe.semObservacoesAnalisado')
-                  : t('exameDetalhe.semObservacoesPendente')}
-              </Text>
-            )}
-          </View>
+              </View>
 
-          {/* Ações */}
-          <View style={styles.acoes}>
-            <TouchableOpacity
-              style={[
-                styles.btnPdf,
-                !estudo.ficheiro_pdf && styles.btnPdfDesativado,
-              ]}
-              onPress={abrirPdf}
-              disabled={!estudo.ficheiro_pdf}
-              activeOpacity={0.8}
-            >
-              <Download size={18} color="#FFFFFF" />
-              <Text style={styles.btnPdfTxt}>{t('exameDetalhe.descarregarPdf')}</Text>
-            </TouchableOpacity>
+              {/* Ações */}
+              <View style={styles.acoes}>
+                <TouchableOpacity
+                  style={[
+                    styles.btnPdf,
+                    !estudo.ficheiro_pdf && styles.btnPdfDesativado,
+                  ]}
+                  onPress={abrirPdf}
+                  disabled={!estudo.ficheiro_pdf}
+                  activeOpacity={0.8}
+                >
+                  <Download size={18} color="#FFFFFF" />
+                  <Text style={styles.btnPdfTxt}>{t('exameDetalhe.descarregarPdf')}</Text>
+                </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.btnComparar}
-              onPress={() =>
-                router.push(`/(tabs)/exams/compare?from=${estudo.id}` as never)
-              }
-              activeOpacity={0.7}
-            >
-              <GitCompare size={16} color="#1A6FAF" />
-              <Text style={styles.btnCompararTxt}>{t('exameDetalhe.compararExame')}</Text>
-            </TouchableOpacity>
-          </View>
+                <TouchableOpacity
+                  style={styles.btnComparar}
+                  onPress={() =>
+                    router.push(`/(tabs)/exams/compare?from=${estudo.id}` as never)
+                  }
+                  activeOpacity={0.7}
+                >
+                  <GitCompare size={16} color="#1A6FAF" />
+                  <Text style={styles.btnCompararTxt}>{t('exameDetalhe.compararExame')}</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          ) : (
+            /* Estado pendente — sem conteúdo clínico */
+            <View style={styles.pendente}>
+              <View style={[styles.pendenteIconWrap, { backgroundColor: estadoInf?.bgCor ?? '#EFF6FF' }]}>
+                <Clock size={32} color={estadoInf?.cor ?? '#1A6FAF'} />
+              </View>
+              <Text style={styles.pendenteTitulo}>{t('exameDetalhe.pendenteTitulo')}</Text>
+              <Text style={styles.pendenteDesc}>{t('exameDetalhe.pendenteDesc')}</Text>
+            </View>
+          )}
         </ScrollView>
       )}
 
@@ -591,6 +604,25 @@ const styles = StyleSheet.create({
     minHeight: 44,
   },
   btnCompararTxt: { color: '#1A6FAF', fontSize: 14, fontWeight: '600' },
+
+  // Estado pendente
+  pendente: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 40,
+    paddingVertical: 48,
+    gap: 14,
+  },
+  pendenteIconWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
+  pendenteTitulo: { fontSize: 17, fontWeight: '700', color: '#1A1A2E', textAlign: 'center' },
+  pendenteDesc: { fontSize: 14, color: '#6B7280', textAlign: 'center', lineHeight: 22 },
 
   // Estados
   vazio: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 12 },

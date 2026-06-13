@@ -9,9 +9,10 @@ import {
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { FileText, TrendingDown, TrendingUp, Clock } from 'lucide-react-native';
 import { useAuth } from '../../../src/context/AuthContext';
+import { supabase } from '../../../src/lib/supabase';
 import { getEstudosDoPaciente, getUrlImagemEstudo } from '../../../src/data/repository/estudos';
 import { EstudoComResultado, EstadoEstudo } from '../../../src/data/types';
 import { i18n, useTranslation } from '../../../src/i18n';
@@ -76,16 +77,19 @@ interface CardProps {
 function ExameCard({ estudo, deltaAngulo, urlImagem, onPress }: CardProps) {
   const { t } = useTranslation();
   const info = estadoInfo(estudo.estado);
-  const angulo = estudo.resultado?.angulo_cobb;
+  const enviado = estudo.estado === 'SENT';
+  const angulo = enviado ? estudo.resultado?.angulo_cobb : null;
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
       {/* Thumbnail */}
       <View style={styles.thumbnail}>
-        {urlImagem ? (
+        {urlImagem && enviado ? (
           <Image source={{ uri: urlImagem }} style={StyleSheet.absoluteFill} resizeMode="cover" />
         ) : (
-          <Text style={styles.thumbnailTxt}>{t('exames.xray')}</Text>
+          <Text style={styles.thumbnailTxt}>
+            {enviado ? t('exames.xray') : t('exames.estadoEmAnalise')}
+          </Text>
         )}
       </View>
 
@@ -158,7 +162,27 @@ export default function ExamsScreen() {
     }
   }, [utilizador, contaPendente]);
 
-  useEffect(() => { carregar(); }, [carregar]);
+  // Recarrega sempre que o utilizador abre este ecrã
+  useFocusEffect(useCallback(() => { carregar(); }, [carregar]));
+
+  // Realtime: actualiza a lista quando o estado de um exame muda na BD
+  useEffect(() => {
+    if (!utilizador) return;
+    const channel = supabase
+      .channel(`exams-estado-${utilizador.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'estudos',
+          filter: `paciente_id=eq.${utilizador.id}`,
+        },
+        () => { carregar(); },
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [utilizador, carregar]);
 
   if (contaPendente) {
     return (
@@ -323,6 +347,8 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 1,
+    textAlign: 'center',
+    paddingHorizontal: 6,
   },
   cardBody: { flex: 1, padding: 14 },
   cardTopRow: {
