@@ -8,24 +8,34 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Check, ChevronRight } from 'lucide-react-native';
 import { useAuth } from '../../src/context/AuthContext';
+import { verificarTokenEmail } from '../../src/data/repository/auth';
 import { useTranslation } from '../../src/i18n';
 
 export default function EmailConfirmedScreen() {
   const { completarVerificacaoEmail } = useAuth();
   const { t } = useTranslation();
+  const { token_hash } = useLocalSearchParams<{ token_hash?: string }>();
   const [aNavegar, setANavegar] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
 
   async function irParaApp() {
     if (aNavegar) return;
     setANavegar(true);
+    setErro(null);
     try {
+      // Verificar o token do link de confirmação — cria a sessão no Supabase
+      if (token_hash) {
+        await verificarTokenEmail(token_hash);
+      }
+      // Aplicar dados demográficos pendentes e iniciar sessão no contexto
       await completarVerificacaoEmail();
       router.replace('/(tabs)/home' as never);
     } catch {
-      router.replace('/(auth)/login' as never);
+      setErro(t('auth.emailConfirmed.erroVerificacao'));
+      setANavegar(false);
     }
   }
 
@@ -55,6 +65,10 @@ export default function EmailConfirmedScreen() {
         <Text style={estilos.subtitulo}>
           {t('auth.emailConfirmed.subtitulo')}
         </Text>
+
+        {erro && (
+          <Text style={estilos.erroTxt}>{erro}</Text>
+        )}
 
         <TouchableOpacity
           style={[estilos.btnPrimario, aNavegar && estilos.btnDisabled]}
@@ -130,6 +144,13 @@ const estilos = StyleSheet.create({
     maxWidth: 260,
     lineHeight: 18,
     marginBottom: 28,
+  },
+
+  erroTxt: {
+    color: '#EF4444',
+    fontSize: 13,
+    textAlign: 'center',
+    marginBottom: 16,
   },
 
   btnPrimario: {
