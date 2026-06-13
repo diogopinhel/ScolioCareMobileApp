@@ -73,8 +73,10 @@ interface CardProps {
 }
 
 function NotificacaoCard({ notificacao, onPress }: CardProps) {
+  const { i18n } = useTranslation();
   const { icone, bgCor } = iconeParaTipo(notificacao.tipo);
   const lida = notificacao.data_leitura !== null;
+  const texto = resolverTextoNotificacao(notificacao, i18n.language);
 
   return (
     <TouchableOpacity
@@ -93,10 +95,10 @@ function NotificacaoCard({ notificacao, onPress }: CardProps) {
       {/* Texto */}
       <View style={styles.textos}>
         <Text style={[styles.cardTitulo, !lida && styles.cardTituloNaoLido]} numberOfLines={2}>
-          {resolverTextoNotificacao(notificacao).titulo}
+          {texto.titulo}
         </Text>
         <Text style={styles.mensagem} numberOfLines={2}>
-          {resolverTextoNotificacao(notificacao).mensagem}
+          {texto.mensagem}
         </Text>
         <Text style={styles.tempo}>{tempoAtras(notificacao.data_envio)}</Text>
       </View>
@@ -110,7 +112,7 @@ function NotificacaoCard({ notificacao, onPress }: CardProps) {
 
 export default function NotificationsScreen() {
   const { utilizador } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [aCarregar, setACarregar] = useState(true);
   const [notifDetalhe, setNotifDetalhe] = useState<Notificacao | null>(null);
@@ -200,6 +202,7 @@ export default function NotificationsScreen() {
         <FlatList
           data={notificacoes}
           keyExtractor={(item) => item.id}
+          extraData={i18n.language}
           renderItem={({ item }) => (
             <NotificacaoCard
               notificacao={item}
@@ -228,8 +231,8 @@ export default function NotificationsScreen() {
               <View style={[styles.modalIconWrap, { backgroundColor: iconeParaTipo(notifDetalhe.tipo).bgCor }]}>
                 {iconeParaTipo(notifDetalhe.tipo).icone}
               </View>
-              <Text style={styles.modalTitulo}>{resolverTextoNotificacao(notifDetalhe).titulo}</Text>
-              <Text style={styles.modalMensagem}>{resolverTextoNotificacao(notifDetalhe).mensagem}</Text>
+              <Text style={styles.modalTitulo}>{resolverTextoNotificacao(notifDetalhe, i18n.language).titulo}</Text>
+              <Text style={styles.modalMensagem}>{resolverTextoNotificacao(notifDetalhe, i18n.language).mensagem}</Text>
               <Text style={styles.modalTempo}>{tempoAtras(notifDetalhe.data_envio)}</Text>
               <TouchableOpacity
                 style={styles.modalBtnFechar}

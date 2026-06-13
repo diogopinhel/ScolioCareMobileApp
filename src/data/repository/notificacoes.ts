@@ -1,5 +1,4 @@
 import { supabase } from '../../lib/supabase';
-import { i18n } from '../../i18n';
 
 export interface Notificacao {
   id: string;
@@ -15,8 +14,8 @@ export interface Notificacao {
   referencia_id: string | null;
 }
 
-export function resolverTextoNotificacao(notificacao: Notificacao): { titulo: string; mensagem: string } {
-  const isEn = i18n.language?.startsWith('en');
+export function resolverTextoNotificacao(notificacao: Notificacao, language: string): { titulo: string; mensagem: string } {
+  const isEn = language.startsWith('en');
   return {
     titulo:   (isEn && notificacao.titulo_en)   ? notificacao.titulo_en   : notificacao.titulo,
     mensagem: (isEn && notificacao.mensagem_en) ? notificacao.mensagem_en : notificacao.mensagem,
