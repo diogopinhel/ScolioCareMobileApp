@@ -67,7 +67,7 @@ export default function Login() {
             <View style={styles.logoCircle}>
               <Text style={styles.logoText}>SC</Text>
             </View>
-            <Text style={styles.appName}>ScolioScan</Text>
+            <Text style={styles.appName}>ScolioCare</Text>
             <Text style={styles.tagline}>{t('auth.login.tagline')}</Text>
           </View>
 
