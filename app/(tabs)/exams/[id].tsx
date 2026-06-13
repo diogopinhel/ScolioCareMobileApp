@@ -27,6 +27,7 @@ import {
 } from 'lucide-react-native';
 import { getEstudoPorId, getUrlRelatorioPdf, getUrlImagemEstudo } from '../../../src/data/repository/estudos';
 import { EstudoDetalhe, EstadoEstudo } from '../../../src/data/types';
+import { anguloEfetivo as calcAnguloEfetivo, grauPorAngulo } from '../../../src/data/severidade';
 import { i18n, useTranslation } from '../../../src/i18n';
 import { localeDeData } from '../../../src/i18n/dateLocale';
 
@@ -48,28 +49,27 @@ function dataFormatadaLonga(iso: string): string {
   });
 }
 
-function bandaSeveridade(angulo: number, grau?: string | null): string {
-  const g = grau?.toUpperCase() ?? '';
+// Severity is derived from the effective angle (corrected ?? ML), never from the
+// stored `grau_curvatura`, which goes stale after a doctor corrects the angle.
+function bandaSeveridade(angulo: number): string {
   const a = angulo.toFixed(1);
-  if (g === 'NORMAL' || angulo < 10)
-    return i18n.t('exameDetalhe.severidadeNormal', { angulo: a });
-  if (g === 'LEVE' || angulo < 25)
-    return i18n.t('exameDetalhe.severidadeLeve', { angulo: a });
-  if (g === 'MODERADA' || angulo < 40)
-    return i18n.t('exameDetalhe.severidadeModerada', { angulo: a });
-  return i18n.t('exameDetalhe.severidadeGrave', { angulo: a });
+  switch (grauPorAngulo(angulo)) {
+    case 'NORMAL':   return i18n.t('exameDetalhe.severidadeNormal', { angulo: a });
+    case 'LEVE':     return i18n.t('exameDetalhe.severidadeLeve', { angulo: a });
+    case 'MODERADA': return i18n.t('exameDetalhe.severidadeModerada', { angulo: a });
+    case 'GRAVE':    return i18n.t('exameDetalhe.severidadeGrave', { angulo: a });
+  }
 }
 
 type ClassifInfo = { label: string; cor: string; bgCor: string };
 
-function classifInfo(grau: string | null | undefined): ClassifInfo | null {
-  if (!grau) return null;
-  switch (grau.toUpperCase()) {
+function classifInfo(angulo: number | null | undefined): ClassifInfo | null {
+  if (angulo == null) return null;
+  switch (grauPorAngulo(angulo)) {
     case 'NORMAL':   return { label: i18n.t('exameDetalhe.classNormal'),   cor: '#1D9E75', bgCor: '#DCFCE7' };
     case 'LEVE':     return { label: i18n.t('exameDetalhe.classLeve'),     cor: '#D97706', bgCor: '#FEF3C7' };
     case 'MODERADA': return { label: i18n.t('exameDetalhe.classModerada'), cor: '#E8843C', bgCor: '#FEF0E7' };
     case 'GRAVE':    return { label: i18n.t('exameDetalhe.classGrave'),    cor: '#EF4444', bgCor: '#FEE2E2' };
-    default:         return null;
   }
 }
 
@@ -140,7 +140,7 @@ export default function ExameDetalheScreen() {
   }
 
   const resultado = estudo?.resultado;
-  const anguloEfetivo = resultado?.angulo_cobb_corrigido ?? resultado?.angulo_cobb;
+  const anguloEfetivo = calcAnguloEfetivo(resultado);
   const estadoInf = estudo ? estadoInfo(estudo.estado) : null;
   const enviado = estudo?.estado === 'SENT';
 
@@ -237,7 +237,7 @@ export default function ExameDetalheScreen() {
                       </View>
                       <View style={{ alignItems: 'flex-end', gap: 6 }}>
                         {(() => {
-                          const c = classifInfo(resultado.grau_curvatura);
+                          const c = classifInfo(anguloEfetivo);
                           return c ? (
                             <View style={{ alignItems: 'flex-end', gap: 3 }}>
                               <Text style={styles.cobbLabel}>{t('exameDetalhe.classificacao')}</Text>
@@ -262,7 +262,7 @@ export default function ExameDetalheScreen() {
                       <View style={styles.infoBox}>
                         <Info size={14} color="#1A6FAF" />
                         <Text style={styles.infoTxt}>
-                          {bandaSeveridade(anguloEfetivo, resultado.grau_curvatura)}
+                          {bandaSeveridade(anguloEfetivo)}
                         </Text>
                       </View>
                     )}

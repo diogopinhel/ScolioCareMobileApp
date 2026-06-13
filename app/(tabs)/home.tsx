@@ -22,6 +22,7 @@ import { getWellnessLogDoPaciente } from '../../src/data/repository/wellness';
 import BottomSheet2FA from '../../src/components/BottomSheet2FA';
 import { getNotificacoesDoPaciente, marcarComoLida, resolverTextoNotificacao, Notificacao } from '../../src/data/repository/notificacoes';
 import { EstudoComResultado, WellnessLogEntry } from '../../src/data/types';
+import { anguloEfetivo, grauPorAngulo } from '../../src/data/severidade';
 import { i18n, useTranslation } from '../../src/i18n';
 import { localeDeData } from '../../src/i18n/dateLocale';
 
@@ -81,10 +82,12 @@ function tempoAtras(iso: string): string {
 }
 
 function bandaSeveridade(angulo: number): string {
-  if (angulo < 10) return i18n.t('home.severidadeNormal');
-  if (angulo <= 25) return i18n.t('home.severidadeLeve');
-  if (angulo <= 40) return i18n.t('home.severidadeModerada');
-  return i18n.t('home.severidadeGrave');
+  switch (grauPorAngulo(angulo)) {
+    case 'NORMAL': return i18n.t('home.severidadeNormal');
+    case 'LEVE': return i18n.t('home.severidadeLeve');
+    case 'MODERADA': return i18n.t('home.severidadeModerada');
+    case 'GRAVE': return i18n.t('home.severidadeGrave');
+  }
 }
 
 function estadoLabel(estado: string): string {
@@ -122,7 +125,7 @@ interface GraficoProps {
 
 function MiniGrafico({ estudos, largura }: GraficoProps) {
   const dados = estudos
-    .filter((e) => e.estado === 'SENT' && e.resultado?.angulo_cobb != null)
+    .filter((e) => e.estado === 'SENT' && anguloEfetivo(e.resultado) != null)
     .slice(0, 5)
     .reverse();
 
@@ -141,7 +144,7 @@ function MiniGrafico({ estudos, largura }: GraficoProps) {
   const PAD_T = 10;
   const PAD_B = 24;
 
-  const valores = dados.map((e) => e.resultado!.angulo_cobb);
+  const valores = dados.map((e) => anguloEfetivo(e.resultado)!);
   const min = Math.floor(Math.min(...valores) - 2);
   const max = Math.ceil(Math.max(...valores) + 2);
   const rangeY = max - min || 1;
@@ -154,7 +157,7 @@ function MiniGrafico({ estudos, largura }: GraficoProps) {
     return PAD_T + ((max - v) / rangeY) * (H - PAD_T - PAD_B);
   }
 
-  const pontos = dados.map((e, i) => `${xPx(i)},${yPx(e.resultado!.angulo_cobb)}`).join(' ');
+  const pontos = dados.map((e, i) => `${xPx(i)},${yPx(anguloEfetivo(e.resultado)!)}`).join(' ');
 
   const yTicks = [min, Math.round((min + max) / 2), max];
 
@@ -194,7 +197,7 @@ function MiniGrafico({ estudos, largura }: GraficoProps) {
         <Circle
           key={e.id}
           cx={xPx(i)}
-          cy={yPx(e.resultado!.angulo_cobb)}
+          cy={yPx(anguloEfetivo(e.resultado)!)}
           r={4}
           fill="#1A6FAF"
         />
@@ -302,15 +305,19 @@ export default function HomeScreen() {
   const notifNaoLidas = notificacoes.filter((n) => !n.data_leitura);
 
   function deltaCobb(): string | null {
-    if (!ultimoExame?.resultado || !exameAnterior?.resultado) return null;
-    const diff = ultimoExame.resultado.angulo_cobb - exameAnterior.resultado.angulo_cobb;
+    const atual = anguloEfetivo(ultimoExame?.resultado);
+    const anterior = anguloEfetivo(exameAnterior?.resultado);
+    if (atual == null || anterior == null) return null;
+    const diff = atual - anterior;
     const sinal = diff < 0 ? '↘' : diff > 0 ? '↗' : '→';
     return t('home.deltaVsAnterior', { sinal, valor: Math.abs(diff).toFixed(1) });
   }
 
   function deltaCor(): string {
-    if (!ultimoExame?.resultado || !exameAnterior?.resultado) return '#6B7280';
-    const diff = ultimoExame.resultado.angulo_cobb - exameAnterior.resultado.angulo_cobb;
+    const atual = anguloEfetivo(ultimoExame?.resultado);
+    const anterior = anguloEfetivo(exameAnterior?.resultado);
+    if (atual == null || anterior == null) return '#6B7280';
+    const diff = atual - anterior;
     return diff < 0 ? '#1D9E75' : diff > 0 ? '#EF4444' : '#6B7280';
   }
 
@@ -426,15 +433,15 @@ export default function HomeScreen() {
                 <Text style={[styles.exameLabel, { marginTop: 12 }]}>{t('home.anguloCobb')}</Text>
                 <View style={styles.cobbRow}>
                   <Text style={styles.cobbValor}>
-                    {ultimoExame.resultado?.angulo_cobb.toFixed(1) ?? '—'}°
+                    {anguloEfetivo(ultimoExame.resultado)?.toFixed(1) ?? '—'}°
                   </Text>
                   {delta && (
                     <Text style={[styles.cobbDelta, { color: deltaCor() }]}>{delta}</Text>
                   )}
                 </View>
-                {ultimoExame.resultado && (
+                {anguloEfetivo(ultimoExame.resultado) != null && (
                   <Text style={styles.bandaSeveridade}>
-                    {bandaSeveridade(ultimoExame.resultado.angulo_cobb)}
+                    {bandaSeveridade(anguloEfetivo(ultimoExame.resultado)!)}
                   </Text>
                 )}
 

@@ -28,6 +28,7 @@ import {
 import { useAuth } from '../../../src/context/AuthContext';
 import { getEstudosDoPaciente, getUrlImagemEstudo } from '../../../src/data/repository/estudos';
 import { EstudoComResultado, EstadoEstudo } from '../../../src/data/types';
+import { grauPorAngulo } from '../../../src/data/severidade';
 import { i18n, useTranslation } from '../../../src/i18n';
 import { localeDeData } from '../../../src/i18n/dateLocale';
 
@@ -65,14 +66,15 @@ function estadoInfo(estado: EstadoEstudo): BadgeInfo {
   }
 }
 
-function classifInfo(grau: string | null | undefined): BadgeInfo | null {
-  if (!grau) return null;
-  switch (grau.toUpperCase()) {
+// Classification is derived from the effective angle (corrected ?? ML), not from
+// the stored `grau_curvatura`, which goes stale after a doctor corrects the angle.
+function classifInfo(angulo: number | null | undefined): BadgeInfo | null {
+  if (angulo == null) return null;
+  switch (grauPorAngulo(angulo)) {
     case 'NORMAL':   return { label: i18n.t('compararExames.classNormal'),   cor: '#1D9E75', bgCor: '#DCFCE7' };
     case 'LEVE':     return { label: i18n.t('compararExames.classLeve'),     cor: '#D97706', bgCor: '#FEF3C7' };
     case 'MODERADA': return { label: i18n.t('compararExames.classModerada'), cor: '#E8843C', bgCor: '#FEF0E7' };
     case 'GRAVE':    return { label: i18n.t('compararExames.classGrave'),    cor: '#EF4444', bgCor: '#FEE2E2' };
-    default:         return null;
   }
 }
 
@@ -465,8 +467,8 @@ export default function CompararExamesScreen() {
 
             {/* Linha: Classificação */}
             {(() => {
-              const cA = classifInfo(estudoA.resultado?.grau_curvatura);
-              const cB = classifInfo(estudoB.resultado?.grau_curvatura);
+              const cA = classifInfo(anguloEfetivo(estudoA));
+              const cB = classifInfo(anguloEfetivo(estudoB));
               return (
                 <View style={styles.metricaLinha}>
                   <Text style={styles.metricaLinhaLabel}>{t('compararExames.classificacao')}</Text>

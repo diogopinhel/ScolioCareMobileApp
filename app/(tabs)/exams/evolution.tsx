@@ -25,6 +25,7 @@ import Svg, { Path, Polyline, Circle, Line, Text as SvgText, G } from 'react-nat
 import { useAuth } from '../../../src/context/AuthContext';
 import { getEstudosDoPaciente } from '../../../src/data/repository/estudos';
 import { EstudoComResultado } from '../../../src/data/types';
+import { anguloEfetivo } from '../../../src/data/severidade';
 import { i18n, useTranslation } from '../../../src/i18n';
 import { localeDeData } from '../../../src/i18n/dateLocale';
 
@@ -82,7 +83,7 @@ function GraficoEvolucao({ dados, selecionado, onPress, chartWidth }: GraficoPro
     );
   }
 
-  const valores = dados.map((e) => e.resultado!.angulo_cobb);
+  const valores = dados.map((e) => anguloEfetivo(e.resultado)!);
   const rawMin = Math.min(...valores);
   const rawMax = Math.max(...valores);
   const range = rawMax - rawMin;
@@ -105,13 +106,13 @@ function GraficoEvolucao({ dados, selecionado, onPress, chartWidth }: GraficoPro
     .filter((v, i, arr) => arr.indexOf(v) === i);
 
   const linhaPoints = dados
-    .map((e, i) => `${xPx(i)},${yPx(e.resultado!.angulo_cobb)}`)
+    .map((e, i) => `${xPx(i)},${yPx(anguloEfetivo(e.resultado)!)}`)
     .join(' ');
 
   const areaPath =
     dados.length >= 2
       ? `M ${xPx(0)},${H - PAD_B} ` +
-        dados.map((e, i) => `L ${xPx(i)},${yPx(e.resultado!.angulo_cobb)}`).join(' ') +
+        dados.map((e, i) => `L ${xPx(i)},${yPx(anguloEfetivo(e.resultado)!)}`).join(' ') +
         ` L ${xPx(dados.length - 1)},${H - PAD_B} Z`
       : '';
 
@@ -174,7 +175,7 @@ function GraficoEvolucao({ dados, selecionado, onPress, chartWidth }: GraficoPro
       {dados.map((e, i) => {
         const sel = selecionado?.id === e.id;
         const cx = xPx(i);
-        const cy = yPx(e.resultado!.angulo_cobb);
+        const cy = yPx(anguloEfetivo(e.resultado)!);
         return (
           <G key={e.id}>
             {/* Large transparent touch target */}
@@ -198,7 +199,7 @@ function GraficoEvolucao({ dados, selecionado, onPress, chartWidth }: GraficoPro
                 fill="#1A6FAF"
                 textAnchor="middle"
               >
-                {e.resultado!.angulo_cobb.toFixed(1)}°
+                {anguloEfetivo(e.resultado)!.toFixed(1)}°
               </SvgText>
             )}
           </G>
@@ -247,7 +248,7 @@ export default function EvolutionScreen() {
 
   const dadosFiltrados = useMemo(() => {
     const comResultado = estudos
-      .filter((e) => e.resultado?.angulo_cobb != null)
+      .filter((e) => e.estado === 'SENT' && anguloEfetivo(e.resultado) != null)
       .slice()
       .sort((a, b) => new Date(a.data_estudo).getTime() - new Date(b.data_estudo).getTime());
 
@@ -379,7 +380,7 @@ export default function EvolutionScreen() {
 
               <Text style={styles.cobbLabel}>{t('evolucao.anguloCobb')}</Text>
               <Text style={styles.cobbValor}>
-                {exameSelecionado.resultado.angulo_cobb.toFixed(1)}°
+                {anguloEfetivo(exameSelecionado.resultado)!.toFixed(1)}°
               </Text>
 
               {(exameSelecionado.resultado.descricao_clinica ||
