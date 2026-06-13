@@ -88,10 +88,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function completarVerificacaoEmail(): Promise<void> {
     const paciente = await authRepo.obterPacienteAtual();
-    if (paciente) {
-      setUtilizador(paciente);
-      aplicarIdioma(paciente);
+    if (!paciente) return;
+
+    try {
+      await authRepo.aplicarPerfilPendente(paciente.id);
+    } catch {
+      // Falha silenciosa — o utilizador entra na app mas o perfil pode estar incompleto
     }
+
+    const pacienteAtualizado = await authRepo.obterPacienteAtual();
+    const p = pacienteAtualizado ?? paciente;
+    setUtilizador(p);
+    aplicarIdioma(p);
   }
 
   async function refreshUtilizador(): Promise<void> {

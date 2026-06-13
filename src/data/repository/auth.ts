@@ -1,6 +1,9 @@
 import * as Linking from 'expo-linking';
+import * as SecureStore from 'expo-secure-store';
 import { supabase } from '../../lib/supabase';
 import { Paciente } from '../types';
+
+const PENDING_PROFILE_KEY = 'pending_profile';
 
 export interface DadosRegisto {
   email: string;
@@ -127,32 +130,58 @@ export async function registar(dados: DadosRegisto): Promise<{ needsEmailConfirm
   if (error) throw error;
   if (!data.user) throw new Error('Erro ao criar conta.');
 
+  const perfilCompleto = {
+    nome_completo: dados.nomeCompleto,
+    perfil: 'PACIENTE',
+    ativo: true,
+    conta_ativada: false,
+    conta_bloqueada: false,
+    two_factor_ativo: false,
+    idioma: 'pt-PT',
+    contacto: dados.contacto,
+    data_nascimento: dados.dataNascimento,
+    genero: dados.genero,
+    numero_utente: dados.numeroUtente ?? null,
+    morada: dados.morada,
+    cartao_cidadao: dados.cartaoCidadao,
+  };
+
   // O trigger handle_new_user já criou a row em utilizadores (apenas id, nome_completo, perfil).
-  // Se há sessão ativa, actualizamos com os campos demográficos via UPDATE (não INSERT).
+  // Actualizamos com os campos demográficos via UPDATE (não INSERT).
   if (data.session) {
     const { error: profileError } = await supabase
       .from('utilizadores')
-      .update({
-        nome_completo: dados.nomeCompleto,
-        perfil: 'PACIENTE',
-        ativo: true,
-        conta_ativada: false,
-        conta_bloqueada: false,
-        two_factor_ativo: false,
-        idioma: 'pt-PT',
-        contacto: dados.contacto,
-        data_nascimento: dados.dataNascimento,
-        genero: dados.genero,
-        numero_utente: dados.numeroUtente ?? null,
-        morada: dados.morada,
-        cartao_cidadao: dados.cartaoCidadao,
-      })
+      .update(perfilCompleto)
       .eq('id', data.user.id);
     if (profileError) throw profileError;
     return { needsEmailConfirmation: false };
   }
 
+  // Sem sessão imediata (confirmação de email obrigatória): guardar dados
+  // no SecureStore para aplicar quando o utilizador confirmar o email.
+  await SecureStore.setItemAsync(
+    PENDING_PROFILE_KEY,
+    JSON.stringify({ userId: data.user.id, ...perfilCompleto }),
+  );
   return { needsEmailConfirmation: true };
+}
+
+export async function aplicarPerfilPendente(userId: string): Promise<void> {
+  const raw = await SecureStore.getItemAsync(PENDING_PROFILE_KEY);
+  if (!raw) return;
+
+  const { userId: pendingId, ...perfilData } = JSON.parse(raw) as { userId: string; [key: string]: unknown };
+  if (pendingId !== userId) {
+    await SecureStore.deleteItemAsync(PENDING_PROFILE_KEY);
+    return;
+  }
+
+  const { error } = await supabase
+    .from('utilizadores')
+    .update(perfilData)
+    .eq('id', userId);
+  if (error) throw error;
+  await SecureStore.deleteItemAsync(PENDING_PROFILE_KEY);
 }
 
 export async function logout(): Promise<void> {
