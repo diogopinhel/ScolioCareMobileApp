@@ -232,10 +232,7 @@ export async function ativarDoisFatoresAtual(): Promise<void> {
 }
 
 export async function enviarEmailRecuperacaoPassword(email: string): Promise<void> {
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: { shouldCreateUser: false },
-  });
+  const { error } = await supabase.auth.resetPasswordForEmail(email);
   if (error) throw error;
 }
 
@@ -247,7 +244,7 @@ export async function definirNovaPassword(
   const { error: verifyError } = await supabase.auth.verifyOtp({
     email,
     token,
-    type: 'email',
+    type: 'recovery',
   });
   if (verifyError) throw verifyError;
 
