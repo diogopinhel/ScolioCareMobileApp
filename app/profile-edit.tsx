@@ -9,14 +9,12 @@ import {
   Platform,
   ActivityIndicator,
   Alert,
-  Image,
   StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import {
   ChevronLeft,
-  Camera,
   User,
   CalendarDays,
   Users,
@@ -28,12 +26,10 @@ import {
   Lock,
   ChevronDown,
 } from 'lucide-react-native';
-import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../src/context/AuthContext';
 import {
   getEmailDoPaciente,
   atualizarPerfilPaciente,
-  atualizarFotoPerfil,
 } from '../src/data/repository/perfil';
 import { useTranslation } from '../src/i18n';
 
@@ -119,33 +115,12 @@ export default function ProfileEditScreen() {
   const [contacto, setContacto] = useState(utilizador?.contacto ?? '');
   const [morada, setMorada] = useState(utilizador?.morada ?? '');
   const [email, setEmail] = useState<string | null>(null);
-  const [novaFoto, setNovaFoto] = useState<string | null>(null);
   const [aCarregar, setACarregar] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
     getEmailDoPaciente().then(setEmail);
   }, []);
-
-  async function selecionarFoto() {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert(
-        t('perfilEdit.permissaoTitulo'),
-        t('perfilEdit.permissaoMensagem'),
-      );
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-    if (!result.canceled) {
-      setNovaFoto(result.assets[0].uri);
-    }
-  }
 
   async function guardar() {
     if (!utilizador) return;
@@ -167,9 +142,6 @@ export default function ProfileEditScreen() {
 
     setACarregar(true);
     try {
-      if (novaFoto) {
-        await atualizarFotoPerfil(utilizador.id, novaFoto);
-      }
       await atualizarPerfilPaciente(utilizador.id, {
         nome_completo: nome.trim(),
         data_nascimento: dataNasc ? dataParaIso(dataNasc) : null,
@@ -185,8 +157,6 @@ export default function ProfileEditScreen() {
       setACarregar(false);
     }
   }
-
-  const fotoAtual = novaFoto ?? utilizador?.foto_url ?? null;
 
   return (
     <SafeAreaView style={s.safe} edges={['top']}>
@@ -213,23 +183,13 @@ export default function ProfileEditScreen() {
               <View style={{ width: 40 }} />
             </View>
 
-            <TouchableOpacity style={s.avatarWrap} onPress={selecionarFoto} activeOpacity={0.8}>
-              <View style={s.avatarContainer}>
-                <View style={s.avatarCirculo}>
-                  {fotoAtual ? (
-                    <Image source={{ uri: fotoAtual }} style={s.avatarImagem} resizeMode="cover" />
-                  ) : (
-                    <Text style={s.avatarTxt}>
-                      {iniciaisNome(utilizador?.nome_completo ?? '??')}
-                    </Text>
-                  )}
-                </View>
-                <View style={s.cameraBadge}>
-                  <Camera size={14} color="#1A6FAF" />
-                </View>
+            <View style={s.avatarWrap}>
+              <View style={s.avatarCirculo}>
+                <Text style={s.avatarTxt}>
+                  {iniciaisNome(utilizador?.nome_completo ?? '??')}
+                </Text>
               </View>
-              <Text style={s.fotoHint}>{t('perfilEdit.tocarAlterarFoto')}</Text>
-            </TouchableOpacity>
+            </View>
           </View>
 
           {/* ── Conteúdo ─────────────────────────────────── */}
@@ -454,7 +414,6 @@ const s = StyleSheet.create({
   headerTitulo: { fontSize: 17, fontWeight: '700', color: '#FFFFFF' },
 
   avatarWrap: { alignItems: 'center', marginTop: 8 },
-  avatarContainer: { width: 90, height: 90 },
   avatarCirculo: {
     width: 90,
     height: 90,
@@ -464,28 +423,8 @@ const s = StyleSheet.create({
     backgroundColor: '#2C7CBD',
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden',
   },
-  avatarImagem: { width: 90, height: 90 },
   avatarTxt: { color: '#FFFFFF', fontSize: 30, fontWeight: '800' },
-  cameraBadge: {
-    position: 'absolute',
-    bottom: 2,
-    right: 2,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#1A6FAF',
-  },
-  fotoHint: {
-    color: 'rgba(255,255,255,0.75)',
-    fontSize: 12,
-    marginTop: 10,
-  },
 
   // ── Conteúdo ─────────────────────────────────────────────────────────────────
   conteudo: {

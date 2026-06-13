@@ -19,7 +19,7 @@ const pt = {
 
   auth: {
     login: {
-      appName: 'ScolioScan',
+      appName: 'ScolioCare',
       tagline: 'Portal do Paciente',
       titulo: 'Bem-vindo de volta',
       subtitulo: 'Inicie sessão para aceder aos seus dados',
@@ -395,9 +395,7 @@ const pt = {
     seccaoMeusDados: 'OS MEUS DADOS',
     seccaoDadosClinicos: 'DADOS CLÍNICOS',
     seccaoSeguranca: 'SEGURANÇA',
-    seccaoPreferencias: 'PREFERÊNCIAS',
-    seccaoPrivacidade: 'PRIVACIDADE E CONSENTIMENTOS',
-    seccaoAcerca: 'ACERCA',
+    seccaoDefinicoes: 'DEFINIÇÕES',
     // os meus dados
     nomeCompleto: 'Nome completo',
     dataNascimento: 'Data de nascimento',
@@ -414,30 +412,14 @@ const pt = {
     doisFatores: 'Autenticação dois fatores',
     doisFatoresDesc: 'Código por email em cada acesso',
     recomendado: 'Recomendado',
-    sessoesAtivas: 'Sessões ativas',
-    sessoesAtivasDesc: 'Gerir dispositivos com sessão iniciada',
-    // preferências
+    // definições
     idioma: 'Idioma',
-    idiomaEscolher: 'Escolher idioma',
-    notificacoesPush: 'Notificações push',
-    notificacoesPushDesc: 'Brevemente disponível',
-    notificacoesPushEmBreve: 'As notificações push estarão disponíveis numa próxima versão.',
-    registoBemEstar: 'Registo de bem-estar',
-    diario: 'Diário',
-    // privacidade
-    treinoIa: 'Treino de IA',
-    treinoIaDesc: 'Dados clínicos anonimizados para melhorar a IA',
-    // acerca
     versaoApp: 'Versão da app',
     politicaPrivacidade: 'Política de privacidade',
     termosCondicoes: 'Termos e condições',
     // logout
     terminarSessao: 'Terminar sessão',
     // alerts / erros
-    emBreveTitulo: 'Em breve',
-    alterarPasswordEmBreve: 'Esta funcionalidade estará disponível numa próxima versão.',
-    sessoesEmBreve: 'A gestão de sessões estará disponível numa próxima versão.',
-    bemEstarEmBreve: 'Configuração do registo de bem-estar disponível numa próxima versão.',
     politicaEmBreve: 'A política de privacidade estará disponível em breve.',
     termosEmBreve: 'Os termos e condições estarão disponíveis em breve.',
     desativar2FATitulo: 'Desativar autenticação de dois fatores',
@@ -446,13 +428,12 @@ const pt = {
     desativar: 'Desativar',
     terminarSessaoTitulo: 'Terminar sessão',
     terminarSessaoMensagem: 'Tem a certeza que pretende terminar a sessão?',
-    erroConsentimento: 'Não foi possível actualizar o consentimento. Tente novamente.',
     erroEnviarCodigo: 'Não foi possível enviar o código de verificação. Tente novamente.',
     erroDesativar2FA: 'Não foi possível desativar a autenticação. Tente novamente.',
     erroLogout: 'Não foi possível terminar a sessão. Tente novamente.',
     // diálogo de escolha de idioma
     idiomaTitulo: 'Idioma',
-    idiomaMensagem: 'Escolha o idioma da aplicação.',
+    idiomaMensagem: 'Escolha o idioma da aplicação',
     erroGuardarIdioma: 'Não foi possível alterar o idioma. Tente novamente.',
   },
 

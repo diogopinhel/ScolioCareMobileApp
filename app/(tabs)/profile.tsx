@@ -9,6 +9,7 @@ import {
   Alert,
   ActivityIndicator,
   Image,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -21,12 +22,12 @@ import {
   Lock,
   ShieldCheck,
   Languages,
-  Bell,
-  Brain,
   Info,
   FileText,
   ScrollText,
   Stethoscope,
+  X,
+  Check,
 } from 'lucide-react-native';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
@@ -35,11 +36,7 @@ import { useAuth } from '../../src/context/AuthContext';
 import {
   getEmailDoPaciente,
   getMedicoResponsavel,
-  getConsentimentoTreino,
-  darConsentimentoTreino,
-  revogarConsentimentoTreino,
   atualizarIdioma,
-  ConsentimentoTreino,
 } from '../../src/data/repository/perfil';
 import { MedicoResponsavel } from '../../src/data/types';
 import { i18n, useTranslation } from '../../src/i18n';
@@ -190,6 +187,76 @@ function LinhaToggle({
   );
 }
 
+// ─── Seletor de idioma ────────────────────────────────────────────────────────
+
+const IDIOMAS: { codigo: 'pt-PT' | 'en'; badge: string; nome: string }[] = [
+  { codigo: 'pt-PT', badge: 'PT', nome: 'Português' },
+  { codigo: 'en', badge: 'EN', nome: 'English' },
+];
+
+function ModalSelecionarIdioma({
+  visivel,
+  idiomaAtual,
+  onSelecionar,
+  onFechar,
+}: {
+  visivel: boolean;
+  idiomaAtual: string;
+  onSelecionar: (idioma: 'pt-PT' | 'en') => void;
+  onFechar: () => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <Modal visible={visivel} transparent animationType="slide" onRequestClose={onFechar}>
+      <TouchableOpacity style={estilosModal.overlay} activeOpacity={1} onPress={onFechar} />
+      <View style={estilosModal.sheet}>
+        <View style={estilosModal.handle} />
+        <View style={estilosModal.cabecalho}>
+          <View style={{ flex: 1 }}>
+            <Text style={estilosModal.titulo}>{t('perfil.idiomaTitulo')}</Text>
+            <Text style={estilosModal.subtitulo}>{t('perfil.idiomaMensagem')}</Text>
+          </View>
+          <TouchableOpacity onPress={onFechar} style={estilosModal.btnFechar} activeOpacity={0.7}>
+            <X size={18} color="#6B7280" />
+          </TouchableOpacity>
+        </View>
+        <View style={estilosModal.lista}>
+          {IDIOMAS.map((idioma) => {
+            const selecionado =
+              idiomaAtual === idioma.codigo ||
+              (idioma.codigo === 'pt-PT' && idiomaAtual === 'pt');
+            return (
+              <TouchableOpacity
+                key={idioma.codigo}
+                style={[estilosModal.opcao, selecionado && estilosModal.opcaoSelecionada]}
+                onPress={() => onSelecionar(idioma.codigo)}
+                activeOpacity={0.7}
+              >
+                <View style={[estilosModal.badge, selecionado && estilosModal.badgeSelecionado]}>
+                  <Text style={[estilosModal.badgeTxt, selecionado && estilosModal.badgeTxtSelecionado]}>
+                    {idioma.badge}
+                  </Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[estilosModal.opcaoNome, selecionado && estilosModal.opcaoNomeSelecionado]}>
+                    {idioma.nome}
+                  </Text>
+                </View>
+                <View style={[estilosModal.radio, selecionado && estilosModal.radioSelecionado]}>
+                  {selecionado && <Check size={12} color="#FFFFFF" strokeWidth={3} />}
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        <TouchableOpacity style={estilosModal.btnCancelar} onPress={onFechar} activeOpacity={0.7}>
+          <Text style={estilosModal.btnCancelarTxt}>{t('perfil.cancelar')}</Text>
+        </TouchableOpacity>
+      </View>
+    </Modal>
+  );
+}
+
 // ─── Ecrã principal ──────────────────────────────────────────────────────────
 
 export default function ProfileScreen() {
@@ -198,24 +265,22 @@ export default function ProfileScreen() {
 
   const [email, setEmail] = useState<string | null>(null);
   const [medico, setMedico] = useState<MedicoResponsavel | null>(null);
-  const [consentimento, setConsentimento] = useState<ConsentimentoTreino | null>(null);
   const [aCarregar, setACarregar] = useState(true);
   const [hasDismissed2FA, setHasDismissed2FA] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [aGuardar, setAGuardar] = useState(false);
+  const [modalIdiomaVisivel, setModalIdiomaVisivel] = useState(false);
 
   const carregar = useCallback(async () => {
     if (!utilizador) return;
     try {
-      const [e, m, c, dismissed] = await Promise.all([
+      const [e, m, dismissed] = await Promise.all([
         getEmailDoPaciente(),
         getMedicoResponsavel(utilizador.id),
-        getConsentimentoTreino(utilizador.id),
         SecureStore.getItemAsync('hasDismissed2FASuggestion'),
       ]);
       setEmail(e);
       setMedico(m);
-      setConsentimento(c);
       setHasDismissed2FA(dismissed === 'true');
     } finally {
       setACarregar(false);
@@ -224,43 +289,13 @@ export default function ProfileScreen() {
 
   useEffect(() => { carregar(); }, [carregar]);
 
-  const treino_ia_ativo =
-    consentimento !== null && consentimento.data_revogacao === null;
-
-  async function toggleTreinoIa(ativo: boolean) {
-    if (!utilizador) return;
-    setErro(null);
-    setAGuardar(true);
-    try {
-      if (ativo) {
-        await darConsentimentoTreino(utilizador.id);
-        await carregar();
-      } else if (consentimento) {
-        await revogarConsentimentoTreino(consentimento.id);
-        setConsentimento({ ...consentimento, data_revogacao: new Date().toISOString() });
-      }
-    } catch {
-      setErro(t('perfil.erroConsentimento'));
-    } finally {
-      setAGuardar(false);
-    }
-  }
-
-  async function escolherIdioma() {
-    if (!utilizador) return;
-    Alert.alert(
-      t('perfil.idiomaTitulo'),
-      t('perfil.idiomaMensagem'),
-      [
-        { text: 'Português', onPress: () => guardarIdioma('pt-PT') },
-        { text: 'English', onPress: () => guardarIdioma('en') },
-        { text: t('perfil.cancelar'), style: 'cancel' },
-      ],
-    );
+  function escolherIdioma() {
+    setModalIdiomaVisivel(true);
   }
 
   async function guardarIdioma(idioma: 'pt-PT' | 'en') {
     if (!utilizador) return;
+    setModalIdiomaVisivel(false);
     setErro(null);
     try {
       await atualizarIdioma(utilizador.id, idioma);
@@ -479,8 +514,8 @@ export default function ProfileScreen() {
           />
         </View>
 
-        {/* ── PREFERÊNCIAS ─────────────────────────────── */}
-        <Text style={styles.seccaoTitulo}>{t('perfil.seccaoPreferencias')}</Text>
+        {/* ── DEFINIÇÕES ───────────────────────────────── */}
+        <Text style={styles.seccaoTitulo}>{t('perfil.seccaoDefinicoes')}</Text>
         <View style={styles.card}>
           <LinhaAcao
             icone={<Languages size={18} color="#1A6FAF" />}
@@ -489,36 +524,6 @@ export default function ProfileScreen() {
             onPress={escolherIdioma}
           />
           <View style={styles.separador} />
-          <LinhaAcao
-            icone={<Bell size={18} color="#F59E0B" />}
-            fundoIcone="#FEF3C7"
-            label={t('perfil.notificacoesPush')}
-            descricao={t('perfil.notificacoesPushDesc')}
-            onPress={() =>
-              Alert.alert(
-                t('perfil.notificacoesPush'),
-                t('perfil.notificacoesPushEmBreve'),
-              )
-            }
-          />
-        </View>
-
-        {/* ── PRIVACIDADE E CONSENTIMENTOS ─────────────── */}
-        <Text style={styles.seccaoTitulo}>{t('perfil.seccaoPrivacidade')}</Text>
-        <View style={styles.card}>
-          <LinhaToggle
-            icone={<Brain size={18} color="#1A6FAF" />}
-            label={t('perfil.treinoIa')}
-            descricao={t('perfil.treinoIaDesc')}
-            valor={treino_ia_ativo}
-            onChange={toggleTreinoIa}
-            carregando={aGuardar}
-          />
-        </View>
-
-        {/* ── ACERCA ───────────────────────────────────── */}
-        <Text style={styles.seccaoTitulo}>{t('perfil.seccaoAcerca')}</Text>
-        <View style={styles.card}>
           <View style={styles.linha}>
             <CaixaIcone icone={<Info size={18} color="#1A6FAF" />} fundo="#EFF6FF" />
             <Text style={[styles.linhaLabel, { flex: 1 }]}>{t('perfil.versaoApp')}</Text>
@@ -544,6 +549,13 @@ export default function ProfileScreen() {
           <Text style={styles.btnLogoutTxt}>{t('perfil.terminarSessao')}</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <ModalSelecionarIdioma
+        visivel={modalIdiomaVisivel}
+        idiomaAtual={utilizador?.idioma ?? 'pt-PT'}
+        onSelecionar={guardarIdioma}
+        onFechar={() => setModalIdiomaVisivel(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -725,4 +737,124 @@ const styles = StyleSheet.create({
     borderColor: '#FECACA',
   },
   btnLogoutTxt: { color: '#EF4444', fontWeight: '700', fontSize: 15 },
+});
+
+// ─── Estilos do modal de idioma ───────────────────────────────────────────────
+
+const estilosModal = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  sheet: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingBottom: 32,
+  },
+  handle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#E5E7EB',
+    alignSelf: 'center',
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  cabecalho: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 20,
+  },
+  titulo: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A1A2E',
+    marginBottom: 4,
+  },
+  subtitulo: {
+    fontSize: 13,
+    color: '#6B7280',
+  },
+  btnFechar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 12,
+    marginTop: 2,
+  },
+  lista: {
+    paddingHorizontal: 16,
+    gap: 10,
+  },
+  opcao: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    gap: 14,
+  },
+  opcaoSelecionada: {
+    borderColor: '#1A6FAF',
+    backgroundColor: '#EFF6FF',
+  },
+  badge: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeSelecionado: {
+    backgroundColor: '#1A6FAF',
+  },
+  badgeTxt: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#6B7280',
+  },
+  badgeTxtSelecionado: {
+    color: '#FFFFFF',
+  },
+  opcaoNome: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1A1A2E',
+    marginBottom: 2,
+  },
+  opcaoNomeSelecionado: {
+    color: '#1A6FAF',
+  },
+  radio: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  radioSelecionado: {
+    backgroundColor: '#1A6FAF',
+    borderColor: '#1A6FAF',
+  },
+  btnCancelar: {
+    marginTop: 20,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  btnCancelarTxt: {
+    fontSize: 15,
+    color: '#6B7280',
+    fontWeight: '500',
+  },
 });
