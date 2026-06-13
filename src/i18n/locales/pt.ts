@@ -118,18 +118,19 @@ const pt = {
 
     emailVerification: {
       headerTitulo: 'Confirmar email',
-      aVerificar: 'A verificar o email…',
-      titulo: 'Verifica o teu email',
+      titulo: 'Introduz o código',
       subtitulo:
-        'Enviámos um link de confirmação para o endereço abaixo. Clica no link para ativar a tua conta.',
-      reenviadoSucesso: 'Email reenviado com sucesso!',
-      erroReenvio: 'Não foi possível reenviar o email. Tente novamente.',
-      reenviarEmail: 'Reenviar email',
-      reenviarEmailCooldown: 'Reenviar email ({{segundos}}s)',
-      jaConfirmastePergunta: 'Já confirmaste o email? ',
-      jaConfirmasteLink: 'Clica aqui',
+        'Enviámos um código de 6 dígitos para o endereço abaixo. Introduz o código para ativar a tua conta.',
+      confirmar: 'Confirmar email',
+      naoRecebeuPergunta: 'Não recebeu o código? ',
+      reenviarEmail: 'Reenviar código',
+      reenviarEmailCooldown: 'Reenviar código ({{segundos}}s)',
+      reenviadoSucesso: 'Código reenviado com sucesso!',
+      erroReenvio: 'Não foi possível reenviar o código. Tente novamente.',
+      erroCodigoIncompleto: 'Introduz os 6 dígitos do código.',
+      erroInvalido: 'Código inválido ou expirado.',
+      erroGenerico: 'Ocorreu um erro. Tente novamente.',
       dicaSpam: 'Não encontras o email? Verifica a pasta de spam ou lixo eletrónico.',
-      expiraEm: 'O link expira em ',
     },
 
     emailConfirmed: {

@@ -1,9 +1,9 @@
-import * as Linking from 'expo-linking';
 import * as SecureStore from 'expo-secure-store';
 import { supabase } from '../../lib/supabase';
 import { Paciente } from '../types';
 
 const PENDING_PROFILE_KEY = 'pending_profile';
+const EMAIL_REDIRECT_URL = 'scoliocareapp://email-confirmed';
 
 export interface DadosRegisto {
   email: string;
@@ -114,7 +114,7 @@ export async function registar(dados: DadosRegisto): Promise<{ needsEmailConfirm
     email: dados.email,
     password: dados.password,
     options: {
-      emailRedirectTo: Linking.createURL('email-confirmed'),
+      emailRedirectTo: EMAIL_REDIRECT_URL,
       data: {
         nome_completo: dados.nomeCompleto,
         data_nascimento: dados.dataNascimento,
@@ -206,6 +206,15 @@ export async function reenviarEmailVerificacao(email: string): Promise<void> {
 export async function verificarTokenEmail(tokenHash: string): Promise<void> {
   const { error } = await supabase.auth.verifyOtp({
     token_hash: tokenHash,
+    type: 'signup',
+  });
+  if (error) throw error;
+}
+
+export async function verificarOtpRegistar(email: string, token: string): Promise<void> {
+  const { error } = await supabase.auth.verifyOtp({
+    email,
+    token,
     type: 'signup',
   });
   if (error) throw error;

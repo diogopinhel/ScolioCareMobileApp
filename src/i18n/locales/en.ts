@@ -118,18 +118,19 @@ const en = {
 
     emailVerification: {
       headerTitulo: 'Confirm email',
-      aVerificar: 'Verifying email…',
-      titulo: 'Verify your email',
+      titulo: 'Enter the code',
       subtitulo:
-        'We have sent a confirmation link to the address below. Click the link to activate your account.',
-      reenviadoSucesso: 'Email resent successfully!',
-      erroReenvio: 'Could not resend the email. Please try again.',
-      reenviarEmail: 'Resend email',
-      reenviarEmailCooldown: 'Resend email ({{segundos}}s)',
-      jaConfirmastePergunta: 'Already confirmed your email? ',
-      jaConfirmasteLink: 'Click here',
+        'We have sent a 6-digit code to the address below. Enter the code to activate your account.',
+      confirmar: 'Confirm email',
+      naoRecebeuPergunta: "Didn't receive the code? ",
+      reenviarEmail: 'Resend code',
+      reenviarEmailCooldown: 'Resend code ({{segundos}}s)',
+      reenviadoSucesso: 'Code resent successfully!',
+      erroReenvio: 'Could not resend the code. Please try again.',
+      erroCodigoIncompleto: 'Enter all 6 digits of the code.',
+      erroInvalido: 'Invalid or expired code.',
+      erroGenerico: 'An error occurred. Please try again.',
       dicaSpam: "Can't find the email? Check your spam or junk folder.",
-      expiraEm: 'The link expires in ',
     },
 
     emailConfirmed: {

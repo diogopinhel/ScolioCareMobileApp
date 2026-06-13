@@ -1,24 +1,20 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
+  TextInput,
   TouchableOpacity,
   StyleSheet,
-  Animated,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
-import * as Linking from 'expo-linking';
-import { Mail, RefreshCw, Lightbulb, CheckCircle } from 'lucide-react-native';
-import {
-  reenviarEmailVerificacao,
-  verificarTokenEmail,
-} from '../../src/data/repository/auth';
+import { Mail, Lightbulb } from 'lucide-react-native';
+import { reenviarEmailVerificacao, verificarOtpRegistar } from '../../src/data/repository/auth';
 import { useTranslation } from '../../src/i18n';
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function mascarEmail(email: string): string {
   const at = email.indexOf('@');
@@ -29,218 +25,229 @@ function mascarEmail(email: string): string {
   return `${visivel}****@${domain}`;
 }
 
-function formatarContagem(segundos: number): string {
-  if (segundos <= 0) return '00:00';
-  const h = Math.floor(segundos / 3600);
-  const m = Math.floor((segundos % 3600) / 60);
-  const s = segundos % 60;
-  if (h > 0) {
-    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-  }
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-}
-
-// ─── Ecrã principal ───────────────────────────────────────────────────────────
-
 export default function EmailVerificationScreen() {
   const { email: emailParam } = useLocalSearchParams<{ email: string }>();
   const email = emailParam ?? '';
   const { t } = useTranslation();
 
-  const [aReenviar, setAReenviar] = useState(false);
+  const [digitos, setDigitos] = useState(['', '', '', '', '', '']);
   const [aVerificar, setAVerificar] = useState(false);
-  const [erroReenvio, setErroReenvio] = useState<string | null>(null);
-  const [reenviadoSucesso, setReenviadoSucesso] = useState(false);
+  const [aReenviar, setAReenviar] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
   const [cooldown, setCooldown] = useState(0);
-  const [segundosRestantes, setSegundosRestantes] = useState(24 * 60 * 60);
+  const [reenviadoSucesso, setReenviadoSucesso] = useState(false);
 
-  const larguraAtiva = useRef(new Animated.Value(10)).current;
+  const ref0 = useRef<TextInput>(null);
+  const ref1 = useRef<TextInput>(null);
+  const ref2 = useRef<TextInput>(null);
+  const ref3 = useRef<TextInput>(null);
+  const ref4 = useRef<TextInput>(null);
+  const ref5 = useRef<TextInput>(null);
+  const refs = [ref0, ref1, ref2, ref3, ref4, ref5];
 
-  useEffect(() => {
-    Animated.spring(larguraAtiva, {
-      toValue: 28,
-      useNativeDriver: false,
-      damping: 12,
-      stiffness: 120,
-    }).start();
-  }, [larguraAtiva]);
-
-  // Countdown de 24h
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSegundosRestantes((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Cooldown do botão reenviar
   useEffect(() => {
     if (cooldown <= 0) return;
-    const interval = setInterval(() => {
-      setCooldown((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(interval);
+    const timer = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
   }, [cooldown]);
 
-  const handleUrl = useCallback(
-    async (url: string) => {
-      try {
-        const parsed = Linking.parse(url);
-        const tokenHash =
-          (parsed.queryParams?.token_hash as string | undefined) ??
-          (parsed.queryParams?.token as string | undefined);
-        if (!tokenHash) return;
-        setAVerificar(true);
-        await verificarTokenEmail(tokenHash);
-        router.replace({
-          pathname: '/(auth)/email-confirmed' as never,
-          params: { email },
-        });
-      } catch {
-        setAVerificar(false);
-      }
-    },
-    [email],
-  );
+  function handleChange(i: number, value: string) {
+    const clean = value.replace(/\D/g, '');
+    if (clean.length > 1) {
+      const chars = clean.slice(0, 6).split('');
+      const novos = ['', '', '', '', '', ''];
+      chars.forEach((c, idx) => { novos[idx] = c; });
+      setDigitos(novos);
+      refs[Math.min(chars.length, 5)].current?.focus();
+      return;
+    }
+    const char = clean.slice(-1);
+    const novos = [...digitos];
+    novos[i] = char;
+    setDigitos(novos);
+    setErro(null);
+    if (char && i < 5) refs[i + 1].current?.focus();
+  }
 
-  useEffect(() => {
-    const sub = Linking.addEventListener('url', ({ url }) => handleUrl(url));
-    Linking.getInitialURL().then((url) => {
-      if (url) handleUrl(url);
-    });
-    return () => sub.remove();
-  }, [handleUrl]);
+  function handleKeyPress(i: number, key: string) {
+    if (key === 'Backspace' && !digitos[i] && i > 0) {
+      const novos = [...digitos];
+      novos[i - 1] = '';
+      setDigitos(novos);
+      refs[i - 1].current?.focus();
+    }
+  }
+
+  async function handleConfirmar() {
+    const codigo = digitos.join('');
+    if (codigo.length < 6) {
+      setErro(t('auth.emailVerification.erroCodigoIncompleto'));
+      return;
+    }
+    setErro(null);
+    setAVerificar(true);
+    try {
+      await verificarOtpRegistar(email, codigo);
+      router.replace({
+        pathname: '/(auth)/email-confirmed' as never,
+        params: { email },
+      });
+    } catch (e: any) {
+      const msg: string = e?.message ?? '';
+      if (msg.includes('expired') || msg.includes('Token has expired') || msg.includes('Invalid') || msg.includes('invalid')) {
+        setErro(t('auth.emailVerification.erroInvalido'));
+      } else {
+        setErro(t('auth.emailVerification.erroGenerico'));
+      }
+      setDigitos(['', '', '', '', '', '']);
+      refs[0].current?.focus();
+    } finally {
+      setAVerificar(false);
+    }
+  }
 
   async function handleReenviar() {
     if (cooldown > 0 || aReenviar) return;
-    setErroReenvio(null);
+    setErro(null);
     setReenviadoSucesso(false);
     setAReenviar(true);
     try {
       await reenviarEmailVerificacao(email);
       setReenviadoSucesso(true);
       setCooldown(60);
+      setDigitos(['', '', '', '', '', '']);
+      refs[0].current?.focus();
     } catch {
-      setErroReenvio(t('auth.emailVerification.erroReenvio'));
+      setErro(t('auth.emailVerification.erroReenvio'));
     } finally {
       setAReenviar(false);
     }
   }
 
-  if (aVerificar) {
-    return (
-      <SafeAreaView style={estilos.safe}>
-        <View style={estilos.loadingWrap}>
-          <ActivityIndicator size="large" color="#1A6FAF" />
-          <Text style={estilos.loadingTxt}>{t('auth.emailVerification.aVerificar')}</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  const codigoCompleto = digitos.every((d) => d !== '');
 
   return (
     <SafeAreaView style={estilos.safe} edges={['top']}>
-      {/* Cabeçalho */}
-      <View style={estilos.header}>
-        <Text style={estilos.headerTitulo}>{t('auth.emailVerification.headerTitulo')}</Text>
+      <View style={estilos.headerBar}>
+        <Text style={estilos.headerBarTitulo}>{t('auth.emailVerification.headerTitulo')}</Text>
       </View>
 
-      <ScrollView
-        contentContainerStyle={estilos.scroll}
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        style={estilos.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        {/* Indicador de progresso */}
-        <View style={estilos.progresso}>
-          {[0, 1, 2].map((i) => (
-            <View key={i} style={[estilos.progPonto, estilos.progPontoConcluido]} />
-          ))}
-          <Animated.View style={[estilos.progPilula, { width: larguraAtiva }]} />
-        </View>
-
-        {/* Ícone de email */}
-        <View style={estilos.iconCircle}>
-          <Mail size={38} color="#1A6FAF" />
-        </View>
-
-        <Text style={estilos.titulo}>{t('auth.emailVerification.titulo')}</Text>
-
-        <Text style={estilos.subtitulo}>
-          {t('auth.emailVerification.subtitulo')}
-        </Text>
-
-        {/* Chip com email mascarado */}
-        <View style={estilos.emailChip}>
-          <Text style={estilos.emailChipTxt}>{mascarEmail(email)}</Text>
-        </View>
-
-        {reenviadoSucesso && (
-          <Text style={estilos.feedbackOk}>{t('auth.emailVerification.reenviadoSucesso')}</Text>
-        )}
-        {erroReenvio && (
-          <Text style={estilos.feedbackErro}>{erroReenvio}</Text>
-        )}
-
-        {/* Botão reenviar */}
-        <TouchableOpacity
-          style={[estilos.btnPrimario, (aReenviar || cooldown > 0) && estilos.btnDisabled]}
-          onPress={handleReenviar}
-          disabled={aReenviar || cooldown > 0}
-          activeOpacity={0.85}
+        <ScrollView
+          contentContainerStyle={estilos.scroll}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          {aReenviar ? (
-            <ActivityIndicator color="#FFFFFF" size="small" />
-          ) : (
-            <>
-              <RefreshCw size={16} color="#FFFFFF" />
-              <Text style={estilos.btnPrimarioTxt}>
-                {cooldown > 0 ? t('auth.emailVerification.reenviarEmailCooldown', { segundos: cooldown }) : t('auth.emailVerification.reenviarEmail')}
-              </Text>
-            </>
-          )}
-        </TouchableOpacity>
-
-        {/* Fallback para quando o link não redireciona para a app */}
-        <TouchableOpacity
-          style={estilos.jaConfirmeiRow}
-          onPress={() => router.replace('/(auth)/login' as never)}
-          activeOpacity={0.7}
-        >
-          <CheckCircle size={14} color="#1D9E75" style={{ flexShrink: 0 }} />
-          <Text style={estilos.jaConfirmeiTxt}>{t('auth.emailVerification.jaConfirmastePergunta')}<Text style={estilos.jaConfirmeiLink}>{t('auth.emailVerification.jaConfirmasteLink')}</Text></Text>
-        </TouchableOpacity>
-
-        {/* Dica sobre spam */}
-        <View style={estilos.hintRow}>
-          <View style={estilos.hintIconCircle}>
-            <Lightbulb size={12} color="#F59E0B" />
+          {/* Indicador de progresso */}
+          <View style={estilos.progresso}>
+            {[0, 1, 2].map((i) => (
+              <View key={i} style={[estilos.progPonto, estilos.progPontoConcluido]} />
+            ))}
+            <View style={[estilos.progPonto, estilos.progPontoAtivo]} />
           </View>
-          <Text style={estilos.hintTxt}>
-            {t('auth.emailVerification.dicaSpam')}
-          </Text>
-        </View>
 
-        {/* Contagem regressiva de expiração */}
-        <Text style={estilos.expiraTxt}>
-          {t('auth.emailVerification.expiraEm')}
-          <Text style={{ color: '#1A6FAF' }}>{formatarContagem(segundosRestantes)}</Text>
-        </Text>
-      </ScrollView>
+          {/* Ícone */}
+          <View style={estilos.iconCircle}>
+            <Mail size={38} color="#1A6FAF" />
+          </View>
+
+          <Text style={estilos.titulo}>{t('auth.emailVerification.titulo')}</Text>
+          <Text style={estilos.subtitulo}>{t('auth.emailVerification.subtitulo')}</Text>
+
+          {/* Chip com email mascarado */}
+          <View style={estilos.emailChip}>
+            <Text style={estilos.emailChipTxt}>{mascarEmail(email)}</Text>
+          </View>
+
+          {reenviadoSucesso && !erro && (
+            <Text style={estilos.feedbackOk}>{t('auth.emailVerification.reenviadoSucesso')}</Text>
+          )}
+
+          {/* Caixas OTP */}
+          <View style={estilos.codigoWrap}>
+            {digitos.map((d, i) => (
+              <TextInput
+                key={i}
+                ref={refs[i]}
+                style={[
+                  estilos.caixa,
+                  !!d && estilos.caixaPreenchida,
+                  !!erro && estilos.caixaErro,
+                ]}
+                value={d}
+                onChangeText={(v) => handleChange(i, v)}
+                onKeyPress={({ nativeEvent }) => handleKeyPress(i, nativeEvent.key)}
+                keyboardType="number-pad"
+                maxLength={6}
+                selectTextOnFocus
+                autoFocus={i === 0}
+              />
+            ))}
+          </View>
+
+          {erro && (
+            <View style={estilos.erroWrap}>
+              <Text style={estilos.erroTxt}>{erro}</Text>
+            </View>
+          )}
+
+          {/* Botão confirmar */}
+          <TouchableOpacity
+            style={[estilos.btnPrimario, (!codigoCompleto || aVerificar) && estilos.btnDisabled]}
+            onPress={handleConfirmar}
+            disabled={!codigoCompleto || aVerificar}
+            activeOpacity={0.85}
+          >
+            {aVerificar ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <Text style={estilos.btnPrimarioTxt}>{t('auth.emailVerification.confirmar')}</Text>
+            )}
+          </TouchableOpacity>
+
+          {/* Reenviar */}
+          <View style={estilos.reenviarWrap}>
+            <Text style={estilos.reenviarTxt}>{t('auth.emailVerification.naoRecebeuPergunta')}</Text>
+            <TouchableOpacity
+              onPress={handleReenviar}
+              disabled={cooldown > 0 || aReenviar}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Text style={[estilos.reenviarLink, (cooldown > 0 || aReenviar) && estilos.reenviarDisabled]}>
+                {cooldown > 0
+                  ? t('auth.emailVerification.reenviarEmailCooldown', { segundos: cooldown })
+                  : t('auth.emailVerification.reenviarEmail')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Dica spam */}
+          <View style={estilos.hintRow}>
+            <View style={estilos.hintIconCircle}>
+              <Lightbulb size={12} color="#F59E0B" />
+            </View>
+            <Text style={estilos.hintTxt}>{t('auth.emailVerification.dicaSpam')}</Text>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
-// ─── Estilos ──────────────────────────────────────────────────────────────────
-
 const estilos = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#F8FAFC' },
+  flex: { flex: 1 },
 
-  header: {
+  headerBar: {
     backgroundColor: '#1A6FAF',
     height: 52,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerTitulo: { color: '#FFFFFF', fontSize: 17, fontWeight: '600' },
+  headerBarTitulo: { color: '#FFFFFF', fontSize: 17, fontWeight: '600' },
 
   scroll: {
     flexGrow: 1,
@@ -250,7 +257,6 @@ const estilos = StyleSheet.create({
     paddingBottom: 48,
   },
 
-  // Indicador de progresso
   progresso: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -259,9 +265,8 @@ const estilos = StyleSheet.create({
   },
   progPonto: { width: 10, height: 10, borderRadius: 5 },
   progPontoConcluido: { backgroundColor: '#1D9E75' },
-  progPilula: { height: 10, borderRadius: 5, backgroundColor: '#1A6FAF' },
+  progPontoAtivo: { backgroundColor: '#1A6FAF' },
 
-  // Ícone central
   iconCircle: {
     width: 88,
     height: 88,
@@ -276,21 +281,20 @@ const estilos = StyleSheet.create({
 
   titulo: {
     fontSize: 18,
-    fontWeight: '500',
+    fontWeight: '700',
     color: '#1A1A2E',
     textAlign: 'center',
     marginBottom: 12,
   },
   subtitulo: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#6B7280',
     textAlign: 'center',
-    maxWidth: 260,
-    lineHeight: 18,
+    maxWidth: 280,
+    lineHeight: 19,
     marginBottom: 20,
   },
 
-  // Chip de email
   emailChip: {
     backgroundColor: '#EFF6FF',
     borderWidth: 1,
@@ -298,33 +302,80 @@ const estilos = StyleSheet.create({
     borderRadius: 100,
     paddingVertical: 8,
     paddingHorizontal: 20,
-    marginBottom: 24,
+    marginBottom: 28,
   },
   emailChipTxt: { fontSize: 12, color: '#0C447C', fontWeight: '500' },
 
-  feedbackOk: { fontSize: 12, color: '#1D9E75', marginBottom: 10, textAlign: 'center' },
-  feedbackErro: { fontSize: 12, color: '#EF4444', marginBottom: 10, textAlign: 'center' },
+  feedbackOk: { fontSize: 12, color: '#1D9E75', marginBottom: 12, textAlign: 'center' },
 
-  // Botões
+  codigoWrap: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10,
+    marginBottom: 16,
+  },
+  caixa: {
+    width: 48,
+    height: 58,
+    borderWidth: 2,
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1A1A2E',
+    backgroundColor: '#FFFFFF',
+    textAlign: 'center',
+  },
+  caixaPreenchida: {
+    borderColor: '#1A6FAF',
+    backgroundColor: '#EFF6FF',
+  },
+  caixaErro: {
+    borderColor: '#EF4444',
+    backgroundColor: '#FEF2F2',
+  },
+
+  erroWrap: {
+    backgroundColor: '#FEF2F2',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#FECACA',
+  },
+  erroTxt: { color: '#EF4444', fontSize: 13, textAlign: 'center' },
+
   btnPrimario: {
     backgroundColor: '#1A6FAF',
     borderRadius: 11,
-    height: 46,
+    height: 50,
     width: '100%',
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    marginBottom: 20,
+    shadowColor: '#1A6FAF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  btnPrimarioTxt: { color: '#FFFFFF', fontSize: 15, fontWeight: '600' },
-  btnDisabled: { opacity: 0.6 },
+  btnPrimarioTxt: { color: '#FFFFFF', fontSize: 15, fontWeight: '700' },
+  btnDisabled: { opacity: 0.5 },
 
-  // Dica de spam
+  reenviarWrap: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 28,
+  },
+  reenviarTxt: { fontSize: 14, color: '#6B7280' },
+  reenviarLink: { fontSize: 14, color: '#1A6FAF', fontWeight: '700' },
+  reenviarDisabled: { color: '#9CA3AF' },
+
   hintRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 8,
-    marginTop: 28,
     width: '100%',
   },
   hintIconCircle: {
@@ -337,18 +388,4 @@ const estilos = StyleSheet.create({
     flexShrink: 0,
   },
   hintTxt: { fontSize: 11, color: '#6B7280', flex: 1, lineHeight: 16 },
-
-  jaConfirmeiRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 20,
-  },
-  jaConfirmeiTxt: { fontSize: 13, color: '#1D9E75' },
-  jaConfirmeiLink: { fontSize: 13, color: '#1D9E75', fontWeight: '700' },
-
-  expiraTxt: { fontSize: 11, color: '#9CA3AF', marginTop: 18, textAlign: 'center' },
-
-  loadingWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16 },
-  loadingTxt: { fontSize: 14, color: '#6B7280' },
 });
