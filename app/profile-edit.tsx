@@ -138,7 +138,7 @@ export default function ProfileEditScreen() {
       return setErro(t('perfilEdit.erroTelefoneInvalido'));
     if (!/^\+?[\d\s\-().]+$/.test(contacto.trim()))
       return setErro(t('perfilEdit.erroTelefoneCaracteres'));
-    if (codigoPostal.trim() && !/^\d{4}-\d{3}$/.test(codigoPostal.trim()))
+    if (!/^\d{4}-\d{3}$/.test(codigoPostal.trim()))
       return setErro(t('perfilEdit.erroCodigoPostalInvalido'));
     if (!morada.trim()) return setErro(t('perfilEdit.erroMoradaObrigatoria'));
     if (morada.trim().length < 10) return setErro(t('perfilEdit.erroMoradaMinima'));
@@ -325,7 +325,9 @@ export default function ProfileEditScreen() {
 
               {/* Código Postal */}
               <View style={s.campo}>
-                <Text style={s.campoLabel}>{t('perfilEdit.codigoPostal')}</Text>
+                <Text style={s.campoLabel}>
+                  {t('perfilEdit.codigoPostal')} <Text style={s.obrig}>*</Text>
+                </Text>
                 <View style={s.inputWrap}>
                   <MapPin size={16} color="#9CA3AF" />
                   <TextInput

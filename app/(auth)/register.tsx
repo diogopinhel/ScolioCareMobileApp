@@ -194,7 +194,7 @@ export default function RegisterScreen() {
       return t('auth.register.erroTelefoneInvalido');
     if (!/^\+?[\d\s\-().]+$/.test(contacto.trim()))
       return t('auth.register.erroTelefoneCaracteres');
-    if (codigoPostal.trim() && !validarCodigoPostal(codigoPostal.trim()))
+    if (!validarCodigoPostal(codigoPostal.trim()))
       return t('auth.register.erroCodigoPostalInvalido');
     if (!morada.trim()) return t('auth.register.erroMoradaObrigatoria');
     if (morada.trim().length < 10) return t('auth.register.erroMoradaMinima');
@@ -401,7 +401,7 @@ export default function RegisterScreen() {
                 />
               </Campo>
 
-              <Campo label={t('auth.register.codigoPostalLabel')}>
+              <Campo label={t('auth.register.codigoPostalLabel')} obrigatorio>
                 <TextInput
                   style={styles.input}
                   value={codigoPostal}
