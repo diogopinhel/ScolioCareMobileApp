@@ -145,19 +145,6 @@ export default function Login() {
               <Text style={styles.esqueciLinkTxt}>{t('auth.login.esqueceuPassword')}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.demoBox}
-              onPress={() => {
-                setEmail('maria.silva@scolio.pt');
-                setPassword('paciente123');
-                setErro(null);
-              }}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.demoLabel}>{t('auth.login.credenciaisTeste')}</Text>
-              <Text style={styles.demoCredencial}>maria.silva@scolio.pt</Text>
-              <Text style={styles.demoCredencial}>paciente123</Text>
-            </TouchableOpacity>
           </View>
 
           {/* Criar conta */}
@@ -202,9 +189,10 @@ const styles = StyleSheet.create({
 
   header: { alignItems: 'center', paddingTop: 48, paddingBottom: 32 },
   logoImage: {
-    width: 80,
-    height: 80,
-    marginBottom: 12,
+    width: 110,
+    height: 110,
+    marginBottom: 4,
+    backgroundColor: 'transparent',
   },
   appName: { fontSize: 22, fontWeight: '700', color: '#1A1A2E', marginBottom: 4 },
   tagline: { fontSize: 14, color: '#6B7280' },
@@ -273,26 +261,6 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: { opacity: 0.65 },
   buttonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
-
-  demoBox: {
-    marginTop: 16,
-    borderWidth: 1.5,
-    borderColor: '#BFDBFE',
-    borderStyle: 'dashed',
-    borderRadius: 10,
-    padding: 12,
-    alignItems: 'center',
-    backgroundColor: '#EFF6FF',
-  },
-  demoLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#1A6FAF',
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    marginBottom: 4,
-  },
-  demoCredencial: { fontSize: 13, color: '#374151', lineHeight: 20 },
 
   criarContaWrap: {
     flexDirection: 'row',
