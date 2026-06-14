@@ -90,7 +90,7 @@ export default function TwoFactorVerifyScreen() {
         );
       } else {
         await verificar2FA(email, codigo);
-        // NavigationGuard handles redirect to /(tabs)/home once estaAutenticado = true
+        router.replace('/(tabs)/home');
       }
     } catch (e: any) {
       setErro(traduzirErro(e?.message ?? '', t));
