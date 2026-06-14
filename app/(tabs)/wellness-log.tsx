@@ -375,7 +375,10 @@ export default function WellnessLogScreen() {
             </View>
             <View style={styles.barraLabels}>
               <Text style={styles.barraLabelTxt}>{t('wellness.semDor')}</Text>
-              <Text style={styles.barraLabelTxt}>{t('wellness.dorIntensa')}</Text>
+              <View style={styles.barraLabelDirRow}>
+                <AlertCircle size={12} color="#EF4444" />
+                <Text style={styles.barraLabelTxt}>{t('wellness.dorIntensa')}</Text>
+              </View>
             </View>
 
             <View style={styles.separador} />
@@ -457,7 +460,10 @@ export default function WellnessLogScreen() {
           </View>
           <View style={styles.barraLabels}>
             <Text style={styles.barraLabelTxt}>{t('wellness.semDor')}</Text>
-            <Text style={styles.barraLabelTxt}>{t('wellness.dorIntensa')}</Text>
+            <View style={styles.barraLabelDirRow}>
+              <AlertCircle size={12} color="#EF4444" />
+              <Text style={styles.barraLabelTxt}>{t('wellness.dorIntensa')}</Text>
+            </View>
           </View>
         </View>
 
@@ -607,8 +613,9 @@ const styles = StyleSheet.create({
 
   barraContainer: { flexDirection: 'row', gap: 4, marginBottom: 6 },
   barraSeg: { flex: 1, height: 8, borderRadius: 4, backgroundColor: '#E5E7EB' },
-  barraLabels: { flexDirection: 'row', justifyContent: 'space-between' },
+  barraLabels: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   barraLabelTxt: { fontSize: 11, color: '#9CA3AF' },
+  barraLabelDirRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
 
   separador: { height: 1, backgroundColor: '#F3F4F6', marginVertical: 12 },
 
