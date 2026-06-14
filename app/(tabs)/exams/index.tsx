@@ -78,7 +78,8 @@ function ExameCard({ estudo, deltaAngulo, urlImagem, onPress }: CardProps) {
   const { t } = useTranslation();
   const info = estadoInfo(estudo.estado);
   const enviado = estudo.estado === 'SENT';
-  const angulo = enviado ? estudo.resultado?.angulo_cobb : null;
+  const res = estudo.resultado;
+  const angulo = enviado ? (res?.angulo_cobb_corrigido ?? res?.angulo_cobb ?? null) : null;
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
@@ -260,11 +261,11 @@ export default function ExamsScreen() {
             // delta: diferença face ao exame seguinte na lista original (ordenada desc)
             const idxOriginal = estudos.indexOf(estudo);
             const anterior = estudos[idxOriginal + 1];
-            const delta =
-              estudo.resultado?.angulo_cobb != null &&
-              anterior?.resultado?.angulo_cobb != null
-                ? estudo.resultado.angulo_cobb - anterior.resultado.angulo_cobb
-                : null;
+            const anguloEstudo = estudo.resultado?.angulo_cobb_corrigido ?? estudo.resultado?.angulo_cobb ?? null;
+            const anguloAnterior = anterior?.resultado?.angulo_cobb_corrigido ?? anterior?.resultado?.angulo_cobb ?? null;
+            const delta = anguloEstudo != null && anguloAnterior != null
+              ? anguloEstudo - anguloAnterior
+              : null;
 
             return (
               <ExameCard
